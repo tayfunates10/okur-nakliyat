@@ -42,9 +42,10 @@ jobs:
           # protocol: ftp olarak değiştirin.
           protocol: ftps
           local-dir: ./dist/
-          # Alan adı addon domain ise burayı değiştirin, örneğin:
-          # server-dir: public_html/okurnakliyatedremit.com/
-          server-dir: public_html/
+          # Alan adı cPanel'de addon domain olarak tanımlı; belge kökü
+          # /home/locqyjadry1t/public_html/okurnakliyatedremit.com klasörüdür.
+          # (cPanel > Domains > Document Root üzerinden doğrulandı.)
+          server-dir: public_html/okurnakliyatedremit.com/
           # Yalnızca değişen dosyalar yüklenir (durum dosyası sunucuda tutulur).
           state-name: .ftp-deploy-state.json
           dry-run: false
