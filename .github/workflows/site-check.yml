@@ -58,6 +58,39 @@ jobs:
             printf "%-58s %s\n" "$path" "$code"
           done
 
+      - name: Olası belge kökü adayları
+        # Dosyalar yanlış klasöre gittiyse hangi yolda göründüğünü tespit eder
+        run: |
+          for path in "/index.html" \
+                      "/public_html/" \
+                      "/public_html/index.html" \
+                      "/okurnakliyatedremit.com/" \
+                      "/okurnakliyatedremit.com/index.html"; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 -L "http://$SITE$path" || echo "---")
+            printf "%-58s %s\n" "$path" "$code"
+          done
+
+      - name: FTP dizin yapısı
+        # Dosyaların sunucuda gerçekte nereye yazıldığını kesin olarak gösterir.
+        # Secret değerleri GitHub tarafından log çıktısında maskelenir.
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          set +e
+          for dir in "/" \
+                     "/public_html/" \
+                     "/public_html/assets/" \
+                     "/public_html/public_html/" \
+                     "/public_html/okurnakliyatedremit.com/"; do
+            echo "=== $dir ==="
+            curl -sS --ssl-reqd --max-time 25 --list-only \
+              --user "$FTP_USERNAME:$FTP_PASSWORD" \
+              "ftp://$FTP_SERVER$dir" || echo "(listelenemedi)"
+            echo
+          done
+
       - name: Yanıt başlıkları (.htaccess doğrulaması)
         run: |
           echo "=== index.html ==="
