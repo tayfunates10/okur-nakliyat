@@ -9,6 +9,11 @@
 # ne olursa olsun doğru dizine kopyalanır. Hesabınızda web kökü farklıysa
 # (örneğin alt alan adı veya addon domain) aşağıdaki satırı değiştirin:
 #   export DEPLOYPATH=$HOME/public_html/okurnakliyatedremit.com/
+#
+# NOT: Bu dosya şu an kullanılmıyor. Dağıtım GitHub Actions üzerinden yapılıyor
+# (bkz. DEPLOY.md). cPanel Git ile dağıtım tercih edilirse, alan adının belge
+# kökü /home/<kullanici>/public_html/okurnakliyatedremit.com/admin/public_html
+# olduğu için DEPLOYPATH buna göre ayarlanmalıdır.
 # ==========================================================================
 deployment:
   tasks:

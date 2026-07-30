@@ -1,0 +1,60 @@
+name: .htaccess aç/kapat
+
+# Sunucudaki .htaccess dosyasını geçici olarak devre dışı bırakmak veya
+# geri yüklemek için kullanılır. Site beklenmedik bir hata verdiğinde
+# (özellikle 403 veya 500) sorunun .htaccess kaynaklı olup olmadığını
+# elemeli olarak tespit etmeye yarar.
+#
+# Hedef klasör, dağıtımla aynı yerdir: FTP oturumundaki public_html,
+# yani alan adının belge kökü.
+on:
+  workflow_dispatch:
+    inputs:
+      islem:
+        description: "Yapılacak işlem"
+        required: true
+        default: "listele"
+        type: choice
+        options:
+          - listele
+          - devre-disi-birak
+          - geri-yukle
+
+jobs:
+  toggle:
+    name: public_html/.htaccess
+    runs-on: ubuntu-latest
+
+    env:
+      FTP_SERVER: ${{ secrets.FTP_SERVER }}
+      FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+
+    steps:
+      - name: lftp kurulumu
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: İşlemi uygula
+        # Sunucunun FTPS sertifikası kendi alan adıyla eşleşmediği için
+        # doğrulama kapatılır; bağlantı yine şifrelidir ve dağıtım aracı da
+        # aynı şekilde davranır.
+        run: |
+          case "${{ inputs.islem }}" in
+            devre-disi-birak)
+              CMD='mv public_html/.htaccess public_html/.htaccess.bak' ;;
+            geri-yukle)
+              CMD='mv public_html/.htaccess.bak public_html/.htaccess' ;;
+            *)
+              CMD='echo (degisiklik yok)' ;;
+          esac
+
+          echo "islem: ${{ inputs.islem }}"
+
+          lftp -u "$FTP_USERNAME,$FTP_PASSWORD" "$FTP_SERVER" -e "
+            set ssl:verify-certificate no
+            set ftp:ssl-force true
+            set cmd:fail-exit no
+            $CMD
+            ls -la public_html
+            bye
+          "
