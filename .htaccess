@@ -1,0 +1,101 @@
+# ==========================================================================
+# Okur Nakliyat — Apache / cPanel üretim ayarları
+# Tüm bloklar <IfModule> ile korumalıdır: ilgili modül sunucuda yoksa
+# satırlar yok sayılır, site hata vermez.
+# ==========================================================================
+
+# --------------------------------------------------------------------------
+# Varsayılan belge
+# --------------------------------------------------------------------------
+DirectoryIndex index.html
+
+# --------------------------------------------------------------------------
+# Karakter kodlaması
+# --------------------------------------------------------------------------
+AddDefaultCharset UTF-8
+
+<IfModule mod_mime.c>
+  AddType image/webp .webp
+  AddType image/svg+xml .svg
+  AddType application/json .json
+</IfModule>
+
+# --------------------------------------------------------------------------
+# HTTPS yönlendirmesi
+# SSL sertifikası (cPanel > AutoSSL) kurulduktan SONRA aşağıdaki bloğun
+# başındaki # işaretlerini kaldırın. Sertifika yokken açarsanız site
+# erişilemez hale gelir.
+# --------------------------------------------------------------------------
+# <IfModule mod_rewrite.c>
+#   RewriteEngine On
+#   RewriteCond %{HTTPS} !=on
+#   RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+# </IfModule>
+
+# --------------------------------------------------------------------------
+# www / www'suz tekilleştirme (SEO)
+# Tercihinize göre YALNIZCA bir bloğu açın.
+# --------------------------------------------------------------------------
+# www'suz sürümü tercih ediyorsanız:
+# <IfModule mod_rewrite.c>
+#   RewriteEngine On
+#   RewriteCond %{HTTP_HOST} ^www\.okurnakliyatedremit\.com [NC]
+#   RewriteRule ^(.*)$ https://okurnakliyatedremit.com/$1 [R=301,L]
+# </IfModule>
+
+# --------------------------------------------------------------------------
+# Sıkıştırma
+# --------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+  AddOutputFilterByType DEFLATE application/json application/ld+json
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/xml
+  AddOutputFilterByType BROTLI_COMPRESS application/javascript
+  AddOutputFilterByType BROTLI_COMPRESS application/json image/svg+xml
+</IfModule>
+
+# --------------------------------------------------------------------------
+# Tarayıcı önbelleği
+# HTML önbelleğe alınmaz; güncelleme yaptığınızda anında yayına girer.
+# Statik dosyalar uzun süre önbelleklenir.
+# --------------------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresDefault                          "access plus 1 month"
+
+  ExpiresByType text/html                 "access plus 0 seconds"
+  ExpiresByType text/css                  "access plus 1 year"
+  ExpiresByType application/javascript    "access plus 1 year"
+  ExpiresByType image/webp                "access plus 1 year"
+  ExpiresByType image/svg+xml             "access plus 1 year"
+  ExpiresByType image/png                 "access plus 1 year"
+  ExpiresByType image/jpeg                "access plus 1 year"
+  ExpiresByType font/woff2                "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(css|js|webp|svg|png|jpg|jpeg|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+
+  # Temel güvenlik başlıkları
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+</IfModule>
+
+# --------------------------------------------------------------------------
+# Dizin listelemeyi kapat
+# --------------------------------------------------------------------------
+<IfModule mod_autoindex.c>
+  Options -Indexes
+</IfModule>
