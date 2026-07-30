@@ -1,0 +1,85 @@
+name: Site kontrolü
+
+# Canlı siteyi dışarıdan denetler: HTTP durumu, SSL geçerliliği,
+# kritik dosyaların erişilebilirliği ve .htaccess başlıkları.
+# Yalnızca elle tetiklenir; siteye hiçbir değişiklik yapmaz.
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: okurnakliyatedremit.com denetimi
+    runs-on: ubuntu-latest
+
+    env:
+      SITE: okurnakliyatedremit.com
+
+    steps:
+      - name: DNS ve SSL
+        run: |
+          echo "=== DNS ==="
+          getent hosts "$SITE" || echo "cozulemedi"
+
+          echo
+          echo "=== HTTPS (sertifika dogrulamali) ==="
+          # ssl_verify_result: 0 = gecerli sertifika
+          curl -sS -o /dev/null \
+            -w "http=%{http_code} ssl_verify=%{ssl_verify_result} redirect=%{redirect_url}\n" \
+            --max-time 25 "https://$SITE/" || echo "HTTPS BAGLANTISI KURULAMADI"
+
+          echo
+          echo "=== Sertifika ayrintisi ==="
+          echo | openssl s_client -servername "$SITE" -connect "$SITE:443" 2>/dev/null \
+            | openssl x509 -noout -subject -issuer -dates 2>/dev/null \
+            || echo "SERTIFIKA OKUNAMADI (AutoSSL calismamis olabilir)"
+
+          echo
+          echo "=== HTTP (yonlendirme kontrolu) ==="
+          curl -sS -o /dev/null \
+            -w "http=%{http_code} redirect=%{redirect_url}\n" \
+            --max-time 25 "http://$SITE/" || echo "HTTP BAGLANTISI KURULAMADI"
+
+          echo
+          echo "=== www surumu ==="
+          curl -sS -o /dev/null \
+            -w "http=%{http_code} redirect=%{redirect_url}\n" \
+            --max-time 25 "http://www.$SITE/" || echo "www ERISILEMEDI"
+
+      - name: Kritik dosyalar
+        run: |
+          for path in "/" \
+                      "/assets/css/style.css" \
+                      "/assets/css/variables.css" \
+                      "/assets/js/main.js" \
+                      "/assets/images/hero/okur-nakliyat-hero-background.webp" \
+                      "/assets/images/hero/okur-nakliyat-hero.svg" \
+                      "/assets/images/logo/favicon.svg"; do
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 -L "http://$SITE$path" || echo "---")
+            printf "%-58s %s\n" "$path" "$code"
+          done
+
+      - name: Yanıt başlıkları (.htaccess doğrulaması)
+        run: |
+          echo "=== index.html ==="
+          curl -sS -I -L --max-time 20 "http://$SITE/" \
+            | grep -iE "^(HTTP/|content-type|cache-control|content-encoding|x-content-type-options|referrer-policy|x-frame-options)" \
+            || echo "baslik okunamadi"
+
+          echo
+          echo "=== style.css (sikistirma + onbellek) ==="
+          curl -sS -I -L --compressed --max-time 20 "http://$SITE/assets/css/style.css" \
+            | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)" \
+            || echo "baslik okunamadi"
+
+      - name: Sayfa içeriği
+        run: |
+          curl -sS -L --max-time 25 "http://$SITE/" -o page.html || true
+          echo "=== boyut ==="
+          wc -c < page.html
+          echo
+          echo "=== title / h1 ==="
+          grep -oiE "<title>[^<]*</title>" page.html || echo "title bulunamadi"
+          grep -oiE 'class="hero-title"' page.html || echo "hero-title bulunamadi"
+          echo
+          echo "=== ilk 25 satir ==="
+          head -25 page.html
