@@ -239,6 +239,7 @@ summary {
   display: none;
   align-items: center;
   gap: 0.5rem;
+  min-height: var(--tap-target);
   padding: 0.5rem 0.25rem;
   font-size: var(--fs-sm);
   font-weight: var(--weight-semibold);
@@ -542,8 +543,10 @@ body.is-menu-open {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: center;
   gap: var(--space-lg);
-  min-height: calc(clamp(720px, 92vh, 980px) - var(--header-height) - 72px);
-  padding-block: clamp(3rem, 7vh, 6rem);
+  min-height: calc(clamp(720px, 92vh, 980px) - var(--header-height));
+  /* Alt boşluk 72px'lik hizmet şeridini de kapsar; içerik uzadığında
+     şerit hero içeriğinin üzerine binmez. */
+  padding-block: clamp(3rem, 7vh, 6rem) calc(clamp(3rem, 7vh, 6rem) + 72px);
 }
 
 .hero-content {
@@ -567,6 +570,11 @@ body.is-menu-open {
 
 .hero-title-line {
   display: block;
+  /* line-height 1.04 çok sıkı olduğu için "ğ, y, ı" alt uzantıları ve virgül
+     maskeleme kutusunun dışında kalıp kırpılıyordu. Kutu aşağı büyütülür,
+     negatif margin ile yerleşim aynı bırakılır. */
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
   overflow: hidden;
 }
 
@@ -817,9 +825,12 @@ body.is-menu-open {
   position: relative;
   z-index: 1;
   display: inline-flex;
-  align-items: center;
+  /* 44px dokunma yüksekliği metnin ÜSTÜNE eklenir (align-items: flex-end),
+     böylece alt çizgi metne yapışık ve tek parça kalır. */
+  align-items: flex-end;
   gap: var(--space-2xs);
   align-self: flex-start;
+  min-height: var(--tap-target);
   margin-top: auto;
   padding-bottom: 0.2rem;
   font-family: var(--font-heading);
@@ -986,9 +997,11 @@ body.is-menu-open {
 
 .text-action {
   display: inline-flex;
-  align-items: center;
+  /* Ek dokunma yüksekliği metnin üstüne eklenir; alt çizgi tek parça kalır. */
+  align-items: flex-end;
   flex-wrap: wrap;
   gap: 0.35rem;
+  min-height: var(--tap-target);
   padding-bottom: 0.35rem;
   font-family: var(--font-heading);
   font-size: var(--fs-sm);
@@ -1293,9 +1306,18 @@ body.is-menu-open {
   min-height: 0;
   margin: 0;
   overflow: hidden;
-  padding: 0 1.35rem 1.35rem;
+  /* Alt boşluk padding olarak verilseydi kapalı durumda da yükseklik
+     yaratır, her SSS satırının altında 22px boş şerit bırakırdı.
+     ::after ile içerik akışına alınınca 0fr'de birlikte kapanır. */
+  padding: 0 1.35rem;
   font-size: var(--fs-sm);
   color: var(--text-on-light-muted);
+}
+
+.faq-answer p::after {
+  content: "";
+  display: block;
+  height: 1.35rem;
 }
 
 /* --------------------------------------------------------------------------
@@ -1535,14 +1557,17 @@ body.is-menu-open {
 }
 
 .site-footer {
-  padding: clamp(4rem, 7vw, 6rem) 0 6.5rem;
+  /* Alt boşluk yalnızca sabit mobil iletişim çubuğunun göründüğü
+     genişliklerde büyütülür (bkz. max-width: 720px); masaüstünde 104px'lik
+     ölü alan bırakmaz. */
+  padding: clamp(4rem, 7vw, 6rem) 0 clamp(2.5rem, 4vw, 3.5rem);
   color: var(--text-on-dark);
   background: #070707;
 }
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.45fr repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.45fr) repeat(3, minmax(0, 1fr));
   gap: clamp(2rem, 5vw, 4.5rem);
   padding-bottom: var(--space-xl);
   border-bottom: 1px solid var(--border-on-dark);
@@ -1559,7 +1584,8 @@ body.is-menu-open {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.65rem;
+  /* Bağlantılar 44px yüksekliği kendi taşıdığı için ek boşluk gerekmez. */
+  gap: 0;
 }
 
 .footer-column h3 {
@@ -1573,6 +1599,9 @@ body.is-menu-open {
 
 .footer-column a,
 .footer-column span {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
   font-size: var(--fs-xs);
   color: var(--text-on-dark-muted);
   transition: color var(--transition-fast);
@@ -1600,6 +1629,7 @@ body.is-menu-open {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  min-height: var(--tap-target);
   transition: color var(--transition-fast);
 }
 
@@ -1629,7 +1659,9 @@ body.is-menu-open {
 @keyframes heroTitleReveal {
   from {
     opacity: 0;
-    transform: translateY(104%);
+    /* Maske kutusu 0.16em büyüdüğü için başlangıç konumu da aşağı alınır;
+       aksi hâlde animasyon başında metnin üst kenarı görünürdü. */
+    transform: translateY(122%);
   }
 
   to {
@@ -1752,7 +1784,7 @@ body.is-menu-open {
 
 @media (max-width: 960px) {
   .section-heading {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .section-heading-main,
@@ -1770,7 +1802,7 @@ body.is-menu-open {
   }
 
   .hero-inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     min-height: auto;
     padding-top: clamp(4rem, 9vw, 6rem);
     padding-bottom: 110px;
@@ -1813,7 +1845,7 @@ body.is-menu-open {
   .coverage-grid,
   .faq-grid,
   .quote-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .about-visual,
@@ -1865,7 +1897,7 @@ body.is-menu-open {
   }
 
   .footer-grid {
-    grid-template-columns: 1.35fr 1fr 1fr;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .footer-column:last-child {
@@ -1915,7 +1947,7 @@ body.is-menu-open {
 
   .hero-actions {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .hero-actions .btn {
@@ -1959,8 +1991,19 @@ body.is-menu-open {
     display: none;
   }
 
+  /* Şerit bu genişlikte yatay kaydırılabilir; kaydırma çubuğu gizli olduğu
+     için sağ kenarda devamı olduğunu gösteren yumuşak geçiş bırakılır. */
+  .hero-service-rail::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 42px;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(245, 196, 0, 0), var(--color-yellow));
+  }
+
   .services-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .service-card {
@@ -1984,11 +2027,11 @@ body.is-menu-open {
   }
 
   .benefit-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .process-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .process-card {
@@ -2010,11 +2053,15 @@ body.is-menu-open {
   }
 
   .faq-answer p {
-    padding: 0 1rem 1rem;
+    padding: 0 1rem;
+  }
+
+  .faq-answer p::after {
+    height: 1rem;
   }
 
   .form-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .form-field-wide {
@@ -2092,6 +2139,17 @@ body.is-menu-open {
 }
 
 @media (max-width: 440px) {
+  /* 320px'de "WhatsApp'tan Teklif İste" tek satıra sığmıyor ve nowrap
+     yüzünden grid izini 343px'e genişletiyordu. Bu genişlikte sarmaya
+     izin verilir. */
+  .btn {
+    white-space: normal;
+  }
+
+  .btn-lg {
+    padding-inline: 1.25rem;
+  }
+
   .hero-badge {
     font-size: 0.58rem;
   }
@@ -2119,11 +2177,76 @@ body.is-menu-open {
   }
 
   .footer-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .footer-brand-column {
     grid-column: auto;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Yatay tutulan telefon ve küçük tabletler
+   Genişlik tabanlı kurallar bu cihazlarda hero'yu tek sütuna indirip
+   görsele 530px veriyor; sonuçta hero ekran yüksekliğinin 3 katına çıkıyordu.
+   Burada iki sütunlu düzene dönülür ve dikey ritim sıkılaştırılır.
+   -------------------------------------------------------------------------- */
+@media (orientation: landscape) and (max-height: 560px) and (min-width: 640px) {
+  .hero {
+    min-height: auto;
+  }
+
+  .hero-inner {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: center;
+    min-height: auto;
+    padding-block: 1.5rem calc(1.5rem + 72px);
+  }
+
+  .hero-content {
+    grid-column: 1 / span 7;
+    max-width: none;
+    margin-inline: 0;
+    text-align: left;
+  }
+
+  .hero-actions,
+  .hero-trust {
+    justify-content: flex-start;
+  }
+
+  .hero-badge {
+    margin-bottom: var(--space-sm);
+  }
+
+  .hero-title {
+    font-size: clamp(1.6rem, 4vw, 2.35rem);
+  }
+
+  .hero-description {
+    margin-top: var(--space-sm);
+    font-size: var(--fs-sm);
+  }
+
+  .hero-actions {
+    margin-top: var(--space-md);
+  }
+
+  .hero-trust {
+    margin-top: var(--space-md);
+  }
+
+  .hero-visual {
+    grid-column: 8 / -1;
+    min-height: 260px;
+  }
+
+  .hero-visual-image {
+    width: min(420px, 130%);
+  }
+
+  .hero-service-rail-inner {
+    min-height: 60px;
   }
 }
 

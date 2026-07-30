@@ -1,0 +1,14 @@
+{
+  "name": "okur-nakliyat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Okur Nakliyat kurumsal web sitesi — geliştirme ve test araçları",
+  "scripts": {
+    "serve": "python3 -m http.server 8099",
+    "test:responsive": "node tests/responsive-audit.js",
+    "test:responsive:shot": "SHOT=1 node tests/responsive-audit.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

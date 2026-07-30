@@ -1,10 +1,13 @@
 /*
  * Okur Nakliyat — responsive / UI denetim koşucusu
  *
+ * Kurulum (yalnızca ilk kullanımda):
+ *   npm install                          # playwright devDependency olarak kurulur
+ *   npx playwright install chromium      # tarayıcı ikilisini indirir
+ *
  * Kullanım:
- *   python3 -m http.server 8099          # proje kökünde
- *   npx playwright install chromium      # ilk kullanımda
- *   node tests/responsive-audit.js
+ *   npm run serve                        # ayrı bir terminalde, proje kökünde
+ *   npm run test:responsive              # veya: npm run test:responsive:shot
  *
  * Ortam değişkenleri:
  *   BASE        test edilecek adres (varsayılan http://localhost:8099/index.html)

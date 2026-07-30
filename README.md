@@ -20,6 +20,27 @@ Derleme adımı veya sunucu tarafı uygulama gerekmez.
 - Apache / cPanel `.htaccess` üretim ayarları
 - Bootstrap, Tailwind, React, jQuery ve PHP yok
 
+
+## Responsive denetim
+
+Projede Playwright tabanlı bir denetim koşucusu bulunur. 16 cihaz ölçüsü, üç
+yatay (landscape) senaryo ve 320–2560 px arası 80 px adımlı 29 ara genişlikte
+yatay taşma, metin kesilmesi, 44px altı
+dokunma hedefi, görsel oran bozulması, öğe çakışması, konsol hatası ve kırık
+asset kontrolü yapar.
+
+```bash
+npm install                      # yalnızca ilk kullanımda (playwright)
+npx playwright install chromium  # tarayıcı ikilisi
+npm run serve                    # ayrı terminalde: http://localhost:8099
+npm run test:responsive          # ekran görüntüsü için: npm run test:responsive:shot
+```
+
+`package.json` yalnızca geliştirme araçları içindir; sitede çalışma zamanı
+bağımlılığı yoktur ve sunucuya yalnızca statik dosyalar gönderilir.
+
+Sonuçlar: `docs/responsive-ui-audit.md` ve `docs/final-ui-report.md`.
+
 ## Tasarım yaklaşımı
 
 Tasarım; sarı, siyah ve antrasit marka paleti üzerinde kuruludur.
