@@ -112,8 +112,10 @@ jobs:
             pwd
             echo "--- oturum dizini icerigi ---"
             ls -la
-            echo "--- 3 seviye derinlikte agac ---"
-            find -d 3
+            echo "--- belge kokunun icerigi ve izinleri ---"
+            ls -la public_html/okurnakliyatedremit.com
+            echo "--- 5 seviye derinlikte agac ---"
+            find -d 5
             bye
           LFTP
 
