@@ -82,8 +82,11 @@
   --space-3xl: 6rem;
 
   /* ---------- Yerleşim ---------- */
-  --container-max: 1240px;
-  --container-gutter: 32px;
+  --container-max: 1280px;
+  --container-gutter: 40px;
+
+  /* Hero görseli yüklenene kadar görünen sabit zemin — beyaz parlamayı önler */
+  --hero-base: #090a0b;
 
   --header-height: 84px;
   --header-height-scrolled: 68px;
@@ -118,7 +121,7 @@
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* ---------- Katman sırası ---------- */
-  --z-base: 1;
+  --z-hero-content: 2;
   --z-hero-visual: 2;
   --z-header: 100;
   --z-overlay: 200;
@@ -128,7 +131,7 @@
 /* Küçük ekranlarda kenar boşluğu ve header yüksekliği sadeleşir */
 @media (max-width: 767px) {
   :root {
-    --container-gutter: 24px;
+    --container-gutter: 32px;
     --header-height: var(--header-height-mobile);
     --header-height-scrolled: 60px;
   }

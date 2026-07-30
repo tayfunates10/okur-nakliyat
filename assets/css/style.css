@@ -328,52 +328,73 @@ body.is-menu-open {
    4. Hero
    -------------------------------------------------------------------------- */
 
+/* Katman sırası (hero içinde, isolation ile yalıtılmış):
+   1. --hero-base zemin rengi   → .hero background-color
+   2. arka plan görseli         → .hero-background  (z-index: -3)
+   3. okunabilirlik gradyanı    → .hero-overlay     (z-index: -2)
+   4. dekoratif parlama         → .hero-visual-glow (görsel alanı içinde)
+   5. metin ve butonlar         → .hero-inner       (z-index: 2)
+   6. ön plandaki araç görseli  → .hero-visual-image */
 .hero {
   position: relative;
   isolation: isolate;
-  display: flex;
-  align-items: center;
-  min-height: min(900px, 100svh);
-  padding-top: calc(var(--header-height) + var(--space-xl));
-  padding-bottom: var(--space-2xl);
+  min-height: clamp(680px, 88vh, 920px);
   overflow: hidden;
   color: var(--text-on-dark);
-  background: linear-gradient(165deg, var(--color-black) 0%, var(--color-black-soft) 52%, var(--color-black) 100%);
+  /* Görsel yüklenene kadar beyaz parlama olmaması için sabit koyu zemin */
+  background-color: var(--hero-base);
 }
 
-/* İnce geometrik grid — merkeze doğru yumuşayan maske ile */
-.hero::before {
-  content: "";
+/* Soyut harita / rota / yol arka planı */
+.hero-background {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  transform: scale(1.01);
+  will-change: transform;
+  animation: heroBackgroundDrift 20s ease-in-out infinite;
+}
+
+/* Okunabilirlik katmanı: solu koyultur, sağdaki harita ve rotayı açık bırakır */
+.hero-overlay {
   position: absolute;
   inset: 0;
   z-index: -2;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 68px 68px;
-  -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 42%, #000 35%, transparent 100%);
-  mask-image: radial-gradient(ellipse 85% 75% at 50% 42%, #000 35%, transparent 100%);
-}
-
-/* Düşük opaklıklı sarı parlamalar */
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: radial-gradient(620px 420px at 78% 20%, rgba(245, 196, 0, 0.11), transparent 68%),
-    radial-gradient(760px 520px at 6% 92%, rgba(245, 196, 0, 0.06), transparent 72%),
-    radial-gradient(900px 620px at 50% -10%, rgba(255, 255, 255, 0.05), transparent 70%);
+  pointer-events: none;
+  background: linear-gradient(
+      90deg,
+      rgba(5, 6, 7, 0.98) 0%,
+      rgba(5, 6, 7, 0.9) 28%,
+      rgba(5, 6, 7, 0.48) 55%,
+      rgba(5, 6, 7, 0.12) 100%
+    ),
+    linear-gradient(180deg, rgba(5, 6, 7, 0.18) 0%, rgba(5, 6, 7, 0.02) 55%, rgba(5, 6, 7, 0.72) 100%);
 }
 
 /* Genişlik .container üzerinden gelir; burada yeniden tanımlanmaz. */
 .hero-inner {
+  position: relative;
+  z-index: var(--z-hero-content);
   display: grid;
-  gap: var(--space-xl);
+  gap: clamp(32px, 5vw, 88px);
   align-items: center;
+  min-height: inherit;
+  padding-block: clamp(120px, 14vh, 180px) clamp(72px, 10vh, 120px);
 }
 
 .hero-content {
-  max-width: 680px;
+  max-width: 650px;
+  /* Arka plan detaylarına karşı çok hafif ayrışma */
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.32);
+}
+
+.hero-content .btn {
+  text-shadow: none;
 }
 
 .hero-badge {
@@ -440,46 +461,16 @@ body.is-menu-open {
   will-change: transform;
 }
 
+/* Aracı arka plandaki yoldan ayıran çok yumuşak koyu/sarı taban.
+   Arka plan görselinde zaten sarı rota vurguları olduğu için düşük yoğunluklu. */
 .hero-visual-glow {
   position: absolute;
-  inset: 8% 4% 12%;
+  inset: 14% 4% 6%;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 55%, rgba(245, 196, 0, 0.2), rgba(245, 196, 0, 0) 62%);
-  filter: blur(28px);
+  background: radial-gradient(circle at 50% 62%, rgba(5, 6, 7, 0.55), rgba(5, 6, 7, 0) 66%),
+    radial-gradient(circle at 50% 58%, rgba(245, 196, 0, 0.1), rgba(245, 196, 0, 0) 60%);
+  filter: blur(26px);
   pointer-events: none;
-}
-
-/* Rota çizgisi — görselin arkasında kalır */
-.hero-route {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.hero-route-track {
-  fill: none;
-  stroke: rgba(245, 196, 0, 0.26);
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-dasharray: 0.1 14;
-}
-
-.hero-route-line {
-  fill: none;
-  stroke: var(--color-yellow);
-  stroke-width: 3;
-  stroke-linecap: round;
-}
-
-.hero-route-pin circle {
-  fill: var(--color-yellow);
-}
-
-.hero-route-pin .pin-halo {
-  fill: rgba(245, 196, 0, 0.22);
 }
 
 .hero-visual-image {
@@ -553,23 +544,16 @@ body.is-menu-open {
   }
 }
 
-@keyframes drawRoute {
-  from {
-    stroke-dashoffset: 1;
+/* Arka planda çok yavaş, fark edilmesi zor derinlik hareketi */
+@keyframes heroBackgroundDrift {
+  0% {
+    transform: scale(1.01) translate3d(0, 0, 0);
   }
-  to {
-    stroke-dashoffset: 0;
+  50% {
+    transform: scale(1.035) translate3d(-0.35%, -0.2%, 0);
   }
-}
-
-@keyframes pinPop {
-  from {
-    opacity: 0;
-    transform: scale(0.4);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
+  100% {
+    transform: scale(1.01) translate3d(0, 0, 0);
   }
 }
 
@@ -639,30 +623,6 @@ body.is-menu-open {
     floatSoft 6.5s 1.6s ease-in-out infinite;
 }
 
-.hero-route-line {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: drawRoute 1800ms 900ms var(--ease-out-soft) forwards;
-}
-
-.hero-route-track {
-  animation: fadeIn 900ms 800ms both;
-}
-
-.hero-route-pin {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: pinPop 600ms var(--ease-out-soft) both;
-}
-
-.hero-route-pin-start {
-  animation-delay: 1000ms;
-}
-
-.hero-route-pin-end {
-  animation-delay: 2400ms;
-}
-
 .floating-card-location {
   animation: riseIn 700ms 1400ms var(--ease-out-soft) both,
     floatSoft 7s 2.2s ease-in-out infinite;
@@ -681,8 +641,9 @@ body.is-menu-open {
     animation: none;
   }
 
-  .hero-route-line {
-    stroke-dashoffset: 0;
+  .hero-background {
+    animation: none;
+    transform: none;
   }
 
   .hero-visual {
@@ -707,7 +668,40 @@ body.is-menu-open {
   }
 }
 
-/* --- Küçük telefonlar (360px ve altı) --- */
+/* --- Mobil: metin okunabilirliği önceliklidir, arka plan korunur --- */
+@media (max-width: 767px) {
+  .hero {
+    min-height: auto;
+  }
+
+  .hero-inner {
+    padding-block: 118px 64px;
+    gap: 40px;
+  }
+
+  /* Dikey ekranda haritanın ve rotaların bulunduğu bölüm kadraja alınır.
+     360–430px arasında test edilerek 76% konumunda sabitlendi. */
+  .hero-background {
+    background-position: 76% center;
+    background-size: auto 100%;
+    opacity: 0.9;
+    /* Mobilde sürekli transform animasyonu çalıştırılmaz */
+    animation: none;
+  }
+
+  /* Metin okunabilirliği korunurken harita detayı tamamen kaybolmaz */
+  .hero-overlay {
+    background: linear-gradient(
+        180deg,
+        rgba(5, 6, 7, 0.86) 0%,
+        rgba(5, 6, 7, 0.7) 48%,
+        rgba(5, 6, 7, 0.92) 100%
+      ),
+      linear-gradient(90deg, rgba(5, 6, 7, 0.9) 0%, rgba(5, 6, 7, 0.52) 100%);
+  }
+}
+
+/* --- Küçük telefonlar (400px ve altı) --- */
 @media (max-width: 400px) {
   .hero-actions .btn {
     width: 100%;
@@ -731,21 +725,52 @@ body.is-menu-open {
   }
 }
 
-/* --- Hero iki sütuna geçer --- */
-@media (min-width: 900px) {
-  /* İki sütunda metin alanı daraldığı için başlık ölçeği yeniden tanımlanır */
-  :root {
-    --fs-display: clamp(2.25rem, 4vw, 3.4rem);
+/* --- Tablet: hero tek sütun, harita ve rotanın bir bölümü görünür kalır --- */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .hero {
+    min-height: auto;
   }
 
   .hero-inner {
-    grid-template-columns: 52fr 48fr;
-    gap: var(--space-lg);
-    align-items: center;
+    padding-block: 136px 80px;
   }
 
+  .hero-content {
+    max-width: 680px;
+  }
+
+  .hero-background {
+    background-position: 62% center;
+    animation: none;
+  }
+
+  .hero-overlay {
+    background: linear-gradient(
+        90deg,
+        rgba(5, 6, 7, 0.97) 0%,
+        rgba(5, 6, 7, 0.84) 52%,
+        rgba(5, 6, 7, 0.38) 100%
+      ),
+      linear-gradient(180deg, rgba(5, 6, 7, 0.12) 0%, rgba(5, 6, 7, 0.66) 100%);
+  }
+}
+
+/* --- Hero iki sütuna geçer --- */
+@media (min-width: 1025px) {
+  /* İki sütunda metin alanı daraldığı için başlık ölçeği yeniden tanımlanır */
+  :root {
+    --fs-display: clamp(2.25rem, 3.6vw, 3rem);
+  }
+
+  .hero-inner {
+    grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+  }
+
+  /* Araç, arka plandaki yol bandına oturur ve haritayı kapatmaz */
   .hero-visual {
-    max-width: none;
+    max-width: 520px;
+    margin-inline: auto 0;
+    align-self: end;
   }
 
   .floating-card-location {
@@ -769,10 +794,6 @@ body.is-menu-open {
   .mobile-menu-overlay {
     display: none;
   }
-
-  .hero {
-    padding-bottom: var(--space-2xl);
-  }
 }
 
 /* --- Header telefon numarası (menü sıkışmadığı genişlikten itibaren) --- */
@@ -789,22 +810,20 @@ body.is-menu-open {
   }
 }
 
-/* --- Çok geniş ekranlar --- */
+/* --- Çok geniş ekranlar: araç aşırı büyümez --- */
 @media (min-width: 1600px) {
-  .hero {
-    min-height: min(900px, 100svh);
-  }
-
   .hero-visual {
-    max-width: 680px;
+    max-width: 560px;
   }
 }
 
 /* --- Alçak ve geniş ekranlar (yatay tablet / dizüstü) --- */
-@media (min-width: 900px) and (max-height: 720px) {
+@media (min-width: 1025px) and (max-height: 760px) {
   .hero {
     min-height: auto;
-    padding-top: calc(var(--header-height) + var(--space-lg));
-    padding-bottom: var(--space-xl);
+  }
+
+  .hero-inner {
+    padding-block: calc(var(--header-height) + var(--space-lg)) var(--space-xl);
   }
 }

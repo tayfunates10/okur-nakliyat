@@ -30,7 +30,7 @@ Harici bir CSS veya JS framework'ü kullanılmaz.
 │   │   └── main.js          # Header scroll, mobil menü, smooth scroll, parallax
 │   ├── images/
 │   │   ├── logo/            # favicon.svg
-│   │   ├── hero/            # okur-nakliyat-hero.svg (araç illüstrasyonu)
+│   │   ├── hero/            # arka plan (.webp) + araç illüstrasyonu (.svg)
 │   │   ├── icons/           # (boş — ikonlar inline SVG)
 │   │   └── og/              # Sosyal medya paylaşım görseli
 │   └── fonts/               # (boş — fontlar Google Fonts'tan)
@@ -76,7 +76,7 @@ disabled durumları tanımlıdır; minimum dokunma alanı 44 × 44 px'dir.
 - Proje altyapısı ve tasarım sistemi
 - Header / masaüstü navigasyon + scroll durumu
 - Sağdan açılan mobil menü (focus trap, ESC, overlay, scroll kilidi)
-- Ana sayfa hero bölümü (`#anasayfa`)
+- Ana sayfa hero bölümü (`#anasayfa`) — katmanlı arka plan görseli + okunabilirlik gradyanı
 - Header ve hero animasyonları
 - Masaüstü / tablet / mobil uyumluluk
 
@@ -87,6 +87,7 @@ Sonraki aşamalarda eklenecek bölümler için bağlantılar hazırdır:
 
 | Dosya | Durum |
 | --- | --- |
+| `assets/images/hero/okur-nakliyat-hero-background.webp` | Hero arka planı: soyut Türkiye haritası, rota ağı ve yol kompozisyonu. PNG kaynaktan WebP'ye dönüştürüldü (1.43 MB → 72 KB, 1672 × 941). CSS `background-image` olarak kullanılır, `<link rel="preload">` ile öncelikli yüklenir. |
 | `assets/images/hero/okur-nakliyat-hero.svg` | Proje için çizilmiş stilize araç illüstrasyonu. Marka görseli (`.webp`) hazırlandığında `index.html` içindeki `src` değeri değiştirilir. |
 | `assets/images/logo/favicon.svg` | Geçici marka işareti (sarı halka + rota noktası). |
 | `assets/images/og/okur-nakliyat-og.svg` | Sosyal paylaşım görseli. Yayına çıkmadan önce 1200 × 630 JPG/PNG sürümüyle değiştirilmesi önerilir; bazı platformlar SVG `og:image` desteklemez. |

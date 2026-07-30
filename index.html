@@ -37,6 +37,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
 
+  <!-- Hero arka planı ilk ekranda görünür: erken ve yüksek öncelikle yüklenir -->
+  <link rel="preload" href="assets/images/hero/okur-nakliyat-hero-background.webp"
+        as="image" type="image/webp" fetchpriority="high">
+
   <link rel="stylesheet" href="assets/css/reset.css">
   <link rel="stylesheet" href="assets/css/variables.css">
   <link rel="stylesheet" href="assets/css/components.css">
@@ -212,6 +216,10 @@
 
     <!-- HERO -->
     <section id="anasayfa" class="hero">
+      <!-- Dekoratif katmanlar: ekran okuyucuya okutulmaz, tıklamayı engellemez -->
+      <div class="hero-background" aria-hidden="true"></div>
+      <div class="hero-overlay" aria-hidden="true"></div>
+
       <div class="container hero-inner">
 
         <div class="hero-content">
@@ -278,22 +286,6 @@
         <!-- Görsel alanı -->
         <div class="hero-visual" id="heroVisual">
           <div class="hero-visual-glow" aria-hidden="true"></div>
-
-          <!-- Sarı rota çizgisi ve konum noktaları -->
-          <svg class="hero-route" viewBox="0 0 960 720" fill="none" aria-hidden="true">
-            <path class="hero-route-track"
-                  d="M60 540 C 90 330 240 168 470 132 C 690 98 856 176 902 306"/>
-            <path class="hero-route-line" pathLength="1"
-                  d="M60 540 C 90 330 240 168 470 132 C 690 98 856 176 902 306"/>
-            <g class="hero-route-pin hero-route-pin-start">
-              <circle class="pin-halo" cx="60" cy="540" r="15"/>
-              <circle cx="60" cy="540" r="7"/>
-            </g>
-            <g class="hero-route-pin hero-route-pin-end">
-              <circle class="pin-halo" cx="902" cy="306" r="15"/>
-              <circle cx="902" cy="306" r="7"/>
-            </g>
-          </svg>
 
           <!-- Marka illüstrasyonu (SVG placeholder — .webp sürümü hazırlandığında
                bu src değeri assets/images/hero/okur-nakliyat-hero.webp ile değiştirilir) -->
