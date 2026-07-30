@@ -20,6 +20,7 @@ on:
           - devre-disi-birak
           - geri-yukle
           - test-dosyasi-olustur
+          - temizlik
 
 jobs:
   toggle:
@@ -47,6 +48,10 @@ jobs:
               # düz metin işaretleyici. Tarayıcıdan doğrudan açılıp test edilir.
               echo "okur-nakliyat belge koku testi - basarili" > okur-test.txt
               CMD='put okur-test.txt -o public_html/okur-test.txt' ;;
+            temizlik)
+              # Teşhis sırasında oluşan geçici dosya ve yanlış hedefe yapılan
+              # dağıtımdan kalan klasör temizlenir.
+              CMD='rm -f public_html/okur-test.txt; rm -rf public_html/okurnakliyatedremit.com' ;;
             *)
               CMD='echo (degisiklik yok)' ;;
           esac
