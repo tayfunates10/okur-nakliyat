@@ -19,6 +19,7 @@ on:
           - listele
           - devre-disi-birak
           - geri-yukle
+          - test-dosyasi-olustur
 
 jobs:
   toggle:
@@ -41,6 +42,11 @@ jobs:
               CMD='mv public_html/.htaccess public_html/.htaccess.bak' ;;
             geri-yukle)
               CMD='mv public_html/.htaccess.bak public_html/.htaccess' ;;
+            test-dosyasi-olustur)
+              # Belge kökünün gerçekten public_html olup olmadığını sınayan
+              # düz metin işaretleyici. Tarayıcıdan doğrudan açılıp test edilir.
+              echo "okur-nakliyat belge koku testi - basarili" > okur-test.txt
+              CMD='put okur-test.txt -o public_html/okur-test.txt' ;;
             *)
               CMD='echo (degisiklik yok)' ;;
           esac
