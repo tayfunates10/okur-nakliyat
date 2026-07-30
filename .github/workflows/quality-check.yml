@@ -1,0 +1,161 @@
+name: Kod ve tasarım kalite kontrolü
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Statik site doğrulaması
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Depoyu al
+        uses: actions/checkout@v4
+
+      - name: Zorunlu dosyalar
+        run: |
+          set -e
+          for file in \
+            index.html \
+            404.html \
+            robots.txt \
+            sitemap.xml \
+            .htaccess \
+            assets/css/reset.css \
+            assets/css/variables.css \
+            assets/css/components.css \
+            assets/css/style.css \
+            assets/js/main.js \
+            assets/images/hero/okur-nakliyat-hero-background.webp \
+            assets/images/hero/okur-nakliyat-hero.svg \
+            assets/images/logo/favicon.svg; do
+            test -f "$file"
+            printf "OK  %s\n" "$file"
+          done
+
+      - name: JavaScript sözdizimi
+        run: node --check assets/js/main.js
+
+      - name: HTML, bağlantı ve yapılandırılmış veri
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from collections import Counter
+          import json
+
+          class Parser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids = []
+                  self.hash_links = []
+                  self.h1_count = 0
+                  self.json_ld_depth = 0
+                  self.json_ld = []
+                  self._buffer = []
+
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if "id" in attrs:
+                      self.ids.append(attrs["id"])
+                  href = attrs.get("href", "")
+                  if href.startswith("#") and href != "#":
+                      self.hash_links.append(href[1:])
+                  if tag == "h1":
+                      self.h1_count += 1
+                  if tag == "script" and attrs.get("type") == "application/ld+json":
+                      self.json_ld_depth += 1
+                      self._buffer = []
+
+              def handle_data(self, data):
+                  if self.json_ld_depth:
+                      self._buffer.append(data)
+
+              def handle_endtag(self, tag):
+                  if tag == "script" and self.json_ld_depth:
+                      self.json_ld.append("".join(self._buffer))
+                      self.json_ld_depth -= 1
+                      self._buffer = []
+
+          html = Path("index.html").read_text(encoding="utf-8")
+          parser = Parser()
+          parser.feed(html)
+
+          duplicates = sorted(i for i, count in Counter(parser.ids).items() if count > 1)
+          assert not duplicates, f"Yinelenen id: {duplicates}"
+          assert parser.h1_count == 1, f"h1 sayısı: {parser.h1_count}"
+
+          ids = set(parser.ids)
+          missing_links = sorted(set(parser.hash_links) - ids)
+          assert not missing_links, f"Eksik anchor hedefi: {missing_links}"
+
+          required_ids = {
+              "anasayfa", "hizmetler", "hakkimizda", "surec",
+              "sss", "teklif", "iletisim", "quoteForm"
+          }
+          missing_ids = sorted(required_ids - ids)
+          assert not missing_ids, f"Eksik zorunlu bölüm: {missing_ids}"
+
+          assert parser.json_ld, "JSON-LD bulunamadı"
+          for block in parser.json_ld:
+              json.loads(block)
+
+          required_text = [
+              "hero-title",
+              "WhatsApp'tan Teklif İste",
+              "wa.me/905372265043",
+              "tel:+905372265043",
+              "Ücretsiz Kurulum ve Montaj"
+          ]
+          for needle in required_text:
+              assert needle in html, f"Eksik içerik: {needle}"
+
+          print(f"OK: {len(ids)} benzersiz id, {len(parser.hash_links)} dahili bağlantı")
+          PY
+
+      - name: CSS temel bütünlük
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          for file in [
+              "assets/css/reset.css",
+              "assets/css/variables.css",
+              "assets/css/components.css",
+              "assets/css/style.css",
+          ]:
+              css = Path(file).read_text(encoding="utf-8")
+              assert css.count("{") == css.count("}"), f"Dengesiz süslü parantez: {file}"
+              assert "\t" not in css, f"Tab karakteri bulundu: {file}"
+              print(f"OK: {file}")
+          PY
+
+      - name: XML ve robots kontrolü
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          ET.parse("sitemap.xml")
+          robots = Path("robots.txt").read_text(encoding="utf-8")
+          assert "Sitemap: https://okurnakliyatedremit.com/sitemap.xml" in robots
+          print("OK: sitemap.xml ve robots.txt")
+          PY
+
+      - name: Dağıtım paketi provası
+        run: |
+          set -e
+          mkdir -p dist
+          cp index.html 404.html robots.txt sitemap.xml .htaccess dist/
+          cp -R assets dist/
+          find dist -name '.gitkeep' -delete
+
+          test -f dist/index.html
+          test -f dist/404.html
+          test -f dist/assets/css/style.css
+          test -f dist/assets/js/main.js
+
+          echo "--- dağıtım dosyaları ---"
+          find dist -type f | sort

@@ -1,11 +1,14 @@
-/* ==========================================================================
+/* ========================================================================== 
    Okur Nakliyat — main.js
-   Vanilla JavaScript. Harici kütüphane kullanılmaz.
-   Bölümler:
-     1. initializeHeaderScroll   — kaydırmada header görünümü
-     2. initializeMobileMenu     — sağdan açılan panel, odak yönetimi
-     3. initializeSmoothScroll   — bölüm bağlantılarında yumuşak kaydırma
-     4. initializeHeroParallax   — masaüstünde çok düşük yoğunluklu parallax
+   Harici kütüphane kullanılmaz.
+   1. Header kaydırma durumu
+   2. Mobil menü ve odak yönetimi
+   3. Yumuşak kaydırma
+   4. Aktif menü bağlantısı
+   5. Hero parallax
+   6. Görünürlük animasyonları
+   7. SSS davranışı
+   8. WhatsApp teklif formu
    ========================================================================== */
 
 (function () {
@@ -13,28 +16,22 @@
 
   var reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  /** Kullanıcı hareket azaltma tercihi yaptı mı? */
   function prefersReducedMotion() {
     return reducedMotionQuery.matches;
   }
-
-  /* ------------------------------------------------------------------------
-     1. Header kaydırma durumu
-     ------------------------------------------------------------------------ */
 
   function initializeHeaderScroll() {
     var header = document.getElementById("siteHeader");
     if (!header) return;
 
-    var SCROLL_THRESHOLD = 24;
+    var threshold = 24;
     var ticking = false;
 
     function updateHeaderState() {
-      header.classList.toggle("is-scrolled", window.scrollY > SCROLL_THRESHOLD);
+      header.classList.toggle("is-scrolled", window.scrollY > threshold);
       ticking = false;
     }
 
-    // Scroll olayı her karede en fazla bir kez işlenir
     function onScroll() {
       if (ticking) return;
       ticking = true;
@@ -45,10 +42,6 @@
     updateHeaderState();
   }
 
-  /* ------------------------------------------------------------------------
-     2. Mobil menü
-     ------------------------------------------------------------------------ */
-
   function initializeMobileMenu() {
     var toggle = document.getElementById("mobileMenuToggle");
     var panel = document.getElementById("mobileMenu");
@@ -57,18 +50,16 @@
 
     if (!toggle || !panel || !overlay) return;
 
-    var FOCUSABLE =
-      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    var focusableSelector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
     var isOpen = false;
     var lastFocusedElement = null;
 
-    // JS çalışıyorsa panel CSS ile yönetilir; hidden özniteliği kaldırılır.
-    // JS kapalıysa panel display:none kalır ve noscript stili menüyü açar.
     panel.removeAttribute("hidden");
     overlay.removeAttribute("hidden");
 
     function getFocusableElements() {
-      return Array.prototype.slice.call(panel.querySelectorAll(FOCUSABLE));
+      return Array.prototype.slice.call(panel.querySelectorAll(focusableSelector));
     }
 
     function lockBodyScroll() {
@@ -93,13 +84,9 @@
       toggle.setAttribute("aria-expanded", "true");
       toggle.setAttribute("aria-label", "Menüyü kapat");
 
-      // Panel görünür hale geldikten sonra odak içeri taşınır.
-      // (visibility:hidden durumundaki öğeler odak alamaz)
       window.requestAnimationFrame(function () {
         var focusables = getFocusableElements();
-        if (focusables.length) {
-          focusables[0].focus();
-        }
+        if (focusables.length) focusables[0].focus();
       });
     }
 
@@ -116,7 +103,6 @@
       }
     }
 
-    // Panel içinde basit focus trap
     function trapFocus(event) {
       if (event.key !== "Tab") return;
 
@@ -136,11 +122,8 @@
     }
 
     toggle.addEventListener("click", function () {
-      if (isOpen) {
-        closeMenu();
-      } else {
-        openMenu();
-      }
+      if (isOpen) closeMenu();
+      else openMenu();
     });
 
     overlay.addEventListener("click", closeMenu);
@@ -149,11 +132,8 @@
       closeButton.addEventListener("click", closeMenu);
     }
 
-    // Menü bağlantısına tıklanınca panel kapanır
     panel.addEventListener("click", function (event) {
-      if (event.target.closest("a[href]")) {
-        closeMenu();
-      }
+      if (event.target.closest("a[href]")) closeMenu();
     });
 
     document.addEventListener("keydown", function (event) {
@@ -167,7 +147,6 @@
       trapFocus(event);
     });
 
-    // Masaüstü genişliğine geçildiğinde açık panel kapatılır
     var desktopQuery = window.matchMedia("(min-width: 1080px)");
     var onDesktopChange = function (event) {
       if (event.matches) closeMenu();
@@ -180,11 +159,6 @@
     }
   }
 
-  /* ------------------------------------------------------------------------
-     3. Yumuşak kaydırma
-     Henüz oluşturulmamış bölümler için tarayıcı varsayılanı korunur.
-     ------------------------------------------------------------------------ */
-
   function initializeSmoothScroll() {
     document.addEventListener("click", function (event) {
       var link = event.target.closest('a[href^="#"]');
@@ -194,7 +168,7 @@
       if (!hash || hash === "#") return;
 
       var target = document.querySelector(hash);
-      if (!target) return; // Bölüm henüz yoksa müdahale edilmez
+      if (!target) return;
 
       event.preventDefault();
 
@@ -203,16 +177,66 @@
         block: "start"
       });
 
-      // Adres çubuğunu günceller, geçmişi kirletmez
       if (window.history && window.history.replaceState) {
         window.history.replaceState(null, "", hash);
       }
     });
   }
 
-  /* ------------------------------------------------------------------------
-     4. Hero mouse parallax (yalnızca hassas işaretleyici + hareket izni)
-     ------------------------------------------------------------------------ */
+  function initializeActiveNavigation() {
+    if (!("IntersectionObserver" in window)) return;
+
+    var sections = Array.prototype.slice.call(
+      document.querySelectorAll("main section[id]")
+    );
+    var links = Array.prototype.slice.call(
+      document.querySelectorAll('.nav-link[href^="#"], .mobile-nav-link[href^="#"]')
+    );
+
+    if (!sections.length || !links.length) return;
+
+    function setActive(id) {
+      links.forEach(function (link) {
+        var isActive = link.getAttribute("href") === "#" + id;
+        if (isActive) link.setAttribute("aria-current", "page");
+        else link.removeAttribute("aria-current");
+      });
+    }
+
+    var visibleSections = new Map();
+
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            visibleSections.set(entry.target.id, entry.intersectionRatio);
+          } else {
+            visibleSections.delete(entry.target.id);
+          }
+        });
+
+        var activeId = null;
+        var activeRatio = -1;
+
+        visibleSections.forEach(function (ratio, id) {
+          if (ratio > activeRatio) {
+            activeRatio = ratio;
+            activeId = id;
+          }
+        });
+
+        if (activeId) setActive(activeId);
+      },
+      {
+        rootMargin: "-28% 0px -58% 0px",
+        threshold: [0, 0.2, 0.5, 0.8]
+      }
+    );
+
+    sections.forEach(function (section) {
+      observer.observe(section);
+    });
+  }
 
   function initializeHeroParallax() {
     var visual = document.getElementById("heroVisual");
@@ -222,7 +246,7 @@
     var finePointerQuery = window.matchMedia("(pointer: fine)");
     if (!finePointerQuery.matches || prefersReducedMotion()) return;
 
-    var MAX_SHIFT = 8; // piksel
+    var maxShift = 8;
     var ticking = false;
     var pointerX = 0;
     var pointerY = 0;
@@ -238,8 +262,8 @@
       var relativeX = (event.clientX - bounds.left) / bounds.width - 0.5;
       var relativeY = (event.clientY - bounds.top) / bounds.height - 0.5;
 
-      pointerX = relativeX * MAX_SHIFT * -2;
-      pointerY = relativeY * MAX_SHIFT * -2;
+      pointerX = relativeX * maxShift * -2;
+      pointerY = relativeY * maxShift * -2;
 
       if (ticking) return;
       ticking = true;
@@ -258,15 +282,115 @@
     hero.addEventListener("mouseleave", resetParallax);
   }
 
-  /* ------------------------------------------------------------------------
-     Başlatma
-     ------------------------------------------------------------------------ */
+  function initializeRevealAnimations() {
+    var elements = Array.prototype.slice.call(document.querySelectorAll(".reveal"));
+    if (!elements.length) return;
+
+    if (prefersReducedMotion() || !("IntersectionObserver" in window)) {
+      elements.forEach(function (element) {
+        element.classList.add("is-visible");
+      });
+      return;
+    }
+
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      {
+        rootMargin: "0px 0px -8% 0px",
+        threshold: 0.12
+      }
+    );
+
+    elements.forEach(function (element, index) {
+      element.style.transitionDelay = Math.min((index % 4) * 70, 210) + "ms";
+      observer.observe(element);
+    });
+  }
+
+  function initializeFaq() {
+    var items = Array.prototype.slice.call(document.querySelectorAll(".faq-item"));
+    if (!items.length) return;
+
+    items.forEach(function (item) {
+      item.addEventListener("toggle", function () {
+        if (!item.open) return;
+
+        items.forEach(function (other) {
+          if (other !== item) other.removeAttribute("open");
+        });
+      });
+    });
+  }
+
+  function initializeQuoteForm() {
+    var form = document.getElementById("quoteForm");
+    if (!form) return;
+
+    var dateInput = form.querySelector('input[name="date"]');
+    if (dateInput) {
+      var today = new Date();
+      var year = today.getFullYear();
+      var month = String(today.getMonth() + 1).padStart(2, "0");
+      var day = String(today.getDate()).padStart(2, "0");
+      dateInput.min = year + "-" + month + "-" + day;
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      var data = new FormData(form);
+
+      function value(name) {
+        return String(data.get(name) || "").trim();
+      }
+
+      var lines = [
+        "Merhaba Okur Nakliyat, ücretsiz fiyat teklifi almak istiyorum.",
+        "",
+        "Ad Soyad: " + value("name"),
+        "Telefon: " + value("phone"),
+        "Nereden: " + value("from"),
+        "Nereye: " + value("to"),
+        "Taşıma Türü: " + value("service"),
+        "Planlanan Tarih: " + (value("date") || "Belirtilmedi"),
+        "Ek Bilgi: " + (value("message") || "Belirtilmedi")
+      ];
+
+      var url =
+        "https://wa.me/905372265043?text=" +
+        encodeURIComponent(lines.join("\n"));
+
+      var opened = window.open(url, "_blank", "noopener,noreferrer");
+      if (!opened) window.location.href = url;
+    });
+  }
+
+  function initializeCurrentYear() {
+    var element = document.getElementById("currentYear");
+    if (element) element.textContent = String(new Date().getFullYear());
+  }
 
   function initialize() {
     initializeHeaderScroll();
     initializeMobileMenu();
     initializeSmoothScroll();
+    initializeActiveNavigation();
     initializeHeroParallax();
+    initializeRevealAnimations();
+    initializeFaq();
+    initializeQuoteForm();
+    initializeCurrentYear();
   }
 
   if (document.readyState === "loading") {

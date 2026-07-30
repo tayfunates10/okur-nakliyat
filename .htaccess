@@ -2,15 +2,16 @@
 # Okur Nakliyat — Apache / cPanel üretim ayarları
 # Tüm bloklar <IfModule> ile korumalıdır: ilgili modül sunucuda yoksa
 # satırlar yok sayılır, site hata vermez.
-# ==========================================================================
+# ========================================================================== 
 
 # --------------------------------------------------------------------------
-# Varsayılan belge
+# Varsayılan belge ve özel hata sayfası
 # --------------------------------------------------------------------------
 DirectoryIndex index.html
+ErrorDocument 404 /404.html
 
 # --------------------------------------------------------------------------
-# Karakter kodlaması
+# Karakter kodlaması ve MIME türleri
 # --------------------------------------------------------------------------
 AddDefaultCharset UTF-8
 
@@ -18,31 +19,20 @@ AddDefaultCharset UTF-8
   AddType image/webp .webp
   AddType image/svg+xml .svg
   AddType application/json .json
+  AddType application/xml .xml
 </IfModule>
 
 # --------------------------------------------------------------------------
-# HTTPS yönlendirmesi
-# Etkin. Sertifika doğrulandı: Let's Encrypt, CN=okurnakliyatedremit.com.
-# Sertifika bir gün yenilenmez veya iptal edilirse bu blok siteyi
-# erişilemez hâle getirir; böyle bir durumda satırları yeniden yorum
-# hâline getirmek yeterlidir.
+# HTTPS + kanonik alan adı yönlendirmesi
+# Tercih edilen adres: https://okurnakliyatedremit.com
 # --------------------------------------------------------------------------
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteCond %{HTTPS} !=on
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-</IfModule>
 
-# --------------------------------------------------------------------------
-# www / www'suz tekilleştirme (SEO)
-# Tercihinize göre YALNIZCA bir bloğu açın.
-# --------------------------------------------------------------------------
-# www'suz sürümü tercih ediyorsanız:
-# <IfModule mod_rewrite.c>
-#   RewriteEngine On
-#   RewriteCond %{HTTP_HOST} ^www\.okurnakliyatedremit\.com [NC]
-#   RewriteRule ^(.*)$ https://okurnakliyatedremit.com/$1 [R=301,L]
-# </IfModule>
+  RewriteCond %{HTTPS} !=on [OR]
+  RewriteCond %{HTTP_HOST} ^www\.okurnakliyatedremit\.com$ [NC]
+  RewriteRule ^ https://okurnakliyatedremit.com%{REQUEST_URI} [R=301,L]
+</IfModule>
 
 # --------------------------------------------------------------------------
 # Sıkıştırma
@@ -50,26 +40,28 @@ AddDefaultCharset UTF-8
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
   AddOutputFilterByType DEFLATE application/javascript application/x-javascript
-  AddOutputFilterByType DEFLATE application/json application/ld+json
+  AddOutputFilterByType DEFLATE application/json application/ld+json application/xml
   AddOutputFilterByType DEFLATE image/svg+xml
 </IfModule>
 
 <IfModule mod_brotli.c>
   AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/xml
   AddOutputFilterByType BROTLI_COMPRESS application/javascript
-  AddOutputFilterByType BROTLI_COMPRESS application/json image/svg+xml
+  AddOutputFilterByType BROTLI_COMPRESS application/json application/xml image/svg+xml
 </IfModule>
 
 # --------------------------------------------------------------------------
 # Tarayıcı önbelleği
-# HTML önbelleğe alınmaz; güncelleme yaptığınızda anında yayına girer.
-# Statik dosyalar uzun süre önbelleklenir.
+# HTML, XML ve robots anında güncellenir; sürümlü statik dosyalar uzun süre tutulur.
 # --------------------------------------------------------------------------
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresDefault                          "access plus 1 month"
 
   ExpiresByType text/html                 "access plus 0 seconds"
+  ExpiresByType text/plain                "access plus 0 seconds"
+  ExpiresByType application/xml           "access plus 0 seconds"
+  ExpiresByType text/xml                  "access plus 0 seconds"
   ExpiresByType text/css                  "access plus 1 year"
   ExpiresByType application/javascript    "access plus 1 year"
   ExpiresByType image/webp                "access plus 1 year"
@@ -84,14 +76,14 @@ AddDefaultCharset UTF-8
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
 
-  <FilesMatch "\.html$">
+  <FilesMatch "\.(html|xml|txt)$">
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 
-  # Temel güvenlik başlıkları
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 </IfModule>
 
 # --------------------------------------------------------------------------

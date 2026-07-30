@@ -1,135 +1,127 @@
 # Yayına Alma
 
 Site tamamen statiktir: derleme adımı, Node.js, PHP veya veritabanı gerekmez.
-Yayına alma **otomatiktir** — normal şartlarda elle bir şey yapmanız gerekmez.
+Normal yayın süreci GitHub Actions üzerinden otomatik çalışır.
 
----
+## Hosting yapısı
 
-## Bu kurulumun hosting yapısı
-
-Yayın sırasında iki gün kaybettiren bir ayrıntı olduğu için burada kayıtlı:
-
-| | |
+| Alan | Değer |
 | --- | --- |
 | Hosting | GoDaddy cPanel (`secureserver.net`) |
 | cPanel kullanıcısı | `locqyjadry1t` |
 | Alan adı türü | Addon domain |
-| **Belge kökü** | `/home/locqyjadry1t/public_html/okurnakliyatedremit.com/admin/public_html` |
+| Belge kökü | `/home/locqyjadry1t/public_html/okurnakliyatedremit.com/admin/public_html` |
 | FTP hesabının ana dizini | `/home/locqyjadry1t/public_html/okurnakliyatedremit.com/admin` |
 
-Kullanılan FTP hesabı `admin` klasörüne **kilitlidir**. Bu yüzden FTP oturumunda
-görünen `public_html`, aslında yukarıdaki belge kökünün ta kendisidir.
+Kullanılan FTP hesabı `admin` klasörüne kilitlidir. Bu nedenle FTP oturumunda
+görünen `public_html/`, alan adının gerçek belge kökü olan
+`.../admin/public_html` dizinine karşılık gelir.
 
-Sonuç: dağıtım hedefi (`.github/workflows/deploy.yml` içindeki `server-dir`)
-**`public_html/`** olmalıdır.
+`.github/workflows/deploy.yml` içindeki doğru hedef:
 
-> **Uyarı:** cPanel → Domains ekranındaki *Document Root* değeri değiştirilirse
-> `server-dir` de buna göre güncellenmelidir. İkisi birbirini göstermezse site
-> 403 döner ve dosyalar sunucuda olduğu hâlde hiç görünmez.
+```yaml
+server-dir: public_html/
+```
 
----
+cPanel → Domains ekranındaki **Document Root** değiştirilirse bu değer de aynı
+hedefe göre güncellenmelidir. İki yol eşleşmezse dosyalar sunucuda bulunsa bile
+site `403` dönebilir.
 
-## A) Otomatik dağıtım (normal yöntem)
+## Otomatik dağıtım
 
-1. Değişiklikler bir dalda geliştirilir, `main` dalına merge edilir.
-2. `main` dalına gelen her push, **Yayına al (FTP)** iş akışını tetikler.
-3. İş akışı yalnızca `index.html`, `.htaccess` ve `assets/` klasörünü yükler;
-   `README.md`, `DEPLOY.md` ve `.github/` sunucuya gitmez.
-4. Yalnızca değişen dosyalar aktarılır.
+1. Değişiklikler ayrı bir dalda geliştirilir.
+2. Pull request kontrolleri tamamlanır.
+3. Dal `main` ile birleştirilir.
+4. `main` dalına gelen push, **Yayına al (FTP)** iş akışını tetikler.
+5. İş akışı `dist/` klasörünü hazırlar.
+6. FTPS ile yalnızca değişen üretim dosyaları aktarılır.
 
-Acil durumda GitHub → **Actions** → **Yayına al (FTP)** → **Run workflow** ile
-elle de tetiklenebilir.
+Yayınlanan dosyalar:
 
-### Gereken secret'lar
+```text
+index.html
+404.html
+robots.txt
+sitemap.xml
+.htaccess
+assets/
+```
 
-GitHub → repo → **Settings** → **Secrets and variables** → **Actions**:
+Depo belgeleri ve GitHub yapılandırmaları sunucuya gönderilmez.
+
+## GitHub Actions secret'ları
+
+Repo → **Settings → Secrets and variables → Actions**
 
 | Secret | Açıklama |
 | --- | --- |
-| `FTP_SERVER` | cPanel → FTP Accounts → Configure FTP Client'taki sunucu adı |
+| `FTP_SERVER` | cPanel FTP sunucu adı |
 | `FTP_USERNAME` | FTP hesabının tam kullanıcı adı |
 | `FTP_PASSWORD` | FTP hesabının şifresi |
 
-Kimlik bilgileri depoda tutulmaz; iş akışı bunları yalnızca çalışma anında okur.
+Kimlik bilgileri kaynak kodda tutulmaz.
 
----
-
-## B) Elle yükleme (yedek yöntem)
+## Elle dağıtım
 
 Otomatik dağıtım çalışmazsa:
 
-1. Depodaki `index.html`, `.htaccess` ve `assets/` klasörünü bir zip'e koyun.
-2. cPanel → **Dosya Yöneticisi** → yukarıdaki **belge köküne** gidin.
-3. **Upload** → zip'i yükleyin → sağ tık → **Extract**.
-4. Zip dosyasını silin.
+1. `index.html`, `404.html`, `robots.txt`, `sitemap.xml`, `.htaccess` ve
+   `assets/` klasörünü ZIP yapın.
+2. cPanel → **Dosya Yöneticisi** bölümünü açın.
+3. Aşağıdaki belge köküne gidin:
 
-Belge kökünün son görünümü:
-
-```
-public_html/            (= .../okurnakliyatedremit.com/admin/public_html)
-├── .htaccess
-├── index.html
-└── assets/
-    ├── css/
-    ├── js/
-    └── images/
+```text
+/home/locqyjadry1t/public_html/okurnakliyatedremit.com/admin/public_html
 ```
 
-`.htaccess` görünmüyorsa: Dosya Yöneticisi → **Settings** → **Show Hidden Files
-(dotfiles)** seçeneğini işaretleyin.
+4. ZIP dosyasını yükleyip açın.
+5. ZIP dosyasını sunucudan silin.
 
----
+`.htaccess` görünmüyorsa **Settings → Show Hidden Files (dotfiles)** seçeneğini
+açın.
 
-## Kontrol ve teşhis araçları
+## Site kontrolü
 
-Depoda iki yardımcı iş akışı vardır. İkisi de yalnızca elle tetiklenir.
+GitHub → **Actions → Site kontrolü → Run workflow**
 
-### Site kontrolü
+Kontrol işi:
 
-GitHub → **Actions** → **Site kontrolü** → **Run workflow**
+- DNS çözümünü
+- SSL sertifikasını
+- HTTP → HTTPS yönlendirmesini
+- Ana sayfayı
+- `robots.txt`
+- `sitemap.xml`
+- Özel 404 davranışını
+- CSS, JavaScript ve hero görsellerini
+- Cache ve güvenlik başlıklarını
+- Hizmetler, hakkımızda, süreç, SSS ve teklif formunu
+- Telefon ve WhatsApp bağlantılarını
 
-Yayındaki siteyi dışarıdan denetler ve raporlar:
+doğrular. Kritik bir eksiklikte iş akışı başarısız olur.
 
-- DNS çözümü, SSL sertifikasının geçerliliği ve son kullanma tarihi
-- HTTP → HTTPS yönlendirmesi
-- Kritik dosyaların HTTP durum kodları
-- `.htaccess` kaynaklı yanıt başlıkları (önbellek, güvenlik, sıkıştırma)
-- Sayfanın gerçekten render edilip edilmediği (başlık, hero, görsel,
-  WhatsApp ve telefon bağlantıları içerik içinde aranır)
+## `.htaccess` teşhisi
 
-Eksik bir şey varsa iş akışı **kırmızıya düşer**.
+GitHub → **Actions → .htaccess aç/kapat → Run workflow**
 
-### .htaccess aç/kapat
+Site `403` veya `500` verirse `.htaccess` dosyasını geçici olarak devre dışı
+bırakıp sorunun dosyadan kaynaklanıp kaynaklanmadığını anlamak için kullanılır.
+İşlem sonrasında `geri-yukle` seçeneğiyle dosya tekrar etkinleştirilmelidir.
 
-GitHub → **Actions** → **.htaccess aç/kapat** → **Run workflow**
+## Önbellek sürümü
 
-Site 403 veya 500 verirse, `.htaccess` dosyasını geçici olarak devre dışı
-bırakıp sorunun ondan kaynaklanıp kaynaklanmadığını anlamaya yarar.
-`geri-yukle` seçeneğiyle eski hâline döner.
-
----
-
-## Yayın sonrası notlar
-
-- **HTTPS yönlendirmesi** `.htaccess` içinde etkindir. Sertifika bir gün
-  yenilenmezse bu blok siteyi erişilemez hâle getirir; böyle bir durumda
-  ilgili satırları yorum hâline getirmek yeterlidir.
-- **www tekilleştirme** bloğu `.htaccess` içinde yorumdadır; hangi sürümün
-  kanonik olacağına karar verdiğinizde açılabilir.
-- **Önbellek:** `index.html` önbelleğe alınmaz, anında yayına girer. CSS, JS ve
-  görseller 1 yıl önbelleklenir. Bu dosyaları değiştirdiğinizde tarayıcının eski
-  sürümü göstermemesi için sürüm etiketi ekleyin:
+CSS, JavaScript ve görseller uzun süreli önbelleğe sahiptir. CSS veya JavaScript
+değiştirildiğinde `index.html` içindeki sorgu sürümünü artırın:
 
 ```html
-<link rel="stylesheet" href="assets/css/style.css?v=2">
+<link rel="stylesheet" href="assets/css/style.css?v=4">
+<script defer src="assets/js/main.js?v=4"></script>
 ```
 
----
+HTML, XML ve TXT dosyaları `no-cache` olarak servis edilir.
 
-## cPanel Git Version Control hakkında
+## cPanel Git Version Control
 
-Depoda bir `.cpanel.yml` bulunur. Ancak bu kurulumda **kullanılmıyor**: cPanel'in
-Git modülü `/` içeren dal adlarını checkout edemediği ve dağıtım zaten GitHub
-Actions üzerinden yapıldığı için gereksizdir. Dosya, ileride cPanel üzerinden
-dağıtım tercih edilirse diye bırakılmıştır; kullanılacaksa `DEPLOYPATH` değeri
-yukarıdaki belge köküne göre güncellenmelidir.
+Depodaki `.cpanel.yml` aktif dağıtım yöntemi değildir. Yayın GitHub Actions
+üzerinden yapılır. İleride cPanel Git tercih edilirse `DEPLOYPATH`, yukarıdaki
+belge köküne göre güncellenmelidir.
