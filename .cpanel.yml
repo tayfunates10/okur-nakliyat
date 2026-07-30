@@ -1,0 +1,19 @@
+---
+# ==========================================================================
+# Okur Nakliyat — cPanel Git Version Control otomatik dağıtım tanımı
+#
+# cPanel > Dosyalar > Git Version Control > Manage > "Pull or Deploy"
+# ekranındaki "Deploy HEAD Commit" düğmesine basıldığında bu görevler çalışır.
+#
+# DEPLOYPATH değeri $HOME üzerinden çözülür; böylece cPanel kullanıcı adınız
+# ne olursa olsun doğru dizine kopyalanır. Hesabınızda web kökü farklıysa
+# (örneğin alt alan adı veya addon domain) aşağıdaki satırı değiştirin:
+#   export DEPLOYPATH=$HOME/public_html/okurnakliyatedremit.com/
+# ==========================================================================
+deployment:
+  tasks:
+    - export DEPLOYPATH=$HOME/public_html/
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -f index.html $DEPLOYPATH
+    - /bin/cp -f .htaccess $DEPLOYPATH
+    - /bin/cp -Rf assets $DEPLOYPATH

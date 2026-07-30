@@ -56,29 +56,40 @@ FileZilla varsayılan olarak gizli dosyaları göstermez:
 
 ---
 
-## C) cPanel Git Version Control ile
+## C) cPanel Git Version Control ile (sürekli kullanım için önerilir)
 
-Sonraki güncellemeleri tek tıkla almak isterseniz en pratik yöntemdir.
+Bir kez kurulur, sonraki tüm güncellemeler tek düğmeyle yayına girer.
+Depo kökünde `.cpanel.yml` hazırdır; ek yapılandırma gerekmez.
 
 1. cPanel → **Dosyalar** → **Git™ Version Control** → **Create**.
-2. **Clone a Repository** açık olsun.
-   - Clone URL: bu deponun HTTPS adresi
-   - Repository Path: `/home/KULLANICI_ADI/repositories/okur-nakliyat`
-   - Repository Name: `okur-nakliyat`
-3. Oluşturduktan sonra **Manage** → **Pull or Deploy** sekmesinden çekin.
-4. Deponun kökünde `.cpanel.yml` bulunmadığı için cPanel otomatik dağıtım
-   yapmaz. Otomatik dağıtım isterseniz depo köküne şu dosyayı ekleyin
-   (`KULLANICI_ADI` kısmını kendi cPanel kullanıcı adınızla değiştirin):
+2. **Clone a Repository** anahtarını açın.
+   - **Clone URL:** `https://github.com/tayfunates10/okur-nakliyat.git`
+   - **Repository Path:** `repositories/okur-nakliyat`
+   - **Repository Name:** `okur-nakliyat`
+3. Depo özel (private) ise cPanel'in erişebilmesi için SSH anahtarı gerekir:
+   cPanel → **SSH Access** → **Manage SSH Keys** → anahtar oluşturup genel
+   anahtarı GitHub → **Settings** → **Deploy keys** bölümüne ekleyin ve
+   Clone URL'yi `git@github.com:tayfunates10/okur-nakliyat.git` biçiminde girin.
+4. Depo oluştuktan sonra **Manage** → **Pull or Deploy** sekmesi:
+   - **Update from Remote** → GitHub'daki son değişiklikleri çeker.
+   - **Deploy HEAD Commit** → `.cpanel.yml` görevlerini çalıştırır ve
+     `index.html`, `.htaccess`, `assets/` dosyalarını `public_html` içine kopyalar.
+5. Doğru dalda olduğunuzdan emin olun: **Checked-Out Branch** alanı
+   `claude/okur-nakliyat-design-6phhn0` (veya birleştirdiğiniz ana dal) olmalıdır.
+
+### `.cpanel.yml` hakkında
+
+Dağıtım yolu `$HOME/public_html/` üzerinden çözülür; cPanel kullanıcı adınızı
+dosyaya yazmaya gerek yoktur. Site bir addon domain veya alt alan adı altında
+duruyorsa yalnızca ilk satırı düzenleyin:
 
 ```yaml
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/KULLANICI_ADI/public_html/
-    - /bin/cp -R index.html $DEPLOYPATH
-    - /bin/cp -R .htaccess $DEPLOYPATH
-    - /bin/cp -R assets $DEPLOYPATH
+- export DEPLOYPATH=$HOME/public_html/okurnakliyatedremit.com/
 ```
+
+Dağıtım görevleri dosyaları **kopyalar**, silmez. Depodan bir dosya
+kaldırdığınızda sunucudaki kopyası kalır; bu durumda Dosya Yöneticisi'nden
+elle silmeniz gerekir.
 
 ---
 
