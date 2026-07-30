@@ -1,12 +1,12 @@
-name: .htaccess testi
+name: .htaccess aç/kapat
 
-# 403 Forbidden teşhisi için ikili test aracı.
-# Dosya izinleri sunucuda doğrulandı (klasör 755, dosya 644), bu nedenle
-# geriye kalan tek yerel şüpheli .htaccess dosyasıdır.
+# Sunucudaki .htaccess dosyasını geçici olarak devre dışı bırakmak veya
+# geri yüklemek için kullanılır. Site beklenmedik bir hata verdiğinde
+# (özellikle 403 veya 500) sorunun .htaccess kaynaklı olup olmadığını
+# elemeli olarak tespit etmeye yarar.
 #
-# devre-disi-birak  -> public_html/.htaccess dosyasını .htaccess.bak yapar
-# geri-yukle        -> .htaccess.bak dosyasını .htaccess olarak geri alır
-# listele           -> hiçbir şey değiştirmez, yalnızca dizini listeler
+# Hedef klasör, dağıtımla aynı yerdir: FTP oturumundaki public_html,
+# yani alan adının belge kökü.
 on:
   workflow_dispatch:
     inputs:
@@ -19,8 +19,6 @@ on:
           - listele
           - devre-disi-birak
           - geri-yukle
-          - test-dosyasi-olustur
-          - temizlik
 
 jobs:
   toggle:
@@ -37,21 +35,15 @@ jobs:
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
 
       - name: İşlemi uygula
+        # Sunucunun FTPS sertifikası kendi alan adıyla eşleşmediği için
+        # doğrulama kapatılır; bağlantı yine şifrelidir ve dağıtım aracı da
+        # aynı şekilde davranır.
         run: |
           case "${{ inputs.islem }}" in
             devre-disi-birak)
               CMD='mv public_html/.htaccess public_html/.htaccess.bak' ;;
             geri-yukle)
               CMD='mv public_html/.htaccess.bak public_html/.htaccess' ;;
-            test-dosyasi-olustur)
-              # Belge kökünün gerçekten public_html olup olmadığını sınayan
-              # düz metin işaretleyici. Tarayıcıdan doğrudan açılıp test edilir.
-              echo "okur-nakliyat belge koku testi - basarili" > okur-test.txt
-              CMD='put okur-test.txt -o public_html/okur-test.txt' ;;
-            temizlik)
-              # Teşhis sırasında oluşan geçici dosya ve yanlış hedefe yapılan
-              # dağıtımdan kalan klasör temizlenir.
-              CMD='rm -f public_html/okur-test.txt; rm -rf public_html/okurnakliyatedremit.com' ;;
             *)
               CMD='echo (degisiklik yok)' ;;
           esac
