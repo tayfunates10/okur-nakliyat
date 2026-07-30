@@ -70,6 +70,24 @@ jobs:
             printf "%-58s %s\n" "$path" "$code"
           done
 
+      - name: Belge kökü işaretleyicisi
+        # okur-test.txt içeriği benzersiz olduğu için, gerçek dosya ile
+        # bot koruma ara ekranı kesin olarak ayırt edilebilir.
+        run: |
+          echo "=== okur-test.txt ==="
+          code=$(curl -sS -o body.txt -w "%{http_code}" --max-time 20 -L "http://$SITE/okur-test.txt" || echo "---")
+          echo "http=$code  boyut=$(wc -c < body.txt) bayt"
+          echo "--- govde ---"
+          head -c 300 body.txt
+          echo
+          if grep -q "belge koku testi - basarili" body.txt; then
+            echo ">>> SONUC: public_html BELGE KOKUDUR (gercek dosya servis edildi)"
+          elif grep -qi "one moment" body.txt; then
+            echo ">>> SONUC: BELIRSIZ - bot koruma ara ekrani dondu"
+          else
+            echo ">>> SONUC: dosya servis EDILMEDI (belge koku baska bir klasor olabilir)"
+          fi
+
       - name: FTP dizin yapısı
         # Dosyaların sunucuda gerçekte nereye yazıldığını kesin olarak gösterir.
         # Secret değerleri GitHub tarafından log çıktısında maskelenir.
