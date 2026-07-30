@@ -86,6 +86,7 @@ h3 {
 .header-phone {
   display: none;
   align-items: center;
+  min-height: var(--tap-target);
   gap: 0.5rem;
   padding: 0.5rem 0.25rem;
   font-size: var(--fs-sm);
@@ -338,7 +339,9 @@ body.is-menu-open {
 .hero {
   position: relative;
   isolation: isolate;
-  min-height: clamp(680px, 88vh, 920px);
+  /* Tasarım yüksekliği ile ekran yüksekliğinin büyüğü: altında boş şerit kalmaz,
+     içerik daha uzunsa doğal olarak büyür. */
+  min-height: max(clamp(680px, 88vh, 920px), 100svh);
   overflow: hidden;
   color: var(--text-on-dark);
   /* Görsel yüklenene kadar beyaz parlama olmaması için sabit koyu zemin */
@@ -817,13 +820,53 @@ body.is-menu-open {
   }
 }
 
-/* --- Alçak ve geniş ekranlar (yatay tablet / dizüstü) --- */
-@media (min-width: 1025px) and (max-height: 760px) {
+/* --- Alçak ve yatay ekranlar (yatay tablet, dizüstü, telefon yan çevrilmiş) ---
+   Bu ekranlarda dikey alan kısıtlıdır: hero sabit yükseklik dayatmaz, iki sütuna
+   geçerek yığılmış düzenin yarattığı aşırı uzunluğu ortadan kaldırır. */
+@media (orientation: landscape) and (max-height: 820px) and (min-width: 700px) {
+  :root {
+    --fs-display: clamp(1.875rem, 3.4vw, 2.75rem);
+  }
+
+  /* Tasarım alt sınırı (680px) burada dayatılmaz; ekranı doldurmak yeterlidir.
+     İçerik daha uzunsa doğal olarak büyür. */
   .hero {
-    min-height: auto;
+    min-height: 100svh;
   }
 
   .hero-inner {
-    padding-block: calc(var(--header-height) + var(--space-lg)) var(--space-xl);
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.85fr);
+    gap: clamp(24px, 3vw, 48px);
+    padding-block: calc(var(--header-height) + clamp(20px, 4vh, 48px)) clamp(28px, 5vh, 56px);
+  }
+
+  .hero-visual {
+    max-width: 420px;
+    align-self: center;
+    margin-inline: auto 0;
+  }
+
+  .hero-description {
+    margin-bottom: var(--space-md);
+  }
+
+  .hero-actions {
+    margin-bottom: var(--space-md);
+  }
+}
+
+/* Çok alçak yatay ekranlar (telefon yan çevrilmiş) — dekoratif yük azaltılır */
+@media (orientation: landscape) and (max-height: 480px) {
+  .hero {
+    min-height: 100svh;
+  }
+
+  .hero-inner {
+    padding-block: calc(var(--header-height) + 16px) 32px;
+    gap: 24px;
+  }
+
+  .hero-background {
+    animation: none;
   }
 }

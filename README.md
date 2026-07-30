@@ -34,8 +34,26 @@ Harici bir CSS veya JS framework'ü kullanılmaz.
 │   │   ├── icons/           # (boş — ikonlar inline SVG)
 │   │   └── og/              # Sosyal medya paylaşım görseli
 │   └── fonts/               # (boş — fontlar Google Fonts'tan)
+├── tests/
+│   └── responsive-audit.js  # Playwright tabanlı responsive/UI denetimi
+├── docs/                    # Denetim ve görsel prompt raporları
 └── README.md
 ```
+
+## Responsive denetim
+
+Projede Playwright tabanlı bir denetim koşucusu bulunur. 19 cihaz ölçüsü ve
+320–2560 px arası ara genişliklerde yatay taşma, metin kesilmesi, 44px altı
+dokunma hedefi, görsel oran bozulması, öğe çakışması, konsol hatası ve kırık
+asset kontrolü yapar.
+
+```bash
+python3 -m http.server 8099      # proje kökünde
+npx playwright install chromium  # ilk kullanımda
+node tests/responsive-audit.js   # SHOT=1 ile ekran görüntüsü de alır
+```
+
+Sonuçlar: `docs/responsive-ui-audit.md` ve `docs/final-ui-report.md`.
 
 ## Geliştirme
 

@@ -62,7 +62,9 @@
   --tracking-wider: 0.14em;
 
   /* Akışkan tipografi ölçeği */
-  --fs-display: clamp(2.5rem, 6vw, 5.75rem);
+  /* 360px'den itibaren başlık en fazla üç satır olacak şekilde ölçüldü.
+     Üst sınır, tek sütunlu tablet düzeninde 680px metin genişliğine sığar. */
+  --fs-display: clamp(2.125rem, 8.5vw, 3.75rem);
   --fs-h2: clamp(1.875rem, 3.4vw, 3rem);
   --fs-lead: clamp(1rem, 1.15vw, 1.1875rem);
   --fs-body: 1rem;
@@ -83,7 +85,8 @@
 
   /* ---------- Yerleşim ---------- */
   --container-max: 1280px;
-  --container-gutter: 40px;
+  /* Toplam yatay boşluk (iki kenarın toplamı) — akışkan, sıçramasız */
+  --container-gutter: clamp(32px, 4.5vw, 48px);
 
   /* Hero görseli yüklenene kadar görünen sabit zemin — beyaz parlamayı önler */
   --hero-base: #090a0b;
@@ -131,7 +134,6 @@
 /* Küçük ekranlarda kenar boşluğu ve header yüksekliği sadeleşir */
 @media (max-width: 767px) {
   :root {
-    --container-gutter: 32px;
     --header-height: var(--header-height-mobile);
     --header-height-scrolled: 60px;
   }
