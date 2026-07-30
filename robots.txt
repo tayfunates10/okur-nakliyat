@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://okurnakliyatedremit.com/sitemap.xml

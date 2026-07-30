@@ -1,10 +1,8 @@
 name: Site kontrolü
 
-# Yayındaki siteyi dışarıdan denetler: SSL, HTTP durumları, kritik
-# dosyaların erişilebilirliği, .htaccess kaynaklı yanıt başlıkları ve
-# sayfanın gerçekten render edilip edilmediği.
-#
-# Yalnızca elle tetiklenir ve siteye hiçbir değişiklik yazmaz.
+# Yayındaki siteyi dışarıdan denetler: SSL, yönlendirme, kritik dosyalar,
+# güvenlik/önbellek başlıkları ve ana sayfa içerik bütünlüğü.
+# Yalnızca elle tetiklenir; siteye hiçbir değişiklik yazmaz.
 on:
   workflow_dispatch:
 
@@ -17,81 +15,103 @@ jobs:
       SITE: okurnakliyatedremit.com
 
     steps:
-      - name: DNS ve SSL
+      - name: DNS, SSL ve yönlendirme
         run: |
+          set -e
+
           echo "=== DNS ==="
-          getent hosts "$SITE" || echo "cozulemedi"
+          getent hosts "$SITE"
 
           echo
-          echo "=== HTTPS (sertifika dogrulamali) ==="
-          # ssl_verify_result: 0 = gecerli sertifika
+          echo "=== HTTPS ==="
           curl -sS -o /dev/null \
             -w "http=%{http_code} ssl_verify=%{ssl_verify_result} redirect=%{redirect_url}\n" \
-            --max-time 25 "https://$SITE/" || echo "HTTPS BAGLANTISI KURULAMADI"
+            --max-time 25 "https://$SITE/"
 
           echo
-          echo "=== Sertifika suresi ==="
+          echo "=== Sertifika ==="
           echo | openssl s_client -servername "$SITE" -connect "$SITE:443" 2>/dev/null \
-            | openssl x509 -noout -subject -issuer -dates 2>/dev/null \
-            || echo "SERTIFIKA OKUNAMADI"
+            | openssl x509 -noout -subject -issuer -dates
 
           echo
-          echo "=== HTTP -> HTTPS yonlendirmesi ==="
-          curl -sS -o /dev/null \
-            -w "http=%{http_code} redirect=%{redirect_url}\n" \
-            --max-time 25 "http://$SITE/" || echo "HTTP BAGLANTISI KURULAMADI"
+          echo "=== HTTP -> HTTPS ==="
+          code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 25 "http://$SITE/")
+          location=$(curl -sS -I --max-time 25 "http://$SITE/" | tr -d '\r' | awk -F': ' 'tolower($1)=="location"{print $2}')
+          echo "http=$code redirect=$location"
+          test "$code" = "301"
+          test "$location" = "https://$SITE/"
 
       - name: Kritik dosyalar
         run: |
+          set -e
+
           for path in "/" \
-                      "/assets/css/style.css" \
+                      "/robots.txt" \
+                      "/sitemap.xml" \
+                      "/404.html" \
+                      "/assets/css/style.css?v=3" \
                       "/assets/css/variables.css" \
-                      "/assets/js/main.js" \
+                      "/assets/js/main.js?v=3" \
                       "/assets/images/hero/okur-nakliyat-hero-background.webp" \
                       "/assets/images/hero/okur-nakliyat-hero.svg" \
                       "/assets/images/logo/favicon.svg"; do
-            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 -L "https://$SITE$path" || echo "---")
-            printf "%-58s %s\n" "$path" "$code"
+            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 -L "https://$SITE$path")
+            printf "%-64s %s\n" "$path" "$code"
+            test "$code" = "200"
           done
 
-      - name: Yanıt başlıkları (.htaccess doğrulaması)
+      - name: Özel 404 davranışı
         run: |
+          set -e
+
+          code=$(curl -sS -o missing.html -w "%{http_code}" --max-time 20 \
+            "https://$SITE/bu-sayfa-yok-okur-kontrol")
+          echo "http=$code"
+          test "$code" = "404"
+          grep -qF "Bu sayfa taşınmış olabilir." missing.html
+
+      - name: Yanıt başlıkları
+        run: |
+          set -e
+
           echo "=== index.html ==="
-          curl -sS -I -L --max-time 20 "https://$SITE/" \
-            | grep -iE "^(HTTP/|content-type|cache-control|x-content-type-options|referrer-policy|x-frame-options)" \
-            || echo "baslik okunamadi"
+          headers=$(curl -sS -I -L --max-time 20 "https://$SITE/")
+          echo "$headers" | grep -iE "^(HTTP/|content-type|cache-control|x-content-type-options|referrer-policy|x-frame-options|permissions-policy)"
+          echo "$headers" | grep -qi "cache-control: no-cache"
 
           echo
-          echo "=== style.css (sikistirma + onbellek) ==="
-          curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css" \
-            | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)" \
-            || echo "baslik okunamadi"
+          echo "=== style.css ==="
+          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=3")
+          echo "$css_headers" | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)"
+          echo "$css_headers" | grep -qi "max-age=31536000"
 
-      - name: Sayfa gerçekten render ediliyor mu
+      - name: Sayfa içerik bütünlüğü
         run: |
-          curl -sS -L --max-time 25 "https://$SITE/" -o page.html || true
-          echo "boyut: $(wc -c < page.html) bayt"
-          echo
+          set -e
 
-          fail=0
+          curl -sS -L --max-time 25 "https://$SITE/" -o page.html
+          echo "boyut: $(wc -c < page.html) bayt"
+          test "$(wc -c < page.html)" -gt 30000
+
           for needle in "<html lang=\"tr\">" \
                         "Okur Nakliyat | Edremit" \
                         "hero-title" \
-                        "okur-nakliyat-hero-background.webp" \
+                        "id=\"hizmetler\"" \
+                        "id=\"hakkimizda\"" \
+                        "id=\"surec\"" \
+                        "id=\"sss\"" \
+                        "id=\"quoteForm\"" \
+                        "WhatsApp'tan Teklif İste" \
                         "wa.me/905372265043" \
-                        "tel:+905372265043"; do
+                        "tel:+905372265043" \
+                        "okur-nakliyat-hero-background.webp"; do
             if grep -qF "$needle" page.html; then
               printf "OK    %s\n" "$needle"
             else
               printf "EKSIK %s\n" "$needle"
-              fail=1
+              exit 1
             fi
           done
 
           echo
-          if [ "$fail" -eq 0 ]; then
-            echo ">>> SONUC: Sayfa beklendigi gibi yayinda."
-          else
-            echo ">>> SONUC: Sayfa beklenen icerigi tam dondurmedi."
-            exit 1
-          fi
+          echo ">>> SONUC: Sayfa ve üretim dosyaları beklendiği gibi yayında."

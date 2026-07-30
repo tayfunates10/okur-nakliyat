@@ -5,56 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>Okur Nakliyat | Edremit Evden Eve ve Şehirler Arası Nakliyat</title>
-  <meta name="description" content="Okur Nakliyat; Edremit merkezli şehir içi, şehirler arası ve Türkiye geneli taşımacılık hizmetleri sunar. Ücretsiz kurulum ve montaj desteğiyle güvenli taşınma.">
+  <meta name="description" content="Okur Nakliyat; Edremit, Balıkesir ve Türkiye genelinde şehir içi, şehirler arası, evden eve ve ofis taşımacılığı sunar. Ücretsiz kurulum ve montaj desteği.">
   <meta name="author" content="Okur Nakliyat">
   <meta name="theme-color" content="#0B0B0B">
+  <meta name="robots" content="index, follow, max-image-preview:large">
   <link rel="canonical" href="https://okurnakliyatedremit.com/">
 
-  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:locale" content="tr_TR">
   <meta property="og:site_name" content="Okur Nakliyat">
   <meta property="og:url" content="https://okurnakliyatedremit.com/">
   <meta property="og:title" content="Okur Nakliyat | Edremit Evden Eve ve Şehirler Arası Nakliyat">
-  <meta property="og:description" content="Edremit merkezli şehir içi, şehirler arası ve Türkiye geneli taşımacılık. Ücretsiz kurulum ve montaj desteğiyle güvenli taşınma.">
-  <!-- Not: Paylaşım görseli şu an SVG placeholder. Marka görseli hazırlandığında
-       1200x630 JPG/PNG dosyası ile değiştirilmesi önerilir. -->
+  <meta property="og:description" content="Edremit merkezli şehir içi, şehirler arası ve Türkiye geneli taşımacılık. Ücretsiz kurulum ve montaj desteği.">
   <meta property="og:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.svg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Okur Nakliyat — Eşyalarınızı değil, güveninizi taşıyoruz.">
 
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Okur Nakliyat | Edremit Evden Eve ve Şehirler Arası Nakliyat">
-  <meta name="twitter:description" content="Edremit merkezli şehir içi, şehirler arası ve Türkiye geneli taşımacılık. Ücretsiz kurulum ve montaj desteğiyle güvenli taşınma.">
+  <meta name="twitter:description" content="Edremit merkezli şehir içi, şehirler arası ve Türkiye geneli taşımacılık. Ücretsiz kurulum ve montaj desteği.">
   <meta name="twitter:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.svg">
 
   <link rel="icon" href="assets/images/logo/favicon.svg" type="image/svg+xml">
-
-  <!-- Fontlar: tek istek, sınırlı ağırlık, swap ile CLS önlenir -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
 
-  <!-- Hero arka planı ilk ekranda görünür: erken ve yüksek öncelikle yüklenir -->
   <link rel="preload" href="assets/images/hero/okur-nakliyat-hero-background.webp"
         as="image" type="image/webp" fetchpriority="high">
 
   <link rel="stylesheet" href="assets/css/reset.css">
   <link rel="stylesheet" href="assets/css/variables.css">
   <link rel="stylesheet" href="assets/css/components.css">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/style.css?v=3">
 
-  <script defer src="assets/js/main.js"></script>
+  <script defer src="assets/js/main.js?v=3"></script>
 
-  <!-- JavaScript kapalıyken menü bağlantıları erişilebilir kalır -->
   <noscript>
     <style>
       .mobile-menu-toggle { display: none !important; }
       .desktop-nav { display: block !important; width: 100%; }
       .nav-list { flex-wrap: wrap; gap: 0.5rem 1rem; }
       .header-inner { flex-wrap: wrap; height: auto; padding-block: 0.75rem; }
+      .reveal { opacity: 1 !important; transform: none !important; }
     </style>
   </noscript>
 
@@ -74,27 +68,41 @@
       "addressCountry": "TR"
     },
     "areaServed": [
-      { "@type": "AdministrativeArea", "name": "Edremit" },
+      { "@type": "City", "name": "Edremit" },
       { "@type": "AdministrativeArea", "name": "Balıkesir" },
       { "@type": "Country", "name": "Türkiye" }
-    ]
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+905372265043",
+      "contactType": "customer service",
+      "availableLanguage": "Turkish"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Nakliyat Hizmetleri",
+      "itemListElement": [
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Evden Eve Nakliyat" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Şehirler Arası Nakliyat" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Ofis ve İş Yeri Taşıma" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Parça Eşya Taşıma" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Paketleme ve Koruma" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Kurulum ve Montaj Desteği" } }
+      ]
+    }
   }
   </script>
 </head>
 
 <body>
-  <a class="skip-link" href="#anasayfa">İçeriğe geç</a>
+  <a class="skip-link" href="#main">İçeriğe geç</a>
 
-  <!-- ====================================================================
-       HEADER
-       ==================================================================== -->
   <header class="site-header" id="siteHeader">
     <div class="container header-inner">
-
       <a class="brand" href="#anasayfa" aria-label="Okur Nakliyat ana sayfa">
         <span class="brand-mark" aria-hidden="true">
           <svg width="42" height="42" viewBox="0 0 64 64" fill="none">
-            <path d="M47.0 26.5 A16 16 0 1 1 37.5 17.0" stroke="currentColor" stroke-width="6"
+            <path d="M47 26.5A16 16 0 1 1 37.5 17" stroke="currentColor" stroke-width="6"
                   stroke-linecap="round"/>
             <circle cx="43.3" cy="20.7" r="4.4" fill="currentColor"/>
           </svg>
@@ -108,7 +116,7 @@
       <nav class="desktop-nav" aria-label="Ana menü">
         <ul class="nav-list">
           <li><a class="nav-link" href="#anasayfa" aria-current="page">Ana Sayfa</a></li>
-          <li><a class="nav-link" href="#hizmetler">Hizmetlerimiz</a></li>
+          <li><a class="nav-link" href="#hizmetler">Hizmetler</a></li>
           <li><a class="nav-link" href="#hakkimizda">Hakkımızda</a></li>
           <li><a class="nav-link" href="#surec">Nasıl Çalışıyoruz?</a></li>
           <li><a class="nav-link" href="#sss">Sık Sorulanlar</a></li>
@@ -117,7 +125,7 @@
       </nav>
 
       <div class="header-actions">
-        <a class="header-phone" href="tel:+905372265043">
+        <a class="header-phone" href="tel:+905372265043" aria-label="Okur Nakliyat telefon numarası">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>
@@ -125,9 +133,7 @@
           <span>0537 226 50 43</span>
         </a>
 
-        <a class="btn btn-primary btn-sm" href="#iletisim">
-          Ücretsiz Teklif Al
-        </a>
+        <a class="btn btn-primary btn-sm" href="#teklif">Ücretsiz Teklif Al</a>
 
         <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button"
                 aria-label="Menüyü aç" aria-expanded="false" aria-controls="mobileMenu">
@@ -137,25 +143,20 @@
           </span>
         </button>
       </div>
-
     </div>
   </header>
 
-  <!-- ====================================================================
-       MOBİL MENÜ
-       ==================================================================== -->
   <div class="mobile-menu-overlay" id="mobileMenuOverlay" hidden></div>
 
   <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true"
        aria-labelledby="mobileMenuTitle" hidden>
-
     <h2 class="visually-hidden" id="mobileMenuTitle">Site menüsü</h2>
 
     <div class="mobile-menu-header">
       <span class="brand" aria-hidden="true">
         <span class="brand-mark">
           <svg width="36" height="36" viewBox="0 0 64 64" fill="none">
-            <path d="M47.0 26.5 A16 16 0 1 1 37.5 17.0" stroke="currentColor" stroke-width="6"
+            <path d="M47 26.5A16 16 0 1 1 37.5 17" stroke="currentColor" stroke-width="6"
                   stroke-linecap="round"/>
             <circle cx="43.3" cy="20.7" r="4.4" fill="currentColor"/>
           </svg>
@@ -177,7 +178,7 @@
     <nav aria-label="Mobil menü">
       <ul class="mobile-nav-list">
         <li><a class="mobile-nav-link" href="#anasayfa" aria-current="page">Ana Sayfa</a></li>
-        <li><a class="mobile-nav-link" href="#hizmetler">Hizmetlerimiz</a></li>
+        <li><a class="mobile-nav-link" href="#hizmetler">Hizmetler</a></li>
         <li><a class="mobile-nav-link" href="#hakkimizda">Hakkımızda</a></li>
         <li><a class="mobile-nav-link" href="#surec">Nasıl Çalışıyoruz?</a></li>
         <li><a class="mobile-nav-link" href="#sss">Sık Sorulanlar</a></li>
@@ -197,50 +198,39 @@
       <a class="btn btn-secondary"
          href="https://wa.me/905372265043?text=Merhaba%20Okur%20Nakliyat%2C%20ta%C5%9F%C4%B1mac%C4%B1l%C4%B1k%20hizmetiniz%20hakk%C4%B1nda%20%C3%BCcretsiz%20fiyat%20teklifi%20almak%20istiyorum."
          target="_blank" rel="noopener">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M12.04 2A9.9 9.9 0 0 0 2.1 11.9a9.8 9.8 0 0 0 1.35 4.96L2 22l5.28-1.38a9.9 9.9 0 0 0 4.76 1.21h.01a9.9 9.9 0 0 0 9.94-9.9A9.9 9.9 0 0 0 12.04 2zm0 18.13h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.13.82.84-3.05-.2-.31a8.2 8.2 0 1 1 6.99 3.87zm4.5-6.14c-.24-.12-1.45-.72-1.68-.8-.23-.09-.39-.13-.56.12-.16.24-.63.8-.78.96-.14.16-.29.18-.53.06a6.7 6.7 0 0 1-3.35-2.93c-.25-.43.25-.4.72-1.33.08-.16.04-.3-.02-.42-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.41-.56-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64 1.53.66 2.13.72 2.9.6.46-.06 1.45-.59 1.65-1.16.2-.57.2-1.06.14-1.16-.06-.11-.22-.17-.46-.29z"/>
-        </svg>
         WhatsApp'tan Yaz
       </a>
 
-      <a class="btn btn-primary" href="#iletisim">Ücretsiz Teklif Al</a>
-
-      <p class="mobile-menu-note">Edremit'ten Türkiye'nin her noktasına güvenli taşımacılık.</p>
+      <a class="btn btn-primary" href="#teklif">Ücretsiz Teklif Al</a>
+      <p class="mobile-menu-note">Edremit'ten Türkiye'nin her noktasına planlı ve özenli taşımacılık.</p>
     </div>
   </div>
 
-  <!-- ====================================================================
-       ANA İÇERİK
-       ==================================================================== -->
   <main id="main">
-
-    <!-- HERO -->
-    <section id="anasayfa" class="hero">
-      <!-- Dekoratif katmanlar: ekran okuyucuya okutulmaz, tıklamayı engellemez -->
+    <section id="anasayfa" class="hero" aria-labelledby="heroTitle">
       <div class="hero-background" aria-hidden="true"></div>
       <div class="hero-overlay" aria-hidden="true"></div>
 
       <div class="container hero-inner">
-
         <div class="hero-content">
           <p class="badge hero-badge">
             <span class="badge-dot" aria-hidden="true"></span>
             Edremit Merkezli • Türkiye Geneli
           </p>
 
-          <h1 class="hero-title">
+          <h1 class="hero-title" id="heroTitle">
             <span class="hero-title-line"><span>Eşyalarınızı değil,</span></span>
             <span class="hero-title-line"><span><span class="hero-title-accent">güveninizi</span> taşıyoruz.</span></span>
           </h1>
 
           <p class="hero-description">
             Okur Nakliyat; şehir içi ve şehirler arası taşımacılıkta eşyalarınızı planlı,
-            dikkatli ve güvenli şekilde yeni adresine ulaştırır. Kurulum ve montaj
+            dikkatli ve güvenli şekilde yeni adresine ulaştırır. Ücretsiz kurulum ve montaj
             desteğimizle taşınma sürecinizi baştan sona kolaylaştırırız.
           </p>
 
           <div class="hero-actions">
-            <a class="btn btn-primary btn-lg" href="#iletisim">
+            <a class="btn btn-primary btn-lg" href="#teklif">
               Ücretsiz Teklif Al
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                    stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -251,9 +241,6 @@
             <a class="btn btn-secondary btn-lg"
                href="https://wa.me/905372265043?text=Merhaba%20Okur%20Nakliyat%2C%20ta%C5%9F%C4%B1mac%C4%B1l%C4%B1k%20hizmetiniz%20hakk%C4%B1nda%20%C3%BCcretsiz%20fiyat%20teklifi%20almak%20istiyorum."
                target="_blank" rel="noopener">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M12.04 2A9.9 9.9 0 0 0 2.1 11.9a9.8 9.8 0 0 0 1.35 4.96L2 22l5.28-1.38a9.9 9.9 0 0 0 4.76 1.21h.01a9.9 9.9 0 0 0 9.94-9.9A9.9 9.9 0 0 0 12.04 2zm0 18.13h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.13.82.84-3.05-.2-.31a8.2 8.2 0 1 1 6.99 3.87zm4.5-6.14c-.24-.12-1.45-.72-1.68-.8-.23-.09-.39-.13-.56.12-.16.24-.63.8-.78.96-.14.16-.29.18-.53.06a6.7 6.7 0 0 1-3.35-2.93c-.25-.43.25-.4.72-1.33.08-.16.04-.3-.02-.42-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.41-.56-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.7 2.6 4.12 3.64 1.53.66 2.13.72 2.9.6.46-.06 1.45-.59 1.65-1.16.2-.57.2-1.06.14-1.16-.06-.11-.22-.17-.46-.29z"/>
-              </svg>
               WhatsApp'tan Yaz
             </a>
           </div>
@@ -283,12 +270,8 @@
           </ul>
         </div>
 
-        <!-- Görsel alanı -->
         <div class="hero-visual" id="heroVisual">
           <div class="hero-visual-glow" aria-hidden="true"></div>
-
-          <!-- Marka illüstrasyonu (SVG placeholder — .webp sürümü hazırlandığında
-               bu src değeri assets/images/hero/okur-nakliyat-hero.webp ile değiştirilir) -->
           <img class="hero-visual-image"
                src="assets/images/hero/okur-nakliyat-hero.svg"
                alt="Okur Nakliyat şehir içi ve şehirler arası taşımacılık illüstrasyonu"
@@ -304,7 +287,7 @@
             </span>
             <span>
               <span class="floating-card-title">Türkiye Geneli</span>
-              <span class="floating-card-text">Güvenli teslimat ağı</span>
+              <span class="floating-card-text">81 ile planlı ulaşım</span>
             </span>
           </div>
 
@@ -322,13 +305,572 @@
             </span>
           </div>
         </div>
+      </div>
 
+      <div class="hero-service-rail" aria-label="Öne çıkan hizmetler">
+        <div class="container hero-service-rail-inner">
+          <span>Evden Eve Nakliyat</span>
+          <i aria-hidden="true"></i>
+          <span>Şehirler Arası Taşıma</span>
+          <i aria-hidden="true"></i>
+          <span>Ofis Taşıma</span>
+          <i aria-hidden="true"></i>
+          <span>Ücretsiz Montaj</span>
+        </div>
       </div>
     </section>
 
-    <!-- Sonraki aşamalarda eklenecek bölümler:
-         #hizmetler, #hakkimizda, #surec, #sss, #iletisim -->
+    <section class="section section-light" id="hizmetler" aria-labelledby="servicesTitle">
+      <div class="container">
+        <div class="section-heading reveal">
+          <div class="section-heading-main">
+            <p class="section-eyebrow">Hizmetlerimiz</p>
+            <h2 class="section-title" id="servicesTitle">
+              Taşınmanın her aşamasında
+              <span>ölçülü ve düzenli çözümler.</span>
+            </h2>
+          </div>
+          <p class="section-intro">
+            Her taşıma işini eşya miktarı, kat bilgisi, erişim koşulları ve güzergâha göre
+            ayrı planlıyoruz. Böylece süreç baştan sona daha anlaşılır ve kontrollü ilerliyor.
+          </p>
+        </div>
 
+        <div class="services-grid">
+          <article class="service-card reveal">
+            <div class="service-card-top">
+              <span class="service-index">01</span>
+              <span class="service-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <path d="M6 22.5 24 8l18 14.5V41H29V29H19v12H6V22.5Z"/>
+                </svg>
+              </span>
+            </div>
+            <h3>Evden Eve Nakliyat</h3>
+            <p>Eşyalarınızı uygun şekilde paketliyor, planlı olarak taşıyor ve yeni adresinizde yerleştiriyoruz.</p>
+            <a class="service-link" href="#teklif">Teklif iste <span aria-hidden="true">→</span></a>
+          </article>
+
+          <article class="service-card service-card-featured reveal">
+            <div class="service-card-top">
+              <span class="service-index">02</span>
+              <span class="service-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <path d="M5 15h24v20H5V15Zm24 7h7l7 8v5H29V22ZM11 39a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm24 0a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/>
+                </svg>
+              </span>
+            </div>
+            <span class="service-tag">Türkiye Geneli</span>
+            <h3>Şehirler Arası Taşıma</h3>
+            <p>Edremit ve Balıkesir çıkışlı ya da varışlı taşımaları, güzergâha uygun planla Türkiye geneline ulaştırıyoruz.</p>
+            <a class="service-link" href="#teklif">Güzergâh sor <span aria-hidden="true">→</span></a>
+          </article>
+
+          <article class="service-card reveal">
+            <div class="service-card-top">
+              <span class="service-index">03</span>
+              <span class="service-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <path d="M8 13h32v27H8V13Zm8 0V8h16v5M5 22h38M20 22v5h8v-5"/>
+                </svg>
+              </span>
+            </div>
+            <h3>Ofis ve İş Yeri Taşıma</h3>
+            <p>Mobilya, ekipman ve evrakları iş düzeninizi mümkün olduğunca aksatmadan taşıyoruz.</p>
+            <a class="service-link" href="#teklif">Planlama yap <span aria-hidden="true">→</span></a>
+          </article>
+
+          <article class="service-card reveal">
+            <div class="service-card-top">
+              <span class="service-index">04</span>
+              <span class="service-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <path d="m15 6 18 10v20L15 42 5 36V16L15 6Zm0 0L5 16l18 10 10-10M23 26v16"/>
+                </svg>
+              </span>
+            </div>
+            <h3>Parça Eşya Taşıma</h3>
+            <p>Az miktardaki eşya ve tek parça ürünler için ihtiyaca uygun, ekonomik taşıma seçeneği oluşturuyoruz.</p>
+            <a class="service-link" href="#teklif">Bilgi al <span aria-hidden="true">→</span></a>
+          </article>
+
+          <article class="service-card reveal">
+            <div class="service-card-top">
+              <span class="service-index">05</span>
+              <span class="service-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <path d="M12 7h24v34H12V7Zm6 6h12m-12 7h12m-12 7h8M8 11h4m-4 7h4m-4 7h4m24-14h4m-4 7h4m-4 7h4"/>
+                </svg>
+              </span>
+            </div>
+            <h3>Paketleme ve Koruma</h3>
+            <p>Mobilya, beyaz eşya ve hassas ürünleri taşıma koşullarına uygun malzemelerle koruyoruz.</p>
+            <a class="service-link" href="#teklif">Detay sor <span aria-hidden="true">→</span></a>
+          </article>
+
+          <article class="service-card reveal">
+            <div class="service-card-top">
+              <span class="service-index">06</span>
+              <span class="service-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <path d="m29 8 11 11-7 7-4-4-12 12 4 4-4 4L6 31l4-4 4 4 12-12-4-4 7-7Z"/>
+                </svg>
+              </span>
+            </div>
+            <h3>Ücretsiz Kurulum ve Montaj</h3>
+            <p>Taşınan mobilyaların söküm ve yeniden kurulum işlemlerinde ücretsiz destek sağlıyoruz.</p>
+            <a class="service-link" href="#teklif">Teklif iste <span aria-hidden="true">→</span></a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-dark" id="hakkimizda" aria-labelledby="aboutTitle">
+      <div class="container about-grid">
+        <div class="about-visual reveal">
+          <div class="about-frame" aria-hidden="true"></div>
+          <div class="about-scene" aria-hidden="true">
+            <svg viewBox="0 0 640 680" fill="none">
+              <rect x="58" y="44" width="524" height="570" rx="30" fill="#181818"/>
+              <rect x="92" y="78" width="456" height="502" rx="22" fill="#222"/>
+              <path d="M92 409h456" stroke="#F5C400" stroke-width="8"/>
+              <rect x="128" y="238" width="132" height="163" rx="8" fill="#F5C400"/>
+              <rect x="282" y="174" width="184" height="227" rx="8" fill="#E8E8E3"/>
+              <path d="M322 174v227M282 265h184" stroke="#151515" stroke-width="6"/>
+              <circle cx="182" cy="475" r="44" fill="#F5C400"/>
+              <path d="M150 540c0-44 22-68 32-68s32 24 32 68v40h-64v-40Z" fill="#F5C400"/>
+              <circle cx="448" cy="475" r="44" fill="#E8E8E3"/>
+              <path d="M416 540c0-44 22-68 32-68s32 24 32 68v40h-64v-40Z" fill="#E8E8E3"/>
+              <rect x="248" y="452" width="136" height="84" rx="10" fill="#F5C400"/>
+              <path d="M214 475h34m136 0h20M292 452v84m48-84v84" stroke="#0B0B0B" stroke-width="7"/>
+              <path d="M92 78 58 44m490 34 34-34M92 580l-34 34m490-34 34 34" stroke="#F5C400" stroke-width="5"/>
+            </svg>
+          </div>
+          <div class="about-note">
+            <span class="about-note-mark">✓</span>
+            <span>
+              <strong>Her eşya için aynı özen</strong>
+              <small>Planlama, koruma ve doğrudan iletişim.</small>
+            </span>
+          </div>
+        </div>
+
+        <div class="about-content reveal">
+          <p class="section-eyebrow section-eyebrow-on-dark">Neden Okur Nakliyat?</p>
+          <h2 class="section-title section-title-on-dark" id="aboutTitle">
+            Taşınmak zor değil,
+            <span>doğru planla daha kolay.</span>
+          </h2>
+          <p class="about-lead">
+            Her taşımanın koşulu farklıdır. Bu nedenle adresleri, kat bilgilerini, eşya
+            miktarını ve özel ihtiyaçları baştan değerlendirerek net bir çalışma düzeni oluşturuyoruz.
+          </p>
+
+          <div class="benefit-grid">
+            <article class="benefit-item">
+              <span class="benefit-check" aria-hidden="true">✓</span>
+              <div>
+                <h3>Planlı ve Zamanında</h3>
+                <p>Taşıma öncesinde kapsamı netleştirir, belirlenen tarih ve düzene göre hareket ederiz.</p>
+              </div>
+            </article>
+
+            <article class="benefit-item">
+              <span class="benefit-check" aria-hidden="true">✓</span>
+              <div>
+                <h3>Şeffaf İletişim</h3>
+                <p>İhtiyaçları baştan konuşur, süreç boyunca doğrudan iletişim kurarız.</p>
+              </div>
+            </article>
+
+            <article class="benefit-item">
+              <span class="benefit-check" aria-hidden="true">✓</span>
+              <div>
+                <h3>Özenli Taşıma</h3>
+                <p>Paketlemeden yerleştirmeye kadar her aşamada eşyalarınızı korumaya odaklanırız.</p>
+              </div>
+            </article>
+
+            <article class="benefit-item">
+              <span class="benefit-check" aria-hidden="true">✓</span>
+              <div>
+                <h3>Türkiye Geneli Hizmet</h3>
+                <p>Edremit çıkışlı veya varışlı şehirler arası taşıma taleplerini planlarız.</p>
+              </div>
+            </article>
+          </div>
+
+          <div class="about-contact">
+            <a class="text-action" href="tel:+905372265043">
+              Bizi arayın: <strong>0537 226 50 43</strong>
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-neutral" id="surec" aria-labelledby="processTitle">
+      <div class="container">
+        <div class="section-heading section-heading-centered reveal">
+          <p class="section-eyebrow">Nasıl Çalışıyoruz?</p>
+          <h2 class="section-title" id="processTitle">
+            Dört adımda
+            <span>düzenli taşıma süreci.</span>
+          </h2>
+          <p class="section-intro">
+            İlk görüşmeden teslimata kadar her adımı anlaşılır biçimde planlıyor ve süreci birlikte takip ediyoruz.
+          </p>
+        </div>
+
+        <ol class="process-grid">
+          <li class="process-card reveal">
+            <span class="process-number">01</span>
+            <span class="process-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none">
+                <path d="M36 31.5v6a4 4 0 0 1-4.4 4A31 31 0 0 1 7 16.9 4 4 0 0 1 11 12.5h6a4 4 0 0 1 4 3.4c.2 2 .7 3.8 1.4 5.5a4 4 0 0 1-1 4.2l-2.4 2.4a26 26 0 0 0 10 10l2.4-2.4a4 4 0 0 1 4.2-1c1.7.7 3.5 1.2 5.5 1.4a4 4 0 0 1 3.4 4Z"/>
+              </svg>
+            </span>
+            <h3>İlk Görüşme</h3>
+            <p>Taşınacak adresleri, eşya durumunu, kat bilgilerini ve özel ihtiyaçları öğreniyoruz.</p>
+          </li>
+
+          <li class="process-card reveal">
+            <span class="process-number">02</span>
+            <span class="process-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none">
+                <circle cx="21" cy="21" r="13"/>
+                <path d="m31 31 10 10M21 14v7l5 3"/>
+              </svg>
+            </span>
+            <h3>Planlama</h3>
+            <p>Uygun araç, ekip, taşıma tarihi ve çalışma sırasını ihtiyaçlara göre belirliyoruz.</p>
+          </li>
+
+          <li class="process-card reveal">
+            <span class="process-number">03</span>
+            <span class="process-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none">
+                <path d="m24 5 16 9v20l-16 9-16-9V14l16-9Z"/>
+                <path d="m8 14 16 9 16-9M24 23v20"/>
+              </svg>
+            </span>
+            <h3>Paketleme ve Taşıma</h3>
+            <p>Eşyaları koruyarak yüklüyor, güzergâha uygun şekilde yeni adrese taşıyoruz.</p>
+          </li>
+
+          <li class="process-card reveal">
+            <span class="process-number">04</span>
+            <span class="process-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none">
+                <circle cx="24" cy="24" r="18"/>
+                <path d="m16 24 6 6 11-13"/>
+              </svg>
+            </span>
+            <h3>Teslim ve Kurulum</h3>
+            <p>Eşyaları yerleştiriyor, gerekli mobilyalarda ücretsiz kurulum ve montaj desteği sağlıyoruz.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="coverage-section" aria-labelledby="coverageTitle">
+      <div class="container coverage-grid">
+        <div class="coverage-content reveal">
+          <p class="section-eyebrow section-eyebrow-dark">Hizmet Bölgemiz</p>
+          <h2 class="coverage-title" id="coverageTitle">
+            Edremit'ten
+            <strong>81 ile</strong>
+            planlı ulaşım.
+          </h2>
+          <p>
+            Balıkesir, İstanbul, İzmir, Ankara, Bursa, Antalya ve Türkiye'nin tüm şehirleri
+            için şehirler arası nakliyat planlaması yapıyoruz.
+          </p>
+          <a class="btn coverage-button" href="#teklif">Güzergâh için teklif al</a>
+        </div>
+
+        <div class="coverage-map reveal" aria-hidden="true">
+          <svg viewBox="0 0 820 390" fill="none">
+            <path d="m72 186 34-49 60-12 37-36 77 10 51-28 67 23 60-20 60 31 72-10 47 28 70 14 48 58-25 48-65-2-27 27-75-6-52 33-68-17-56 16-57-34-64 15-59-44-76-2-50-39-58 2-23-36Z" fill="#101010"/>
+            <g fill="#F5C400">
+              <circle cx="194" cy="219" r="9"/>
+              <circle cx="264" cy="181" r="7"/>
+              <circle cx="354" cy="194" r="8"/>
+              <circle cx="438" cy="147" r="7"/>
+              <circle cx="520" cy="218" r="8"/>
+              <circle cx="602" cy="175" r="7"/>
+              <circle cx="682" cy="203" r="9"/>
+              <circle cx="401" cy="264" r="7"/>
+              <circle cx="294" cy="258" r="6"/>
+            </g>
+            <g stroke="#F5C400" stroke-width="2.5" stroke-dasharray="7 9" opacity=".7">
+              <path d="M194 219Q320 86 438 147t244 56"/>
+              <path d="M194 219q125 96 207 45t201-89"/>
+              <path d="M194 219q67-81 160-25t166 24"/>
+            </g>
+            <circle cx="194" cy="219" r="24" stroke="#F5C400" stroke-width="3" opacity=".5"/>
+            <circle cx="194" cy="219" r="39" stroke="#F5C400" stroke-width="2" opacity=".25"/>
+            <text x="137" y="263" fill="#F5C400" font-family="Manrope, Arial, sans-serif"
+                  font-size="22" font-weight="800">EDREMİT</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-light" id="sss" aria-labelledby="faqTitle">
+      <div class="container faq-grid">
+        <div class="faq-intro reveal">
+          <p class="section-eyebrow">Sık Sorulanlar</p>
+          <h2 class="section-title" id="faqTitle">
+            Taşınmadan önce
+            <span>merak edilenler.</span>
+          </h2>
+          <p>
+            Taşıma koşulları her adreste farklı olabilir. Buradaki yanıtlar genel bilgi verir;
+            net fiyat ve plan için adres ve eşya detaylarını birlikte değerlendirebiliriz.
+          </p>
+          <a class="text-action text-action-on-light" href="tel:+905372265043">
+            Farklı bir sorunuz mu var?
+            <strong>Bizi arayın</strong>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+
+        <div class="faq-list">
+          <details class="faq-item reveal">
+            <summary>
+              Nakliyat fiyatı nasıl belirleniyor?
+              <span class="faq-plus" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer">
+              <p>Fiyat; eşya miktarı, kat bilgileri, bina erişimi, iki adres arasındaki mesafe ve istenen ek hizmetlere göre belirlenir.</p>
+            </div>
+          </details>
+
+          <details class="faq-item reveal">
+            <summary>
+              Paketleme hizmeti veriyor musunuz?
+              <span class="faq-plus" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer">
+              <p>Evet. Mobilya, beyaz eşya ve hassas ürünleri taşıma koşullarına uygun malzemelerle koruyarak hazırlıyoruz.</p>
+            </div>
+          </details>
+
+          <details class="faq-item reveal">
+            <summary>
+              Kurulum ve montaj gerçekten ücretsiz mi?
+              <span class="faq-plus" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer">
+              <p>Taşıma kapsamında sökülen ve yeniden kurulması gereken uygun mobilyalar için kurulum ve montaj desteği ücretsizdir.</p>
+            </div>
+          </details>
+
+          <details class="faq-item reveal">
+            <summary>
+              Şehirler arası taşıma yapıyor musunuz?
+              <span class="faq-plus" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer">
+              <p>Evet. Edremit ve Balıkesir çıkışlı veya varışlı olmak üzere Türkiye genelinde şehirler arası taşıma planlıyoruz.</p>
+            </div>
+          </details>
+
+          <details class="faq-item reveal">
+            <summary>
+              Taşıma tarihi ne kadar önce belirlenmeli?
+              <span class="faq-plus" aria-hidden="true"></span>
+            </summary>
+            <div class="faq-answer">
+              <p>Özellikle ay sonu ve hafta sonu yoğunlukları için mümkün olduğunca erken iletişim kurmanız uygun tarih planlamasını kolaylaştırır.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section quote-section" id="teklif" aria-labelledby="quoteTitle">
+      <div class="container quote-grid">
+        <div class="quote-content reveal">
+          <p class="section-eyebrow section-eyebrow-on-dark">Ücretsiz Fiyat Teklifi</p>
+          <h2 class="section-title section-title-on-dark" id="quoteTitle">
+            Taşıma detaylarını yazın,
+            <span>WhatsApp'tan iletin.</span>
+          </h2>
+          <p>
+            Formu doldurduğunuzda bilgileriniz doğrudan WhatsApp mesajına dönüşür.
+            Mesajı kontrol edip gönderdiğinizde size fiyat ve uygunluk bilgisiyle dönüş yaparız.
+          </p>
+
+          <div class="contact-cards">
+            <a class="contact-card" href="tel:+905372265043">
+              <span class="contact-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <path d="M39 31.8v6a4 4 0 0 1-4.4 4A31.2 31.2 0 0 1 6.2 13.4 4 4 0 0 1 10.2 9h6a4 4 0 0 1 4 3.4c.2 2 .7 3.8 1.4 5.5a4 4 0 0 1-1 4.2l-2.4 2.4a26 26 0 0 0 10 10l2.4-2.4a4 4 0 0 1 4.2-1c1.7.7 3.5 1.2 5.5 1.4A4 4 0 0 1 43.7 36Z"/>
+                </svg>
+              </span>
+              <span>
+                <small>Telefon</small>
+                <strong>0537 226 50 43</strong>
+              </span>
+            </a>
+
+            <a class="contact-card"
+               href="https://wa.me/905372265043"
+               target="_blank" rel="noopener">
+              <span class="contact-card-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" fill="none">
+                  <path d="M24 42a18 18 0 1 0-9.1-2.5L7 42l2.6-7.7A18 18 0 0 0 24 42Z"/>
+                  <path d="M18 17c1 7 6 12 13 13"/>
+                </svg>
+              </span>
+              <span>
+                <small>WhatsApp</small>
+                <strong>Hızlı mesaj gönder</strong>
+              </span>
+            </a>
+          </div>
+        </div>
+
+        <form class="quote-form reveal" id="quoteForm">
+          <div class="form-grid">
+            <label class="form-field">
+              <span>Adınız</span>
+              <input type="text" name="name" autocomplete="name" placeholder="Adınız ve soyadınız" required>
+            </label>
+
+            <label class="form-field">
+              <span>Telefon</span>
+              <input type="tel" name="phone" autocomplete="tel" inputmode="tel"
+                     placeholder="05__ ___ __ __" required>
+            </label>
+
+            <label class="form-field">
+              <span>Taşınacak yer</span>
+              <input type="text" name="from" placeholder="Örn. Edremit" required>
+            </label>
+
+            <label class="form-field">
+              <span>Yeni adres</span>
+              <input type="text" name="to" placeholder="Örn. İzmir" required>
+            </label>
+
+            <label class="form-field">
+              <span>Taşıma türü</span>
+              <select name="service" required>
+                <option value="">Seçiniz</option>
+                <option>Evden eve nakliyat</option>
+                <option>Şehirler arası nakliyat</option>
+                <option>Ofis / iş yeri taşıma</option>
+                <option>Parça eşya taşıma</option>
+                <option>Diğer</option>
+              </select>
+            </label>
+
+            <label class="form-field">
+              <span>Planlanan tarih</span>
+              <input type="date" name="date">
+            </label>
+
+            <label class="form-field form-field-wide">
+              <span>Ek bilgi</span>
+              <textarea name="message" rows="4"
+                        placeholder="Oda sayısı, kat bilgisi, asansör durumu veya özel eşyalar..."></textarea>
+            </label>
+          </div>
+
+          <button class="btn btn-primary btn-lg quote-submit" type="submit">
+            WhatsApp'tan Teklif İste
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6"/>
+            </svg>
+          </button>
+
+          <p class="form-note">
+            Bu form verileri sunucuya göndermez; yalnızca cihazınızda WhatsApp mesajı oluşturur.
+          </p>
+        </form>
+      </div>
+    </section>
+
+    <section class="cta-band" id="iletisim" aria-labelledby="ctaTitle">
+      <div class="container cta-inner">
+        <div>
+          <p>Taşınmaya hazır mısınız?</p>
+          <h2 id="ctaTitle">Bir telefon kadar yakınız.</h2>
+        </div>
+        <div class="cta-actions">
+          <a class="btn cta-call-button" href="tel:+905372265043">0537 226 50 43</a>
+          <a class="btn cta-whatsapp-button"
+             href="https://wa.me/905372265043?text=Merhaba%20Okur%20Nakliyat%2C%20ta%C5%9F%C4%B1ma%20hizmeti%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum."
+             target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand-column">
+        <a class="brand" href="#anasayfa" aria-label="Okur Nakliyat ana sayfaya dön">
+          <span class="brand-mark" aria-hidden="true">
+            <svg width="42" height="42" viewBox="0 0 64 64" fill="none">
+              <path d="M47 26.5A16 16 0 1 1 37.5 17" stroke="currentColor" stroke-width="6"
+                    stroke-linecap="round"/>
+              <circle cx="43.3" cy="20.7" r="4.4" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="brand-text">
+            <span class="brand-name">OKUR</span>
+            <span class="brand-sub">NAKLİYAT</span>
+          </span>
+        </a>
+        <p>Edremit, Balıkesir ve Türkiye genelinde planlı, özenli ve doğrudan iletişime dayalı taşımacılık.</p>
+      </div>
+
+      <div class="footer-column">
+        <h3>Hızlı Menü</h3>
+        <a href="#hizmetler">Hizmetler</a>
+        <a href="#hakkimizda">Hakkımızda</a>
+        <a href="#surec">Nasıl Çalışıyoruz?</a>
+        <a href="#sss">Sık Sorulanlar</a>
+      </div>
+
+      <div class="footer-column">
+        <h3>Hizmetler</h3>
+        <a href="#hizmetler">Evden Eve Nakliyat</a>
+        <a href="#hizmetler">Şehirler Arası Taşıma</a>
+        <a href="#hizmetler">Ofis Taşıma</a>
+        <a href="#hizmetler">Ücretsiz Montaj</a>
+      </div>
+
+      <div class="footer-column">
+        <h3>İletişim</h3>
+        <a href="tel:+905372265043">0537 226 50 43</a>
+        <a href="https://wa.me/905372265043" target="_blank" rel="noopener">WhatsApp Mesajı</a>
+        <span>Edremit / Balıkesir</span>
+        <span>Türkiye geneli hizmet</span>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>© <span id="currentYear">2026</span> Okur Nakliyat. Tüm hakları saklıdır.</p>
+      <a href="#anasayfa">Yukarı çık <span aria-hidden="true">↑</span></a>
+    </div>
+  </footer>
+
+  <div class="mobile-contact-bar" aria-label="Hızlı iletişim">
+    <a href="tel:+905372265043">
+      <span aria-hidden="true">☎</span>
+      Ara
+    </a>
+    <a href="https://wa.me/905372265043" target="_blank" rel="noopener">
+      <span aria-hidden="true">●</span>
+      WhatsApp
+    </a>
+  </div>
 </body>
 </html>
