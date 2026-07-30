@@ -1,0 +1,57 @@
+name: .htaccess testi
+
+# 403 Forbidden teşhisi için ikili test aracı.
+# Dosya izinleri sunucuda doğrulandı (klasör 755, dosya 644), bu nedenle
+# geriye kalan tek yerel şüpheli .htaccess dosyasıdır.
+#
+# devre-disi-birak  -> public_html/.htaccess dosyasını .htaccess.bak yapar
+# geri-yukle        -> .htaccess.bak dosyasını .htaccess olarak geri alır
+# listele           -> hiçbir şey değiştirmez, yalnızca dizini listeler
+on:
+  workflow_dispatch:
+    inputs:
+      islem:
+        description: "Yapılacak işlem"
+        required: true
+        default: "listele"
+        type: choice
+        options:
+          - listele
+          - devre-disi-birak
+          - geri-yukle
+
+jobs:
+  toggle:
+    name: public_html/.htaccess
+    runs-on: ubuntu-latest
+
+    env:
+      FTP_SERVER: ${{ secrets.FTP_SERVER }}
+      FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+      FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+
+    steps:
+      - name: lftp kurulumu
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+      - name: İşlemi uygula
+        run: |
+          case "${{ inputs.islem }}" in
+            devre-disi-birak)
+              CMD='mv public_html/.htaccess public_html/.htaccess.bak' ;;
+            geri-yukle)
+              CMD='mv public_html/.htaccess.bak public_html/.htaccess' ;;
+            *)
+              CMD='echo (degisiklik yok)' ;;
+          esac
+
+          echo "islem: ${{ inputs.islem }}"
+
+          lftp -u "$FTP_USERNAME,$FTP_PASSWORD" "$FTP_SERVER" -e "
+            set ssl:verify-certificate no
+            set ftp:ssl-force true
+            set cmd:fail-exit no
+            $CMD
+            ls -la public_html
+            bye
+          "
