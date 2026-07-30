@@ -1,0 +1,50 @@
+name: Yayına al (FTP)
+
+# `main` dalına her push sonrası site otomatik güncellenir.
+# Actions sekmesinden "Run workflow" ile elle de tetiklenebilir.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: okurnakliyatedremit.com
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Depoyu al
+        uses: actions/checkout@v4
+
+      - name: Yayın klasörünü hazırla
+        # Sunucuya yalnızca sitenin çalışması için gereken dosyalar gider.
+        # README.md, DEPLOY.md, .cpanel.yml ve .github/ yüklenmez.
+        run: |
+          mkdir -p dist
+          cp index.html dist/
+          cp .htaccess dist/
+          cp -R assets dist/
+          find dist -name '.gitkeep' -delete
+          echo "--- yüklenecek dosyalar ---"
+          find dist -type f | sort
+
+      - name: FTP ile sunucuya yükle
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # GoDaddy açık FTPS destekler. Bağlantı hatası alırsanız burayı
+          # protocol: ftp olarak değiştirin.
+          protocol: ftps
+          local-dir: ./dist/
+          # Alan adı addon domain ise burayı değiştirin, örneğin:
+          # server-dir: public_html/okurnakliyatedremit.com/
+          server-dir: public_html/
+          # Yalnızca değişen dosyalar yüklenir (durum dosyası sunucuda tutulur).
+          state-name: .ftp-deploy-state.json
+          dry-run: false

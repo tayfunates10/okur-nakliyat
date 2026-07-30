@@ -22,15 +22,16 @@ AddDefaultCharset UTF-8
 
 # --------------------------------------------------------------------------
 # HTTPS yönlendirmesi
-# SSL sertifikası (cPanel > AutoSSL) kurulduktan SONRA aşağıdaki bloğun
-# başındaki # işaretlerini kaldırın. Sertifika yokken açarsanız site
-# erişilemez hale gelir.
+# Etkin. Sertifika doğrulandı: Let's Encrypt, CN=okurnakliyatedremit.com.
+# Sertifika bir gün yenilenmez veya iptal edilirse bu blok siteyi
+# erişilemez hâle getirir; böyle bir durumda satırları yeniden yorum
+# hâline getirmek yeterlidir.
 # --------------------------------------------------------------------------
-# <IfModule mod_rewrite.c>
-#   RewriteEngine On
-#   RewriteCond %{HTTPS} !=on
-#   RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-# </IfModule>
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+</IfModule>
 
 # --------------------------------------------------------------------------
 # www / www'suz tekilleştirme (SEO)
