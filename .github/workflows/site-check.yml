@@ -73,23 +73,31 @@ jobs:
       - name: FTP dizin yapısı
         # Dosyaların sunucuda gerçekte nereye yazıldığını kesin olarak gösterir.
         # Secret değerleri GitHub tarafından log çıktısında maskelenir.
+        # Sunucu sertifikası kendi alan adıyla eşleşmediği için doğrulama
+        # kapatılır; bağlantı yine şifrelidir ve dağıtım aracı da aynı şekilde
+        # davranır (aksi hâlde yükleme de çalışmazdı).
         env:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           set +e
-          for dir in "/" \
-                     "/public_html/" \
-                     "/public_html/assets/" \
-                     "/public_html/public_html/" \
-                     "/public_html/okurnakliyatedremit.com/"; do
-            echo "=== $dir ==="
-            curl -sS --ssl-reqd --max-time 25 --list-only \
-              --user "$FTP_USERNAME:$FTP_PASSWORD" \
-              "ftp://$FTP_SERVER$dir" || echo "(listelenemedi)"
-            echo
-          done
+          sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+
+          echo "=== oturum açılan dizin ve ağaç yapısı ==="
+          lftp -u "$FTP_USERNAME,$FTP_PASSWORD" "$FTP_SERVER" <<'LFTP'
+            set ssl:verify-certificate no
+            set ftp:ssl-force true
+            set ftp:ssl-protect-data true
+            set cmd:fail-exit no
+            echo "--- pwd ---"
+            pwd
+            echo "--- oturum dizini icerigi ---"
+            ls -la
+            echo "--- 3 seviye derinlikte agac ---"
+            find -d 3
+            bye
+          LFTP
 
       - name: Yanıt başlıkları (.htaccess doğrulaması)
         run: |
