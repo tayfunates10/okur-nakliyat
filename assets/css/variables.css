@@ -1,0 +1,135 @@
+/* ==========================================================================
+   Okur Nakliyat — Tasarım Sistemi Değişkenleri
+   Tüm renk, ölçü, tipografi ve hareket değerleri burada tanımlanır.
+   Bileşen dosyalarında sabit (hard-coded) değer kullanılmaz.
+   ========================================================================== */
+
+:root {
+  /* ---------- Marka renkleri ---------- */
+  --color-yellow: #f5c400;
+  --color-yellow-light: #ffd94a;
+  --color-yellow-dark: #d9aa00;
+
+  --color-black: #0b0b0b;
+  --color-black-soft: #151515;
+  --color-anthracite: #222222;
+
+  --color-white: #ffffff;
+  --color-off-white: #f7f7f4;
+  --color-gray-light: #e7e7e2;
+  --color-gray: #969696;
+  --color-gray-dark: #565656;
+
+  /* ---------- Anlamsal (semantic) renkler ---------- */
+  --surface-page: var(--color-off-white);
+  --surface-dark: var(--color-black);
+  --surface-dark-soft: var(--color-black-soft);
+  --surface-glass: rgba(21, 21, 21, 0.62);
+  --surface-glass-strong: rgba(11, 11, 11, 0.9);
+
+  --text-on-dark: var(--color-white);
+  --text-on-dark-muted: rgba(255, 255, 255, 0.68);
+  --text-on-light: var(--color-black);
+  --text-on-light-muted: var(--color-gray-dark);
+
+  --border-on-dark: rgba(255, 255, 255, 0.12);
+  --border-on-dark-strong: rgba(255, 255, 255, 0.22);
+  --border-on-light: var(--color-gray-light);
+
+  --accent: var(--color-yellow);
+  --accent-soft: rgba(245, 196, 0, 0.14);
+  --accent-line: rgba(245, 196, 0, 0.35);
+
+  --focus-ring: var(--color-yellow-light);
+
+  /* ---------- Tipografi ---------- */
+  --font-heading: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 800;
+
+  --leading-tight: 1.04;
+  --leading-snug: 1.24;
+  --leading-normal: 1.65;
+
+  --tracking-tight: -0.03em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.08em;
+  --tracking-wider: 0.14em;
+
+  /* Akışkan tipografi ölçeği */
+  --fs-display: clamp(2.5rem, 6vw, 5.75rem);
+  --fs-h2: clamp(1.875rem, 3.4vw, 3rem);
+  --fs-lead: clamp(1rem, 1.15vw, 1.1875rem);
+  --fs-body: 1rem;
+  --fs-sm: 0.9375rem;
+  --fs-xs: 0.8125rem;
+  --fs-micro: 0.6875rem;
+
+  /* ---------- Boşluk ölçeği (4px tabanlı) ---------- */
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4.5rem;
+  --space-3xl: 6rem;
+
+  /* ---------- Yerleşim ---------- */
+  --container-max: 1240px;
+  --container-gutter: 32px;
+
+  --header-height: 84px;
+  --header-height-scrolled: 68px;
+  --header-height-mobile: 68px;
+
+  --tap-target: 44px;
+
+  /* ---------- Köşe yuvarlaklıkları ---------- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
+
+  /* ---------- Gölgeler (yumuşak ve doğal) ---------- */
+  --shadow-xs: 0 1px 2px rgba(11, 11, 11, 0.08);
+  --shadow-sm: 0 4px 14px rgba(11, 11, 11, 0.1);
+  --shadow-md: 0 10px 30px rgba(11, 11, 11, 0.14);
+  --shadow-lg: 0 24px 60px rgba(11, 11, 11, 0.28);
+  --shadow-header: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-accent: 0 12px 28px rgba(245, 196, 0, 0.26);
+
+  /* ---------- Geçişler ---------- */
+  /* Süreler ayrıca tutulur: visibility gibi kesikli özelliklerde gecikme için gerekir */
+  --duration-fast: 180ms;
+  --duration-normal: 320ms;
+  --duration-slow: 700ms;
+
+  --transition-fast: 180ms ease;
+  --transition-normal: 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-slow: 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ---------- Katman sırası ---------- */
+  --z-base: 1;
+  --z-hero-visual: 2;
+  --z-header: 100;
+  --z-overlay: 200;
+  --z-panel: 210;
+}
+
+/* Küçük ekranlarda kenar boşluğu ve header yüksekliği sadeleşir */
+@media (max-width: 767px) {
+  :root {
+    --container-gutter: 24px;
+    --header-height: var(--header-height-mobile);
+    --header-height-scrolled: 60px;
+  }
+}

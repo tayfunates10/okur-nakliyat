@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" fill="none">
+  <title>Okur Nakliyat — Edremit merkezli evden eve ve şehirler arası nakliyat</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0B0B0B"/>
+      <stop offset="0.55" stop-color="#151515"/>
+      <stop offset="1" stop-color="#0B0B0B"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#F5C400" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#F5C400" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <ellipse cx="960" cy="150" rx="420" ry="300" fill="url(#glow)"/>
+  <path d="M80 540 C 260 470 320 300 520 268 C 720 236 880 300 1060 210"
+        stroke="#F5C400" stroke-opacity="0.35" stroke-width="3"
+        stroke-linecap="round" stroke-dasharray="2 16"/>
+  <circle cx="80" cy="540" r="9" fill="#F5C400"/>
+  <circle cx="1060" cy="210" r="9" fill="#F5C400"/>
+
+  <!-- Marka işareti -->
+  <g transform="translate(80 96)">
+    <path d="M51.7 24.8 A21 21 0 1 1 39.2 12.3" stroke="#F5C400" stroke-width="8"
+          stroke-linecap="round" fill="none"/>
+    <circle cx="46.9" cy="17.1" r="6" fill="#FFD94A"/>
+  </g>
+  <text x="152" y="128" font-family="Manrope, Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="40" font-weight="800" letter-spacing="-1" fill="#FFFFFF">OKUR</text>
+  <text x="152" y="154" font-family="Manrope, Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="16" font-weight="600" letter-spacing="6" fill="#969696">NAKLİYAT</text>
+
+  <text x="80" y="300" font-family="Manrope, Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="66" font-weight="800" letter-spacing="-2" fill="#FFFFFF">Eşyalarınızı değil,</text>
+  <text x="80" y="376" font-family="Manrope, Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="66" font-weight="800" letter-spacing="-2" fill="#F5C400">güveninizi taşıyoruz.</text>
+
+  <text x="80" y="440" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="24" fill="#B9B9B4">Edremit merkezli · Şehir içi ve şehirler arası · Türkiye geneli</text>
+
+  <rect x="80" y="486" width="300" height="60" rx="30" fill="#F5C400"/>
+  <text x="230" y="524" text-anchor="middle" font-family="Manrope, Segoe UI, Helvetica, Arial, sans-serif"
+        font-size="21" font-weight="700" fill="#0B0B0B">0537 226 50 43</text>
+</svg>
