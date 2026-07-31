@@ -20,7 +20,7 @@ hiçbir pakete bağlı değildir ve sunucuya yalnızca statik dosyalar gönderil
 | İncelenen bölüm sayısı | 9 (hero, hizmetler, hakkımızda, süreç, hizmet bölgesi, SSS, teklif formu, CTA, footer) |
 | Test edilen viewport | 16 cihaz ölçüsü + 3 yatay senaryo + 29 ara genişlik + 5 çentik simülasyonu; `404.html` için ayrıca 13 ölçü |
 | Değiştirilen dosya sayısı | 5 (`style.css`, `variables.css`, `components.css`, `index.html`, `404.html`) |
-| Oluşturulan dosya sayısı | 4 (`tests/responsive-audit.js`, `package.json`, `docs/` altındaki 3 rapor) |
+| Oluşturulan dosya sayısı | 5 (`tests/responsive-audit.js`, `package.json`, `docs/` altındaki 4 belge) |
 | Düzeltilen ölçülmüş kusur | 11 |
 | Uygulanan iyileştirme | 2 |
 
@@ -121,6 +121,30 @@ Düzeltme gerektiren başka bulgu çıkmadı.
   taşındı, `role="group"` ve `:focus-visible` çerçevesi eklendi.
 - Teklif formundaki adres alanlarına `autocomplete="address-level2"` eklendi.
 
+### İkon sistemi
+
+Sitede iki ayrı çizim ızgarası (24 ve 48 birim) ve elle seçilmiş beş farklı
+`stroke-width` değeri vardı. Sonuç: ekranda çizilen gerçek çizgi kalınlığı
+**1,05 – 1,70 px** arasında değişiyordu (%61 fark) ve iletişim kartı ikonları
+diğerlerinin yanında gözle görülür biçimde soluk kalıyordu.
+
+- Bütün ikonlar tek bir **24×24 ızgaraya** taşındı (20×20 canlı alan, 2 birim
+  iç boşluk). 12 adet 48'lik ikon yeniden çizildi.
+- Tek çizim dili: stroke tabanlı, `fill: none`, `currentColor`, yuvarlak uç ve
+  köşe. Dolgu/kontur karışımı kaldırıldı.
+- `stroke-width` SVG'den çıkarılıp **CSS'e** alındı ve bağlama göre optik olarak
+  dengelendi: render boyutu büyüdükçe çizgi göreli olarak incelir. Ekrandaki
+  kalınlık artık **1,50 – 1,88 px** bandında.
+- `package` (tek kutu) ile `boxes` (istiflenmiş kutular) birbirinden ayrıldı;
+  "Paketleme ve Koruma" ikonundaki artı işareti tıbbi okunduğu için kalkan
+  içinde kutuyla değiştirildi.
+- Mobil iletişim çubuğundaki `☎` ve `●` metin sembolleri gerçek ikonlarla
+  değiştirildi.
+- Kurallar `docs/icon-system.md` içinde belgelendi.
+
+Marka işareti ve hizmet bölgesi haritası bu sistemin dışında bırakıldı.
+Inline SVG toplamı 7.465 → 7.058 bayta indi.
+
 ### Animasyon düzenlemeleri
 
 - `prefers-reduced-motion` desteği doğrulandı: sonsuz animasyonlar ve parallax
@@ -157,7 +181,7 @@ sorun bulunmadı:**
   önceden yükleniyor (LCP kaynağı).
 - `.htaccess` üzerinden gzip/brotli; statik dosyalar için 1 yıllık `immutable`
   önbellek, HTML için `no-cache` — canlıda yanıt başlıklarıyla doğrulanmıştı.
-- CSS ve JavaScript sürgüsü `?v=3 → ?v=7` yapıldı; yayına alındığında eski
+- CSS ve JavaScript sürgüsü `?v=3 → ?v=8` yapıldı; yayına alındığında eski
   CSS önbellekten servis edilmeyecek.
 
 ---
@@ -406,7 +430,8 @@ Yalnızca gerçekten ölçülüp doğrulanan kutular işaretlenmiştir.
 - [x] Görseller optimize edildi (4 raster görsel, %94,5–%97,2 tasarruf)
 - [x] `srcset` responsive görsel eklendi ve 4 senaryoda doğrulandı (mobilde %62 tasarruf)
 - [x] Open Graph görseli SVG'den JPG'ye çevrildi (sosyal önizleme sorunu giderildi)
-- [x] SVG kuralına uyuldu (yeni SVG illüstrasyon üretilmedi)
+- [x] SVG kuralına uyuldu (yeni SVG illüstrasyon üretilmedi; yalnızca ikonlar — kuralın açık istisnası)
+- [x] İkon sistemi tek ızgaraya taşındı ve çizgi kalınlığı optik olarak dengelendi (%61 → %25 fark)
 - [x] ChatGPT promptları hazırlandı (3 adet) ve üçü de entegre edildi
 - [x] Console error yok (site kaynaklı)
 - [x] Kırık asset yok (404 yok)

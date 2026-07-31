@@ -20,6 +20,26 @@
   padding-right: max(calc(var(--container-gutter) / 2), env(safe-area-inset-right, 0px));
 }
 
+/* --------------------------------------------------------------------------
+   İkon sistemi
+   Tek ızgara: 24×24 birim, 20×20 canlı alan (2 birim iç boşluk).
+   Tümü stroke tabanlı — fill yok, currentColor, yuvarlak uç ve köşe.
+
+   Çizgi kalınlığı bağlama göre ayarlanır. Amaç, ekrandaki gerçek kalınlığı
+   1,50–1,90 px bandında tutmak: render boyutu büyüdükçe çizgi *göreli* olarak
+   incelir, mutlak olarak hafifçe kalınlaşır. Tek bir sabit değer kullanılsaydı
+   17px'lik onay işareti ile 36px'lik süreç ikonu arasında iki kat fark olurdu.
+   -------------------------------------------------------------------------- */
+
+.icon {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* Ekran okuyucular için görünmez ama erişilebilir metin */
 .visually-hidden {
   position: absolute;
