@@ -30,7 +30,22 @@
   <link rel="icon" href="assets/images/logo/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+
+  <!--
+    Google Fonts stil sayfası render'ı bloklamaz. Blokladığında, servis
+    yavaşlarsa veya erişilemezse sayfa tamamen boş kalıyordu (ölçüldü: 13 sn).
+    media="print" ile indirilir, yüklenince "all" yapılır; yazı tipi gelene
+    kadar --font-body / --font-heading yedekleri (Segoe UI, system-ui)
+    kullanılır.
+  -->
+  <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+  <link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+  <noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+  </noscript>
 
   <link rel="preload" href="assets/images/hero/okur-nakliyat-hero-background.webp"
         as="image" type="image/webp" fetchpriority="high">
@@ -38,9 +53,9 @@
   <link rel="stylesheet" href="assets/css/reset.css">
   <link rel="stylesheet" href="assets/css/variables.css">
   <link rel="stylesheet" href="assets/css/components.css">
-  <link rel="stylesheet" href="assets/css/style.css?v=5">
+  <link rel="stylesheet" href="assets/css/style.css?v=6">
 
-  <script defer src="assets/js/main.js?v=5"></script>
+  <script defer src="assets/js/main.js?v=6"></script>
 
   <noscript>
     <style>

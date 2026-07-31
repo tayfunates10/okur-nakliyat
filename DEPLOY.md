@@ -114,8 +114,8 @@ CSS, JavaScript ve görseller uzun süreli önbelleğe sahiptir. CSS veya JavaSc
 değiştirildiğinde `index.html` içindeki sorgu sürümünü artırın:
 
 ```html
-<link rel="stylesheet" href="assets/css/style.css?v=6">
-<script defer src="assets/js/main.js?v=6"></script>
+<link rel="stylesheet" href="assets/css/style.css?v=7">
+<script defer src="assets/js/main.js?v=7"></script>
 ```
 
 HTML, XML ve TXT dosyaları `no-cache` olarak servis edilir.

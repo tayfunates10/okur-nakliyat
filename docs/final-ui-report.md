@@ -21,7 +21,7 @@ hiçbir pakete bağlı değildir ve sunucuya yalnızca statik dosyalar gönderil
 | Test edilen viewport | 16 cihaz ölçüsü + 3 yatay senaryo + 29 ara genişlik + 5 çentik simülasyonu; `404.html` için ayrıca 13 ölçü |
 | Değiştirilen dosya sayısı | 5 (`style.css`, `variables.css`, `components.css`, `index.html`, `404.html`) |
 | Oluşturulan dosya sayısı | 4 (`tests/responsive-audit.js`, `package.json`, `docs/` altındaki 3 rapor) |
-| Düzeltilen ölçülmüş kusur | 10 |
+| Düzeltilen ölçülmüş kusur | 11 |
 | Uygulanan iyileştirme | 2 |
 
 ---
@@ -144,12 +144,20 @@ sorun bulunmadı:**
 
 ### Performans
 
+- **İlk boyamayı bloklayan Google Fonts stil sayfası düzeltildi.** Ölçüm:
+  FCP ve LCP **mobilde 13.016 ms, masaüstünde 12.776 ms** iken `domInteractive`
+  yalnızca 15–72 ms idi — DOM anında hazırdı, ancak tarayıcı bloklayan stil
+  sayfası çözülene kadar tek piksel boyamıyordu. `display=swap` yalnızca yazı
+  tipi *dosyasını* ilgilendirir; *stil sayfası* bloklayıcıdır. Bloklamayan
+  yüklemeye geçildi (`preload as=style` + `media="print"` / `onload` +
+  `<noscript>` yedeği). Sonuç: **FCP/LCP mobilde 152 ms, masaüstünde 240 ms** —
+  aynı koşulda yaklaşık **85 kat** iyileşme. Düzen değişmedi (ekran
+  görüntüsüyle doğrulandı), CLS 0 / 0,001 seviyesinde kaldı.
 - Hero arka planı `<link rel="preload" as="image" fetchpriority="high">` ile
   önceden yükleniyor (LCP kaynağı).
-- Fontlar tek istekte, `display=swap` ve `preconnect` ile.
 - `.htaccess` üzerinden gzip/brotli; statik dosyalar için 1 yıllık `immutable`
   önbellek, HTML için `no-cache` — canlıda yanıt başlıklarıyla doğrulanmıştı.
-- CSS ve JavaScript sürgüsü `?v=3 → ?v=5` yapıldı; yayına alındığında eski
+- CSS ve JavaScript sürgüsü `?v=3 → ?v=6` yapıldı; yayına alındığında eski
   CSS önbellekten servis edilmeyecek.
 
 ---
@@ -180,6 +188,8 @@ sorun bulunmadı:**
 | Formlar | **Başarılı** | Teklif formu 320 px dahil tüm ölçülerde kapsayıcı içinde |
 | Mobil menü | **Başarılı** | Açılma, ESC, overlay, kaydırma kilidi, odak panele giriş ve düğmeye dönüş |
 | Lighthouse | **Çalıştırılamadı** | Ortamda Lighthouse CLI yok, dış ağ erişimi beyaz listeyle sınırlı |
+| Core Web Vitals (doğrudan ölçüm) | **Başarılı** | `PerformanceObserver` ile LCP ve CLS ölçüldü — aşağıdaki tablo |
+| Kullanılmayan CSS taraması | **Başarılı** | 380 kural tarandı; gerçekten ölü kural 2 (bkz. bölüm 8) |
 | Otomatik a11y taraması (axe) | **Çalıştırılamadı** | Paket ortamda kurulu değil, dış ağ erişimi sınırlı |
 | Erişilebilirlik (elle) | **Kısmen başarılı** | Dokunma hedefi, başlık sırası, ARIA, odak yönetimi kontrol edildi |
 | Gerçek cihaz testi | **Çalıştırılamadı** | Ortamda fiziksel cihaz yok — çentik davranışı simülasyonla doğrulandı |
@@ -243,6 +253,30 @@ bir kopya üzerinde ölçüldü.
 | Yatay 844×390 / 932×430 (yanlar 59, alt 21) | **59 px** | 0 px | (gizli) | Yok |
 | Çentiksiz (`env() = 0`) | 16–24 px | 0 px | 10 px | Yok |
 
+### Core Web Vitals (Playwright + `PerformanceObserver`, yerel sunucu)
+
+Lighthouse çalıştırılamadığı için metrikler doğrudan tarayıcı API'siyle ölçüldü.
+
+| Metrik | Mobil 390×844 | Masaüstü 1440×900 | Eşik | Durum |
+| --- | --- | --- | --- | --- |
+| FCP — **önce** | 13.016 ms | 12.776 ms | < 1.800 ms | ❌ |
+| FCP — **sonra** | **152 ms** | **240 ms** | < 1.800 ms | ✅ |
+| LCP — **sonra** | **152 ms** | **240 ms** | < 2.500 ms | ✅ |
+| CLS | **0** | **0,001** | < 0,1 | ✅ |
+| `domInteractive` | 23 ms | 21 ms | — | ✅ |
+| Toplam aktarım | 189,5 KB | 189,5 KB | — | ✅ |
+| Kaynak sayısı | 9 | 9 | — | ✅ |
+
+LCP kaynağı masaüstünde `div.hero-background` (önceden yüklenen WebP).
+Aktarımın dağılımı: HTML 40,0 KB · CSS 63,1 KB · görsel 75,2 KB · JS 11,2 KB.
+
+**Ölçümün sınırı:** Denetim ortamı Google Fonts'a erişemiyor. Bu, "font servisi
+erişilemez" senaryosunu gerçekçi biçimde test etmemizi sağladı ve düzeltilen
+kusuru ortaya çıkardı. Gerçek kullanıcıların çoğunda font servisi ~100 ms'de
+yanıt verir; bu nedenle **önce** sütunundaki değerler tipik değil, en kötü
+durum değerleridir. Düzeltmeden sonra ilk boyama artık font servisine hiç
+bağlı değildir.
+
 ---
 
 ## 5. WebP dönüşüm raporu
@@ -305,8 +339,15 @@ kural kapsamında inline SVG olarak kalmaya devam ediyor.
 
 ## 8. Bilinen kalan riskler
 
-- **Google Fonts bağımlılığı:** Fontlar dış servisten geliyor. Servis yavaşlarsa
-  `display=swap` sayesinde metin görünür kalır, ancak yazı tipi geç oturur.
+- **Google Fonts bağımlılığı:** Fontlar hâlâ dış servisten geliyor. İlk boyama
+  artık bu servise bağlı değil (bloklamayan yüklemeye geçildi), ancak servis
+  yavaşladığında yazı tipi geç oturur ve kısa bir yedek-font aşaması görünür.
+  Tam bağımsızlık isteniyorsa `.woff2` dosyaları `assets/fonts/` altına alınıp
+  `@font-face` ile yerelden servis edilmelidir.
+- **Kullanılmayan CSS:** `.btn-secondary.btn-on-light` (2 kural, ~0,2 KB) hiçbir
+  HTML'de kullanılmıyor. Tasarım sisteminin belgelenmiş bir varyantı olduğu ve
+  ileride açık zeminli bir bölümde gerekebileceği için silinmedi. Taranan diğer
+  380 kuralın tamamı ya kullanılıyor ya da durum bağımlı.
 - **Open Graph önizlemesi:** `og:image` hâlâ SVG. Bazı platformlar SVG önizlemeyi
   desteklemez; paylaşım kartı bu görsel değişene kadar bazı uygulamalarda boş
   görünebilir. (Prompt 2)
@@ -365,6 +406,9 @@ Yalnızca gerçekten ölçülüp doğrulanan kutular işaretlenmiştir.
 - [x] Başlık hiyerarşisi doğrulandı (tek `h1`, seviye atlaması yok)
 - [x] Form denetimleri iOS Safari zoom eşiğinin üzerinde (16 px)
 - [x] Yinelenen CSS seçicisi yok; `!important` kullanımlarının tamamı gerekçeli
+- [x] Core Web Vitals ölçüldü (LCP 152/240 ms, CLS 0/0,001 — ikisi de eşiğin altında)
+- [x] Render'ı bloklayan kaynak kaldırıldı (FCP 13.016 ms → 152 ms)
+- [x] Kullanılmayan CSS tarandı (380 kural; gerçekten ölü olan 2 kural raporlandı)
 - [x] Final raporu oluşturuldu
 - [ ] Build başarılı — *derleme sistemi yok, çalıştırılamadı*
 - [ ] Lighthouse skorları — *ortamda çalıştırılamadı, bölüm 7*

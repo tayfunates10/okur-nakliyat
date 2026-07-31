@@ -135,7 +135,20 @@ alınmıştır; hiçbiri gözle tahmin değildir.
 | Çözüm | `aria-label` kaydırma yapan iç öğeye taşındı, `role="group"` eklendi ve `:focus-visible` için görünür bir çerçeve tanımlandı. `tabindex` eklenmedi; böylece durak yalnızca şerit gerçekten kaydırılabilir olduğunda oluşur. |
 | Son durum | ✅ Durak isimli (`role=group`, "Öne çıkan hizmetler") ve görünür. Sınırlama: Firefox ve Safari kaydırılabilir kutuları kendiliğinden odaklanabilir yapmaz — bkz. kalan riskler. |
 
-### 12. Bu daldaki önceki düzeltmeler (yürürlükte)
+### 12. Google Fonts stil sayfası ilk boyamayı blokluyordu
+
+| | |
+| --- | --- |
+| Bileşen | `index.html` `<head>` — Google Fonts `<link rel="stylesheet">` |
+| Ekranlar | Tümü |
+| Ölçüm | **FCP ve LCP: mobilde 13.016 ms, masaüstünde 12.776 ms.** Buna karşılık `domInteractive` yalnızca 15–72 ms. Yani DOM anında hazır oluyor, ancak tarayıcı bloklayan stil sayfası çözülene kadar **tek piksel boyamıyor**. |
+| Neden | Harici stil sayfaları render'ı bloklar. `display=swap` yalnızca *yazı tipi dosyasını* ilgilendirir; *stil sayfasının* kendisi bloklayıcıdır. Servis yavaşladığında, güvenlik duvarı engellediğinde veya ağ takıldığında sayfa tamamen beyaz kalır. Bu ölçüm denetim ortamında Google Fonts erişilemediği için ortaya çıktı; ancak gerçek kullanıcıların bir kısmı için de aynı senaryo geçerlidir — tek bir dış servise bağlı ilk boyama, gerçek bir dayanıklılık kusurudur. |
+| Çözüm | Bloklamayan yükleme: `<link rel="preload" as="style">` ile erken indirme, ardından `<link rel="stylesheet" media="print" onload="this.media='all'">` ile boyamayı bloklamadan uygulama, JavaScript kapalı kullanıcılar için `<noscript>` yedeği. Yazı tipi gelene kadar `--font-body` / `--font-heading` içindeki yedekler (Segoe UI, system-ui) kullanılır. |
+| Son durum | ✅ **FCP/LCP mobilde 13.016 → 152 ms, masaüstünde 12.776 → 240 ms.** Aynı koşulda (font servisi erişilemez) yaklaşık **85 kat** iyileşme. CLS 0 / 0,001 seviyesinde kaldı, düzen değişmedi — ekran görüntüsüyle doğrulandı. |
+
+---
+
+## Bu daldaki önceki düzeltmeler (yürürlükte)
 
 | Değişiklik | Dosya | Durum |
 | --- | --- | --- |
@@ -201,6 +214,9 @@ Aşağıdakiler ölçülerek kontrol edildi; düzeltme gerektiren bulgu çıkmad
 | Görseller | Tek `<img>`; yükleniyor (`naturalWidth 960`), açıklayıcı `alt` metni ve `width`/`height` öznitelikleri var (layout shift üretmez). |
 | `prefers-reduced-motion` | `reset.css` içinde `scroll-behavior: auto !important` dahil global azaltma; `style.css` içinde hero animasyonları ve parallax kapatılıyor. |
 | Yinelenen CSS | Aynı medya bağlamında iki kez tanımlanmış seçici **yok** (0). |
+| Kullanılmayan CSS | 380 stil kuralı tarandı. DOM ile eşleşmeyen 23 kuralın 22'si **durum bağımlı** (`:focus-visible`, `[open]`, `[disabled]`, `.is-scrolled`, `.is-menu-open`, `[aria-expanded="true"]`, `::selection`, `.is-visible`) — statik taramanın tetikleyemediği, gerçekte kullanılan kurallar. Yalnızca `.btn-secondary.btn-on-light` (2 kural, ~0,2 KB) hiç kullanılmıyor; tasarım sisteminin belgelenmiş bir varyantı olduğu için silinmedi. |
+| Katman kaymaları (CLS) | Mobil **0**, masaüstü **0,001** (eşik 0,1). Sayfa boyunca kaydırılarak ölçüldü. |
+| Toplam aktarım | 189,5 KB (HTML 40,0 · CSS 63,1 · görsel 75,2 · JS 11,2) — 9 kaynak. |
 | `!important` kullanımı | Toplam 8; **tamamı gerekçeli**: 5'i `prefers-reduced-motion` bloklarında, 3'ü `<noscript>` içinde ana stil sayfasını geçersiz kılmak için. |
 
 ## Test edilen ekran ölçüleri
@@ -239,6 +255,8 @@ değiştirilerek.
 | Masaüstü footer ölü alanı | 104 px | **56 px** |
 | `404.html` yatay ekranda dikey taşma | 2 ölçüde var | **yok** |
 | Güvenli alan (`env()`) desteği | yok | **7 bileşende var** |
+| FCP / LCP (font servisi erişilemezken) | **13.016 ms** | **152 ms** |
+| CLS | 0 / 0,001 | **0 / 0,001** |
 | İsimsiz klavye durağı | 1 | **0** |
 | Konsol hatası (site kaynaklı) | 0 | **0** |
 | Kırık asset / kırık çapa | 0 | **0** |
