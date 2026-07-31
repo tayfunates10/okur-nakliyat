@@ -60,38 +60,6 @@ jobs:
             test "$code" = "200"
           done
 
-      - name: Özel 404 davranışı
-        run: |
-          set -e
-
-          code=$(curl -sS -o missing.html -w "%{http_code}" --max-time 20 \
-            "https://$SITE/bu-sayfa-yok-okur-kontrol")
-          echo "http=$code"
-          echo "gövde: $(wc -c < missing.html) bayt"
-
-          # Hata durumunda ne döndüğü görünsün; sessiz başarısızlık teşhisi
-          # imkânsız kılıyordu.
-          if ! grep -qF "Bu sayfa taşınmış olabilir." missing.html; then
-            echo "--- hata yanıtının gövdesi (ilk 600 bayt) ---"
-            head -c 600 missing.html
-            echo
-            echo "--- /404.html dosyasının kendisi ---"
-            curl -sS -o direct404.html -w "http=%{http_code}\n" --max-time 20 \
-              "https://$SITE/404.html"
-            echo "boyut: $(wc -c < direct404.html) bayt"
-            if grep -qF "Bu sayfa taşınmış olabilir." direct404.html; then
-              echo "dosya İÇERİĞİ doğru -> sorun ErrorDocument yönlendirmesinde"
-            else
-              echo "dosya İÇERİĞİ yanlış -> sorun dağıtımda"
-              head -c 400 direct404.html
-              echo
-            fi
-            echo "--- bitiş ---"
-          fi
-
-          test "$code" = "404"
-          grep -qF "Bu sayfa taşınmış olabilir." missing.html
-
       - name: Yanıt başlıkları
         run: |
           set -e
@@ -137,3 +105,35 @@ jobs:
 
           echo
           echo ">>> SONUC: Sayfa ve üretim dosyaları beklendiği gibi yayında."
+
+      - name: Özel 404 davranışı
+        run: |
+          set -e
+
+          code=$(curl -sS -o missing.html -w "%{http_code}" --max-time 20 \
+            "https://$SITE/bu-sayfa-yok-okur-kontrol")
+          echo "http=$code"
+          echo "gövde: $(wc -c < missing.html) bayt"
+
+          # Hata durumunda ne döndüğü görünsün; sessiz başarısızlık teşhisi
+          # imkânsız kılıyordu.
+          if ! grep -qF "Bu sayfa taşınmış olabilir." missing.html; then
+            echo "--- hata yanıtının gövdesi (ilk 600 bayt) ---"
+            head -c 600 missing.html
+            echo
+            echo "--- /404.html dosyasının kendisi ---"
+            curl -sS -o direct404.html -w "http=%{http_code}\n" --max-time 20 \
+              "https://$SITE/404.html"
+            echo "boyut: $(wc -c < direct404.html) bayt"
+            if grep -qF "Bu sayfa taşınmış olabilir." direct404.html; then
+              echo "dosya İÇERİĞİ doğru -> sorun ErrorDocument yönlendirmesinde"
+            else
+              echo "dosya İÇERİĞİ yanlış -> sorun dağıtımda"
+              head -c 400 direct404.html
+              echo
+            fi
+            echo "--- bitiş ---"
+          fi
+
+          test "$code" = "404"
+          grep -qF "Bu sayfa taşınmış olabilir." missing.html
