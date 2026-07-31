@@ -20,6 +20,26 @@
   padding-right: max(calc(var(--container-gutter) / 2), env(safe-area-inset-right, 0px));
 }
 
+/* --------------------------------------------------------------------------
+   İkon sistemi
+   Tek ızgara: 24×24 birim, 20×20 canlı alan (2 birim iç boşluk).
+   Tümü stroke tabanlı — fill yok, currentColor, yuvarlak uç ve köşe.
+
+   Çizgi kalınlığı bağlama göre ayarlanır. Amaç, ekrandaki gerçek kalınlığı
+   1,50–1,90 px bandında tutmak: render boyutu büyüdükçe çizgi *göreli* olarak
+   incelir, mutlak olarak hafifçe kalınlaşır. Tek bir sabit değer kullanılsaydı
+   17px'lik onay işareti ile 36px'lik süreç ikonu arasında iki kat fark olurdu.
+   -------------------------------------------------------------------------- */
+
+.icon {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* Ekran okuyucular için görünmez ama erişilebilir metin */
 .visually-hidden {
   position: absolute;
@@ -251,18 +271,68 @@
   border-radius: var(--radius-sm);
 }
 
+/* Marka işareti: sarı halka "O" + kamyon silueti "N".
+   Halka her zaman marka sarısı; kamyon currentColor ile gelir, böylece koyu
+   zeminde beyaz, açık zeminde siyah olur (logonun knockout sürümü).
+   Oran 66:36 — yükseklik verilir, genişlik oranla hesaplanır. */
 .brand-mark {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
+  display: block;
+  height: 38px;
   flex: none;
-  color: var(--color-yellow);
+  color: currentColor;
+}
+
+.brand-glyph {
+  display: block;
+  height: 100%;
+  width: auto;
+  overflow: visible;
+}
+
+/* Halka ve kamyon ayrı ayrı hareket eder; tek parça döndürmek kamyonu da
+   yatırıyordu. transform-box olmadan grup dönüşümleri viewBox köşesini
+   referans alır. */
+.brand-ring,
+.brand-truck {
+  transform-box: fill-box;
+  transform-origin: center;
   transition: transform var(--transition-normal);
 }
 
-.brand:hover .brand-mark {
-  transform: rotate(-8deg) scale(1.04);
+.brand:hover .brand-ring,
+.brand:focus-visible .brand-ring {
+  transform: scale(1.07);
+}
+
+.brand:hover .brand-truck,
+.brand:focus-visible .brand-truck {
+  transform: translateX(2.4px);
+}
+
+/* Açılış animasyonu yalnızca header'da: footer ve mobil menüdeki kopyalar
+   görünür alanın dışında olduğu için hareket etmelerinin bir anlamı yok.
+   fill-mode: backwards — animasyon bitince öğe normal stiline döner, böylece
+   hover geçişleri çalışmaya devam eder. */
+.site-header .brand-ring {
+  animation: brandRingIn 0.62s var(--ease-out-soft) backwards;
+}
+
+.site-header .brand-truck {
+  animation: brandTruckIn 0.62s var(--ease-out-soft) 0.1s backwards;
+}
+
+@keyframes brandRingIn {
+  from {
+    opacity: 0;
+    transform: scale(0.55);
+  }
+}
+
+@keyframes brandTruckIn {
+  from {
+    opacity: 0;
+    transform: translateX(-7px);
+  }
 }
 
 .brand-text {
@@ -278,13 +348,18 @@
   letter-spacing: var(--tracking-tight);
 }
 
+/* Logodaki sarı ayraç çizgisi. Genişliği NAKLİYAT satırından gelir; harf
+   aralığı yüzünden bu satır OKUR'dan geniş olduğu için çizgi tüm kilidi
+   kaplar — logonun kendisindeki oranla aynı. */
 .brand-sub {
-  margin-top: 3px;
+  margin-top: 4px;
+  padding-top: 4px;
   font-family: var(--font-heading);
   font-size: var(--fs-micro);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-wider);
   color: var(--color-gray);
+  border-top: 2px solid var(--color-yellow);
 }
 
 /* --------------------------------------------------------------------------

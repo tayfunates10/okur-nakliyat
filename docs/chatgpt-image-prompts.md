@@ -18,6 +18,7 @@ projeye sağlamıştır.** Claude bu görselleri dönüştürüp entegre etmiş 
 | 1 — Hero ön plan aracı | ✅ Kullanıcı üretti | ✅ WebP (şeffaflık korundu) + 900px varyant | ✅ `srcset` ile |
 | 2 — Open Graph görseli | ✅ Kullanıcı üretti | ✅ 1200×630 JPG | ✅ `og:image`, `twitter:image`, JSON-LD |
 | 3 — Hakkımızda görseli | ✅ Kullanıcı üretti | ✅ WebP | ✅ inline SVG'nin yerine |
+| 4 — Hizmet bölgesi haritası | ✅ Kullanıcı üretti | ✅ Kırpma + renk düzeltmesi + WebP, 2 varyant | ✅ `srcset` ile, inline SVG'nin yerine |
 
 ## Mevcut görsel envanteri
 
@@ -30,6 +31,8 @@ projeye sağlamıştır.** Claude bu görselleri dönüştürüp entegre etmiş 
 | `assets/images/hero/okur-nakliyat-hero-arac-900.webp` | Raster (WebP, şeffaf) | 900 × 600 | 44,5 KB | ✅ `srcset` mobil varyantı |
 | `assets/images/about/okur-nakliyat-hakkimizda.webp` | Raster (WebP) | 1217 × 1293 | 34,4 KB | ✅ Hakkımızda bölümü |
 | `assets/images/og/okur-nakliyat-og.jpg` | Raster (JPG) | 1200 × 630 | 57,5 KB | ✅ Paylaşım görseli |
+| `assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp` | Raster (WebP, şeffaf) | 1300 × 618 | 137,3 KB | ✅ Hizmet bölgesi (masaüstü) |
+| `assets/images/coverage/okur-nakliyat-hizmet-bolgesi-900.webp` | Raster (WebP, şeffaf) | 900 × 428 | 71,9 KB | ✅ `srcset` mobil varyantı |
 | `assets/images/logo/favicon.svg` | Logo / ikon | 64 × 64 | 331 B | ✅ Kural gereği SVG kalabilir |
 
 Prompt 1 ve 2 ile değiştirilen `okur-nakliyat-hero.svg` ve `okur-nakliyat-og.svg`
@@ -40,7 +43,7 @@ dosyaları **silinmiştir**.
 | Konum | viewBox | Rol | Durum |
 | --- | --- | --- | --- |
 | `.about-scene` (`#hakkimizda`) | — | Taşıma sahnesi illüstrasyonu | ✅ **Raster ile değiştirildi** (Prompt 3) |
-| `.coverage-map` (hizmet bölgesi) | 820 × 390 | Dekoratif Türkiye haritası + güzergâh noktaları | ℹ️ Vektör kalması tercih edildi — gerekçe aşağıda |
+| `.coverage-map` (hizmet bölgesi) | — | Türkiye haritası + güzergâh noktaları | ✅ **Raster ile değiştirildi** (Prompt 4) |
 | Arayüz ikonları (telefon, WhatsApp, konum, menü, ok, onay, hizmet kartı ikonları) | çeşitli | İkon | ✅ Kural gereği inline SVG kalır |
 
 > **SVG kuralına uyum — dürüst durum bildirimi:** Bu denetim çalışmasında
@@ -49,10 +52,10 @@ dosyaları **silinmiştir**.
 > tasarım aşamasında oluşturulmuştu. Siteyi çalışır durumda tutmak için
 > silinmediler; raster karşılıkları için aşağıya prompt hazırlanmıştır.
 >
-> `.coverage-map` için raster prompt hazırlanmadı: bu öğe bir *harita*dır,
-> illüstrasyon değildir. Rasterleştirilirse 2560 px'lik ekranlarda kenarları
-> bozulur ve `aria-hidden` dekoratif rolüne kıyasla gereksiz ağırlık getirir.
-> Bu, bilinçli bir tercihtir; kullanıcı aksini isterse prompt eklenebilir.
+> `.coverage-map` için başlangıçta prompt hazırlanmamıştı — bu öğe bir
+> *harita*dır ve rasterleştirilmesi büyük ekranlarda kenar kalitesi açısından
+> risklidir. Kullanıcı talebi üzerine **Prompt 4** eklendi; oradaki uyarı
+> notu bu riski ayrıntılandırıyor.
 
 ---
 
@@ -234,6 +237,101 @@ dosyaları **silinmiştir**.
    kuralını ekle.
 5. `npm run test:responsive` çalıştırıp oran bozulması (`dist`) sayısının 0
    kaldığını doğrula.
+
+---
+
+## Prompt 4 — Hizmet bölgesi haritası
+
+| Alan | Değer |
+| --- | --- |
+| Sayfa | Ana sayfa (`index.html`) |
+| Bölüm | Hizmet bölgemiz — sağ sütun `.coverage-map` |
+| Önerilen dosya adı | `okur-nakliyat-hizmet-bolgesi.webp` |
+| Piksel ölçüsü | **1640 × 780** (2:1 çıktı da kabul edilir, uyarlanır) |
+| En-boy oranı | 2,103:1 — mevcut `viewBox 820 × 390` ile aynı |
+| Kullanım | Masaüstünde sağ sütun (821 × 391 CSS px), 1080 px altında tam genişlik, 720 px altında iki kenardan 16 px taşacak şekilde |
+| Zemin | **Bölümün zemini marka sarısı `#F5C400`** — görsel şeffaf olmalı |
+| Şeffaflık | **Zorunlu** — PNG olarak üretilip WebP'ye çevrilecek |
+| Mobil varyasyon | Gerekmiyor |
+
+> **Bu prompt diğerlerinden riskli.** Görsel üretim modelleri ülke sınırlarını
+> güvenilir biçimde çizemez; Türkiye'nin kıyı şeridi çoğu zaman bozuk çıkar.
+> Nakliyat sitesinde yanlış görünen bir Türkiye haritası, mevcut soyut
+> silüetten daha kötüdür. Bu yüzden prompt **coğrafi doğruluk değil, stilize
+> silüet** istiyor. Gelen görsel Türkiye gibi durmuyorsa entegre edilmemeli;
+> o durumda doğru kaynak görsel üretimi değil, kamuya açık coğrafi veridir.
+
+**Prompt:**
+
+> Create a stylized, minimal map illustration for the "service area" section of
+> a Turkish moving company website.
+>
+> Aspect ratio: 2.1:1, 1640 x 780 pixels. **Transparent background (alpha
+> channel) — the artwork will be placed on a solid yellow section, so no
+> background fill of any kind.**
+>
+> Subject: a single simplified silhouette of Turkiye, drawn as one solid shape.
+> Smooth, softened coastline — a clean graphic abstraction, not a precise
+> cartographic outline. No neighbouring countries, no borders, no water, no
+> grid, no compass, no legend.
+>
+> On the silhouette: nine small filled circles marking cities, and three
+> gently curved dashed connection lines that all radiate from one point in the
+> left third of the shape toward points to the right. Around that same origin
+> point, two thin concentric rings.
+>
+> Critical: every circle, dashed line and ring must sit **entirely inside** the
+> dark silhouette. Nothing may extend past its edge, because outside the
+> silhouette the background is transparent and yellow marks would disappear
+> against the yellow section.
+>
+> Colors: silhouette in near-black (#101010). Circles, dashed lines and rings
+> in brand yellow (#F5C400); the rings at low opacity. No other colors, no
+> gradients, no glow, no drop shadow.
+>
+> Style: flat vector look, clean edges, generous negative space. Calm and
+> corporate.
+>
+> Must NOT include: any text, letters, city names, numbers, watermarks, logos,
+> brand marks, pins with tails, photographic elements, 3D effects, or a
+> background rectangle.
+>
+> Safe area: keep the silhouette within the central 92% of the frame.
+
+**Sonuç — yapılanlar:**
+
+Gelen görsel 1536 × 1024 şeffaf PNG idi. Üzerinde üç işlem yapıldı:
+
+1. **Kırpma.** Silüetin gerçek sınırı `alfa > 128` maskesiyle bulundu
+   (1045 × 395, oran 2,646). Slotun oranı 2,103 olduğu için silüet merkezine
+   göre %6 pay bırakılarak 2,101 oranında kırpıldı.
+2. **Renk düzeltmesi.** Üretilen görselin karası `#303030`, sarısı `#F0D010`
+   idi; hedef `#101010` ve `#F5C400`. Her piksel koyu→sarı ekseni üzerine
+   izdüşürülüp iki hedef renk arasında harmanlandı — böylece kenar yumuşatması
+   korundu. İç alanlar tam düz renge sabitlendi (t < 0,15 → koyu, t > 0,85 →
+   sarı); bu, kayıpsız WebP boyutunu 355 → 198 KB'a indirdi.
+3. **Çözünürlük seçimi.** 1640 px (2×) sürüm 196 KB idi. 1640 · 1300 · 1100 ·
+   900 px sürümleri gerçek görüntüleme boyutunda (821 CSS px, 2× ekran) render
+   edilip 1640 ile piksel piksel karşılaştırıldı: 900 px'te bile ortalama fark
+   yalnızca **1,10/255**, farkın tamamı kıyı çizgisi kenarlarında. Bu yüzden
+   `srcset` ile 900w + 1300w sunuluyor.
+
+Ayrıca **"EDREMİT" etiketi görselin içinde değil, HTML'de.** Görsele gömülü
+yazı ölçeklenince bozulur ve ekran okuyucu okuyamaz. Etiket kendi koyu zeminini
+taşıyor (`#101010`): harita üzerinde görünmez, bir şehir noktasının veya sarı
+zeminin üstüne denk gelirse okunurluğu korur.
+
+**Genel yönerge — bir sonraki görsel için:**
+
+1. **Şeffaflığı koruyarak** PNG indir.
+2. Claude'a gönder; dönüşüm ve entegrasyon Claude tarafından yapılacak:
+   - WebP'ye çevrilir (alfa korunur), 2× retina için 1640 px genişlikte kalır.
+   - `index.html` içindeki inline `<svg>` bloğu `<img>` ile değiştirilir.
+   - `.coverage-map svg` kuralları `.coverage-map img` olarak güncellenir;
+     `width: 112%` ve `transform: translateX(-2%)` bleed davranışı korunur.
+   - Mevcut SVG'deki **"EDREMİT" yazısı** görselin içinde olmayacağı için
+     HTML'e taşınır — bu erişilebilirlik açısından da doğrusudur.
+   - 19 senaryoda oran bozulması ve taşma yeniden ölçülür.
 
 ---
 
