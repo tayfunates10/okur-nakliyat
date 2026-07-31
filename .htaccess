@@ -29,6 +29,11 @@ AddDefaultCharset UTF-8
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Yalnızca dış istekte çalışsın. ErrorDocument iç alt-istekle servis
+  # edildiğinde bu kural yeniden değerlendirilirse hata belgesi yönlendirmeye
+  # dönüşür ve sunucu özel 404 yerine düz "404 Not Found" döndürür.
+  RewriteCond %{ENV:REDIRECT_STATUS} ^$
+
   RewriteCond %{HTTPS} !=on [OR]
   RewriteCond %{HTTP_HOST} ^www\.okurnakliyatedremit\.com$ [NC]
   RewriteRule ^ https://okurnakliyatedremit.com%{REQUEST_URI} [R=301,L]
