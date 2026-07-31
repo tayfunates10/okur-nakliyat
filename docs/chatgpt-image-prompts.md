@@ -40,7 +40,7 @@ dosyaları **silinmiştir**.
 | Konum | viewBox | Rol | Durum |
 | --- | --- | --- | --- |
 | `.about-scene` (`#hakkimizda`) | — | Taşıma sahnesi illüstrasyonu | ✅ **Raster ile değiştirildi** (Prompt 3) |
-| `.coverage-map` (hizmet bölgesi) | 820 × 390 | Dekoratif Türkiye haritası + güzergâh noktaları | ℹ️ Vektör kalması tercih edildi — gerekçe aşağıda |
+| `.coverage-map` (hizmet bölgesi) | 820 × 390 | Dekoratif Türkiye haritası + güzergâh noktaları | ⏳ Raster karşılığı bekleniyor (Prompt 4) |
 | Arayüz ikonları (telefon, WhatsApp, konum, menü, ok, onay, hizmet kartı ikonları) | çeşitli | İkon | ✅ Kural gereği inline SVG kalır |
 
 > **SVG kuralına uyum — dürüst durum bildirimi:** Bu denetim çalışmasında
@@ -49,10 +49,10 @@ dosyaları **silinmiştir**.
 > tasarım aşamasında oluşturulmuştu. Siteyi çalışır durumda tutmak için
 > silinmediler; raster karşılıkları için aşağıya prompt hazırlanmıştır.
 >
-> `.coverage-map` için raster prompt hazırlanmadı: bu öğe bir *harita*dır,
-> illüstrasyon değildir. Rasterleştirilirse 2560 px'lik ekranlarda kenarları
-> bozulur ve `aria-hidden` dekoratif rolüne kıyasla gereksiz ağırlık getirir.
-> Bu, bilinçli bir tercihtir; kullanıcı aksini isterse prompt eklenebilir.
+> `.coverage-map` için başlangıçta prompt hazırlanmamıştı — bu öğe bir
+> *harita*dır ve rasterleştirilmesi büyük ekranlarda kenar kalitesi açısından
+> risklidir. Kullanıcı talebi üzerine **Prompt 4** eklendi; oradaki uyarı
+> notu bu riski ayrıntılandırıyor.
 
 ---
 
@@ -234,6 +234,78 @@ dosyaları **silinmiştir**.
    kuralını ekle.
 5. `npm run test:responsive` çalıştırıp oran bozulması (`dist`) sayısının 0
    kaldığını doğrula.
+
+---
+
+## Prompt 4 — Hizmet bölgesi haritası
+
+| Alan | Değer |
+| --- | --- |
+| Sayfa | Ana sayfa (`index.html`) |
+| Bölüm | Hizmet bölgemiz — sağ sütun `.coverage-map` |
+| Önerilen dosya adı | `okur-nakliyat-hizmet-bolgesi.webp` |
+| Piksel ölçüsü | **1640 × 780** (2:1 çıktı da kabul edilir, uyarlanır) |
+| En-boy oranı | 2,103:1 — mevcut `viewBox 820 × 390` ile aynı |
+| Kullanım | Masaüstünde sağ sütun (821 × 391 CSS px), 1080 px altında tam genişlik, 720 px altında iki kenardan 16 px taşacak şekilde |
+| Zemin | **Bölümün zemini marka sarısı `#F5C400`** — görsel şeffaf olmalı |
+| Şeffaflık | **Zorunlu** — PNG olarak üretilip WebP'ye çevrilecek |
+| Mobil varyasyon | Gerekmiyor |
+
+> **Bu prompt diğerlerinden riskli.** Görsel üretim modelleri ülke sınırlarını
+> güvenilir biçimde çizemez; Türkiye'nin kıyı şeridi çoğu zaman bozuk çıkar.
+> Nakliyat sitesinde yanlış görünen bir Türkiye haritası, mevcut soyut
+> silüetten daha kötüdür. Bu yüzden prompt **coğrafi doğruluk değil, stilize
+> silüet** istiyor. Gelen görsel Türkiye gibi durmuyorsa entegre edilmemeli;
+> o durumda doğru kaynak görsel üretimi değil, kamuya açık coğrafi veridir.
+
+**Prompt:**
+
+> Create a stylized, minimal map illustration for the "service area" section of
+> a Turkish moving company website.
+>
+> Aspect ratio: 2.1:1, 1640 x 780 pixels. **Transparent background (alpha
+> channel) — the artwork will be placed on a solid yellow section, so no
+> background fill of any kind.**
+>
+> Subject: a single simplified silhouette of Turkiye, drawn as one solid shape.
+> Smooth, softened coastline — a clean graphic abstraction, not a precise
+> cartographic outline. No neighbouring countries, no borders, no water, no
+> grid, no compass, no legend.
+>
+> On the silhouette: nine small filled circles marking cities, and three
+> gently curved dashed connection lines that all radiate from one point in the
+> left third of the shape toward points to the right. Around that same origin
+> point, two thin concentric rings.
+>
+> Critical: every circle, dashed line and ring must sit **entirely inside** the
+> dark silhouette. Nothing may extend past its edge, because outside the
+> silhouette the background is transparent and yellow marks would disappear
+> against the yellow section.
+>
+> Colors: silhouette in near-black (#101010). Circles, dashed lines and rings
+> in brand yellow (#F5C400); the rings at low opacity. No other colors, no
+> gradients, no glow, no drop shadow.
+>
+> Style: flat vector look, clean edges, generous negative space. Calm and
+> corporate.
+>
+> Must NOT include: any text, letters, city names, numbers, watermarks, logos,
+> brand marks, pins with tails, photographic elements, 3D effects, or a
+> background rectangle.
+>
+> Safe area: keep the silhouette within the central 92% of the frame.
+
+**Üretildikten sonra yapılacaklar:**
+
+1. **Şeffaflığı koruyarak** PNG indir.
+2. Claude'a gönder; dönüşüm ve entegrasyon Claude tarafından yapılacak:
+   - WebP'ye çevrilir (alfa korunur), 2× retina için 1640 px genişlikte kalır.
+   - `index.html` içindeki inline `<svg>` bloğu `<img>` ile değiştirilir.
+   - `.coverage-map svg` kuralları `.coverage-map img` olarak güncellenir;
+     `width: 112%` ve `transform: translateX(-2%)` bleed davranışı korunur.
+   - Mevcut SVG'deki **"EDREMİT" yazısı** görselin içinde olmayacağı için
+     HTML'e taşınır — bu erişilebilirlik açısından da doğrusudur.
+   - 19 senaryoda oran bozulması ve taşma yeniden ölçülür.
 
 ---
 
