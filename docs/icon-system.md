@@ -11,6 +11,24 @@ eklenirken buradaki ölçüler kullanılmalıdır.
 | Canlı alan | 20 × 20 birim (her kenardan 2 birim iç boşluk) |
 | Keyline'lar | Kare 20×20 · Daire ⌀20 · Dikey 18×20 · Yatay 20×18 |
 | Köşe yarıçapı | Kutular için 1 birim, kalkan/rozet için 0,8–0,9 birim |
+| Ortalama | Çizgi kalınlığı dahil sınır kutusunun merkezi (12, 12) olmalı |
+
+### Ortalama kontrolü
+
+İkonlar elle çizildiği için gözle "ortalı görünen" bir ikon aslında kaymış
+olabilir. Doğrulama tarayıcıda `getBBox({ stroke: true })` ile yapılır —
+`stroke: true` önemlidir, çünkü çizgi kalınlığı sınır kutusunu büyütür ve
+yalnızca geometriye bakmak yanıltır.
+
+```js
+const bb = g.getBBox({ stroke: true });
+const sapmaX = (bb.x + bb.width  / 2) - 12;
+const sapmaY = (bb.y + bb.height / 2) - 12;
+// |sapma| > 0,3 birim ise ikon kaydırılmalı
+```
+
+Bu ölçüm ilk sette 16 ikonun 8'inin kaymış olduğunu ortaya çıkardı; en kötüsü
+`wrench` idi (Y ekseninde 1,89 birim, yani üstte 1,8 altta 5,58 boşluk).
 
 Tek ızgara kullanılmasının sebebi: aynı sistemde 24 ve 48 birimlik iki ayrı
 ızgara olduğunda ikonların iç oranları, köşe yarıçapları ve çizgi uçları
