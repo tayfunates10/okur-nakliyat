@@ -72,9 +72,20 @@ jobs:
           # Hata durumunda ne döndüğü görünsün; sessiz başarısızlık teşhisi
           # imkânsız kılıyordu.
           if ! grep -qF "Bu sayfa taşınmış olabilir." missing.html; then
-            echo "--- sunucunun döndürdüğü gövde (ilk 600 bayt) ---"
+            echo "--- hata yanıtının gövdesi (ilk 600 bayt) ---"
             head -c 600 missing.html
             echo
+            echo "--- /404.html dosyasının kendisi ---"
+            curl -sS -o direct404.html -w "http=%{http_code}\n" --max-time 20 \
+              "https://$SITE/404.html"
+            echo "boyut: $(wc -c < direct404.html) bayt"
+            if grep -qF "Bu sayfa taşınmış olabilir." direct404.html; then
+              echo "dosya İÇERİĞİ doğru -> sorun ErrorDocument yönlendirmesinde"
+            else
+              echo "dosya İÇERİĞİ yanlış -> sorun dağıtımda"
+              head -c 400 direct404.html
+              echo
+            fi
             echo "--- bitiş ---"
           fi
 
