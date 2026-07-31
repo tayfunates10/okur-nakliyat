@@ -1,8 +1,8 @@
 # Final UI Raporu — Okur Nakliyat
 
 **Tarih:** 30 Temmuz 2026
-**Kapsam:** Ana sayfanın tamamı üzerinde responsive/UI denetimi, düzeltmeler ve
-ölçümle doğrulama
+**Kapsam:** `index.html` ve `404.html` üzerinde responsive/UI denetimi,
+düzeltmeler ve ölçümle doğrulama
 
 ---
 
@@ -16,13 +16,13 @@ hiçbir pakete bağlı değildir ve sunucuya yalnızca statik dosyalar gönderil
 | | |
 | --- | --- |
 | Görevin genel durumu | Uygulanabilir tüm aşamalar tamamlandı |
-| İncelenen sayfa sayısı | 1 (`index.html` — sitedeki tek sayfa) |
+| İncelenen sayfa sayısı | 2 (`index.html`, `404.html` — sitedeki tüm sayfalar) |
 | İncelenen bölüm sayısı | 9 (hero, hizmetler, hakkımızda, süreç, hizmet bölgesi, SSS, teklif formu, CTA, footer) |
-| Test edilen viewport | 16 cihaz ölçüsü + 3 yatay senaryo + 29 ara genişlik |
-| Değiştirilen dosya sayısı | 4 (`style.css`, `variables.css`, `components.css`, `index.html`) |
+| Test edilen viewport | 16 cihaz ölçüsü + 3 yatay senaryo + 29 ara genişlik + 5 çentik simülasyonu; `404.html` için ayrıca 13 ölçü |
+| Değiştirilen dosya sayısı | 5 (`style.css`, `variables.css`, `components.css`, `index.html`, `404.html`) |
 | Oluşturulan dosya sayısı | 4 (`tests/responsive-audit.js`, `package.json`, `docs/` altındaki 3 rapor) |
-| Düzeltilen ölçülmüş kusur | 7 |
-| Uygulanan iyileştirme | 1 |
+| Düzeltilen ölçülmüş kusur | 10 |
+| Uygulanan iyileştirme | 2 |
 
 ---
 
@@ -40,6 +40,16 @@ hiçbir pakete bağlı değildir ve sunucuya yalnızca statik dosyalar gönderil
 - **Hero şerit payı:** `.hero-inner` alt boşluğu 72 px'lik `.hero-service-rail`
   payını kalıcı olarak taşıyor; şerit artık hero içeriğinin üzerine binmiyor.
 
+### Güvenli alan (safe area) desteği
+
+Projede tek bir `env(safe-area-inset-*)` kullanımı yoktu. Her iki sayfanın
+viewport etiketine `viewport-fit=cover` eklendi ve kenara oturan yedi bileşene
+güvenli alan payı verildi: `.container` (yatay), `.site-header` (üst),
+`.mobile-menu`, `.mobile-contact-bar` (dört kenar), `.skip-link`, mobil
+`.site-footer` (alt) ve `scroll-padding-top`. Tasarım payı ile cihaz payından
+büyüğü seçildiği için (`max(...)`) çentiksiz cihazlarda hiçbir değer değişmez —
+19 senaryoluk denetim değişiklikten önce ve sonra birebir aynı sonucu verdi.
+
 ### Yükseklik ve viewport davranışı
 
 - **Yatay ekran kuralı eklendi:**
@@ -48,6 +58,10 @@ hiçbir pakete bağlı değildir ve sunucuya yalnızca statik dosyalar gönderil
   yüksekliği, `clamp(1.6rem, 4vw, 2.35rem)` başlık ölçeği.
 - **Footer alt boşluğu** sabit mobil iletişim çubuğunun görünmediği
   genişliklerde `clamp(2.5rem, 4vw, 3.5rem)`'e indirildi.
+- **`404.html`** yatay tutulan telefonda dikey taşıyordu (844×390'da 465 px
+  içerik). "404" rakamı ve başlık artık yüksekliği de hesaba katıyor
+  (`min(24vw, 26vh)` / `min(7vw, 9vh)`), dikey boşluklar kısa ekranlarda
+  daralıyor. 13 ölçünün tamamında kaydırma kalmadı.
 
 ### Container ve tipografi
 
@@ -101,6 +115,11 @@ Düzeltme gerektiren başka bulgu çıkmadı.
   çizgiyi parçaladığı için geri alındı — ekran görüntüsüyle doğrulandı.)
 - Önceki adımda eklenen `.skip-link`, `.brand`, `.nav-link` 44 px kuralları
   yürürlükte.
+- **İsimsiz klavye durağı giderildi:** dar ekranda kaydırılabilir olan hizmet
+  şeridini Chrome kendiliğinden sekme durağı yapıyordu, ancak öğe isimsizdi ve
+  odak halkası yoktu. `aria-label` rolsüz dış `div`'den kaydırma yapan iç öğeye
+  taşındı, `role="group"` ve `:focus-visible` çerçevesi eklendi.
+- Teklif formundaki adres alanlarına `autocomplete="address-level2"` eklendi.
 
 ### Animasyon düzenlemeleri
 
@@ -130,7 +149,7 @@ sorun bulunmadı:**
 - Fontlar tek istekte, `display=swap` ve `preconnect` ile.
 - `.htaccess` üzerinden gzip/brotli; statik dosyalar için 1 yıllık `immutable`
   önbellek, HTML için `no-cache` — canlıda yanıt başlıklarıyla doğrulanmıştı.
-- CSS ve JavaScript sürgüsü `?v=3 → ?v=4` yapıldı; yayına alındığında eski
+- CSS ve JavaScript sürgüsü `?v=3 → ?v=5` yapıldı; yayına alındığında eski
   CSS önbellekten servis edilmeyecek.
 
 ---
@@ -144,6 +163,12 @@ sorun bulunmadı:**
 | Typecheck | **Çalıştırılamadı** | TypeScript kullanılmıyor |
 | Unit test | **Çalıştırılamadı** | Birim test altyapısı yok |
 | E2E / responsive denetimi | **Başarılı** | `npm run test:responsive` — 16 viewport + 3 landscape + 29 ara genişlik |
+| `404.html` responsive testi | **Başarılı** | 13 ölçü; kaydırma, taşma, kesilme yok |
+| Güvenli alan (çentik) testi | **Başarılı** | 5 senaryo, `env()` gerçek iPhone paylarıyla değiştirilerek |
+| Kırık çapa / bağlantı testi | **Başarılı** | 34 iç çapanın tamamının hedefi mevcut |
+| Başlık hiyerarşisi | **Başarılı** | Tek `h1`, 26 başlıkta seviye atlaması yok |
+| Klavye odak testi | **Başarılı** | Skip-link, sekme sırası, mobil menü odak tuzağı ve ESC, SSS klavye ile açılış |
+| iOS Safari zoom eşiği | **Başarılı** | Yedi form denetiminin tamamı 16 px |
 | Yatay taşma testi | **Başarılı** | 320–2560 px arası hiçbir noktada taşma yok |
 | Dokunma hedefi testi | **Başarılı** | 19 senaryonun tamamında 0 |
 | Metin kesilme testi | **Başarılı** | Gerçek kesilme 0; kalan uyarılar dekoratif öğelerden |
@@ -153,11 +178,11 @@ sorun bulunmadı:**
 | Kırık asset testi | **Başarılı** | 404 yok |
 | Landscape görünüm | **Başarılı** | 844×390, 932×430, 667×375 |
 | Formlar | **Başarılı** | Teklif formu 320 px dahil tüm ölçülerde kapsayıcı içinde |
-| Mobil menü | **Başarılı** | Açılma, ESC, overlay, kaydırma kilidi, odak yönetimi |
+| Mobil menü | **Başarılı** | Açılma, ESC, overlay, kaydırma kilidi, odak panele giriş ve düğmeye dönüş |
 | Lighthouse | **Çalıştırılamadı** | Ortamda Lighthouse CLI yok, dış ağ erişimi beyaz listeyle sınırlı |
 | Otomatik a11y taraması (axe) | **Çalıştırılamadı** | Paket ortamda kurulu değil, dış ağ erişimi sınırlı |
 | Erişilebilirlik (elle) | **Kısmen başarılı** | Dokunma hedefi, başlık sırası, ARIA, odak yönetimi kontrol edildi |
-| Gerçek cihaz testi | **Çalıştırılamadı** | Ortamda fiziksel cihaz yok |
+| Gerçek cihaz testi | **Çalıştırılamadı** | Ortamda fiziksel cihaz yok — çentik davranışı simülasyonla doğrulandı |
 
 \* Yerel testte Google Fonts isteği **ortamın ağ politikası** nedeniyle düşüyor
 (16 adet `net::ERR_CONNECTION_RESET`). Bu bir ortam kısıtıdır, site kusuru
@@ -194,6 +219,29 @@ ayrıca listelenmiştir.
 | 667×375 (yatay) | Yok | Yok | Yok | Yok | 0 | ✅ |
 
 **Ara genişlik taraması:** 320 → 2560 px, 80 px adım (29 nokta) — taşma yok.
+
+### `404.html`
+
+| Ölçü | Yatay kaydırma | Dikey kaydırma | Taşan içerik | Kesilen içerik | Sonuç |
+| --- | --- | --- | --- | --- | --- |
+| 320×568 · 360×640 · 390×844 · 430×932 | Yok | Yok | Yok | Yok | ✅ |
+| 540×720 · 768×1024 · 1024×768 | Yok | Yok | Yok | Yok | ✅ |
+| 1280×720 · 1440×900 · 1920×1080 · 2560×1440 | Yok | Yok | Yok | Yok | ✅ |
+| 844×390 (yatay) · 667×375 (yatay) | Yok | Yok | Yok | Yok | ✅ |
+
+Ana sayfaya dönüş bağlantısı her ölçüde 52×196 px (44 px eşiğinin üzerinde).
+Konsol hatası yok.
+
+### Çentik simülasyonu
+
+`env(safe-area-inset-*)` değerleri gerçek iPhone 14 Pro paylarıyla değiştirilmiş
+bir kopya üzerinde ölçüldü.
+
+| Senaryo | Container yatay boşluk | Header üst konumu | İletişim çubuğu alt boşluk | Yatay kaydırma |
+| --- | --- | --- | --- | --- |
+| Portre 390×844 / 430×932 / 320×568 (üst 59, alt 34) | 16 px | **59 px** | **44 px** | Yok |
+| Yatay 844×390 / 932×430 (yanlar 59, alt 21) | **59 px** | 0 px | (gizli) | Yok |
+| Çentiksiz (`env() = 0`) | 16–24 px | 0 px | 10 px | Yok |
 
 ---
 
@@ -250,7 +298,7 @@ kural kapsamında inline SVG olarak kalmaya devam ediyor.
 | Otomatik a11y taraması | `@axe-core/playwright` kurulu değil, paket indirme kısıtlı | — | Dokunma hedefi, başlık sırası, ARIA ve odak yönetimi elle kontrol edildi | Yerelde kurup denetimi tekrarlamak | `npm i -D @axe-core/playwright` |
 | Build / Lint / Typecheck | Projede derleme sistemi, lint yapılandırması ve TypeScript yok | — | Proje yapısı incelendi | Gerekirse bir lint kurulumu istemek | — |
 | Görsel üretimi | ChatGPT görsel entegrasyonu yok | — | 3 prompt eksiksiz hazırlandı | Promptları ChatGPT'ye vermek | `docs/chatgpt-image-prompts.md` |
-| Gerçek cihaz testi | Ortamda fiziksel cihaz yok | — | Chromium'da 16 viewport + 3 yatay senaryo simüle edildi | iOS Safari ve Android Chrome'da gözle kontrol | — |
+| Gerçek cihaz testi | Ortamda fiziksel cihaz yok | — | Chromium'da 16 viewport + 3 yatay senaryo + 5 çentik senaryosu simüle edildi | iOS Safari ve Android Chrome'da gözle kontrol | — |
 | Görsel regresyon karşılaştırması | Başlangıç ekran görüntüleri sistematik arşivlenmedi | — | Ölçüm tabanlı karşılaştırma yapıldı (yükseklik, taşma, hedef boyutu, örtüşme — hepsi sayısal raporlandı) | — | `npm run test:responsive:shot` |
 
 ---
@@ -271,6 +319,16 @@ kural kapsamında inline SVG olarak kalmaya devam ediyor.
 - **Yatay ekranda hero hâlâ tek ekrandan uzun:** 1,41×–1,83× aralığında. Tek
   ekrana sığdırmak için başlık veya açıklama metnini kısaltmak gerekir; bu
   içerik kararı olduğu için yapılmadı.
+- **Kaydırılabilir şerit ve klavye:** Hizmet şeridi 720 px altında yatay
+  kaydırılabilir. Chrome kaydırılabilir kutuları kendiliğinden klavye durağı
+  yapar; **Firefox ve Safari yapmaz.** Bu tarayıcılarda şeridin görünmeyen
+  kısmına yalnızca dokunma/fare ile ulaşılır. Şeritteki dört hizmet adı
+  hizmetler bölümünde ve footer'da bağlantı olarak da bulunduğu için bilgi
+  kaybı yoktur; bu nedenle yapay bir `tabindex` eklenmedi.
+- **`viewport-fit=cover` gerçek cihazda doğrulanmadı:** Güvenli alan payları
+  `env()` değerleri gerçek iPhone ölçüleriyle değiştirilerek simüle edildi ve
+  beş senaryoda doğru sonuç verdi. Fiziksel bir iPhone'da göz kontrolü yine de
+  önerilir.
 - **`body { overflow-x: hidden }`:** Depoda önceden var olan güvenlik ağı.
   Dekoratif kenar taşmalarını örtüyor; bu denetimde hiçbir gerçek kusuru
   gizlemek için kullanılmadı, ancak ileride eklenecek yeni bölümlerde bir taşma
@@ -300,6 +358,13 @@ Yalnızca gerçekten ölçülüp doğrulanan kutular işaretlenmiştir.
 - [x] Console error yok (site kaynaklı)
 - [x] Kırık asset yok (404 yok)
 - [x] Ekran görüntüsüyle görsel doğrulama yapıldı (hero, hizmetler, SSS, footer × 3 ölçü)
+- [x] `404.html` 13 ölçüde doğrulandı (kaydırma, taşma, kesilme yok)
+- [x] Güvenli alan (`env()`) desteği eklendi ve 5 senaryoda simülasyonla doğrulandı
+- [x] Klavye erişimi doğrulandı (skip-link, sekme sırası, mobil menü odak tuzağı + ESC, SSS)
+- [x] Kırık çapa / bağlantı yok (34 iç çapanın tamamı geçerli)
+- [x] Başlık hiyerarşisi doğrulandı (tek `h1`, seviye atlaması yok)
+- [x] Form denetimleri iOS Safari zoom eşiğinin üzerinde (16 px)
+- [x] Yinelenen CSS seçicisi yok; `!important` kullanımlarının tamamı gerekçeli
 - [x] Final raporu oluşturuldu
 - [ ] Build başarılı — *derleme sistemi yok, çalıştırılamadı*
 - [ ] Lighthouse skorları — *ortamda çalıştırılamadı, bölüm 7*

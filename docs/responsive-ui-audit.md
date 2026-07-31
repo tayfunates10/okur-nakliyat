@@ -1,9 +1,9 @@
 # Responsive / UI Denetim Raporu
 
 **Tarih:** 30 Temmuz 2026
-**Kapsam:** `index.html` — sitedeki tek sayfa. Bölümler: hero (`#anasayfa`),
-hizmetler (`#hizmetler`), hakkımızda (`#hakkimizda`), süreç (`#surec`),
-hizmet bölgesi, SSS (`#sss`), teklif formu (`#teklif`), CTA, footer.
+**Kapsam:** `index.html` (bölümler: hero `#anasayfa`, hizmetler `#hizmetler`,
+hakkımızda `#hakkimizda`, süreç `#surec`, hizmet bölgesi, SSS `#sss`,
+teklif formu `#teklif`, CTA, footer) ve `404.html`.
 **Yöntem:** Playwright + Chromium; 16 cihaz ölçüsü, 3 yatay (landscape) senaryo,
 320–2560 px arası 80 px adımlı 29 ara genişlik. Bütün tespitler DOM ölçümüyle
 (`getBoundingClientRect`, `scrollWidth/clientWidth`, `scrollHeight/clientHeight`)
@@ -104,7 +104,38 @@ alınmıştır; hiçbiri gözle tahmin değildir.
 | Çözüm | `.hero-service-rail::after` ile sağ kenara 42 px'lik sarıdan şeffafa geçiş eklendi; `pointer-events: none`. |
 | Son durum | ✅ Şeridin devam ettiği görsel olarak belli oluyor. İçerik kaybı yok — şerit yatay kaydırılabilir kalmaya devam ediyor. |
 
-### 9. Bu daldaki önceki düzeltmeler (yürürlükte)
+### 9. Çentikli cihazlarda güvenli alan (safe area) desteği yoktu
+
+| | |
+| --- | --- |
+| Bileşenler | `.container`, `.site-header`, `.mobile-menu`, `.mobile-contact-bar`, `.skip-link`, `.site-footer`, `404.html` gövdesi |
+| Ekranlar | Çentik / ev göstergesi olan cihazlar (iPhone X ve sonrası) |
+| Neden | Projede tek bir `env(safe-area-inset-*)` kullanımı yoktu. `viewport-fit` tanımsız olduğu için tarayıcı sayfayı güvenli alana sıkıştırıyor, çentikli telefonlarda yatay yönde iki yanda siyah şerit bırakıyor ve tam genişlik hero arka planı kenara ulaşamıyordu. |
+| Çözüm | `index.html` ve `404.html` viewport etiketine `viewport-fit=cover` eklendi; ardından kenara oturan her öğeye güvenli alan payı verildi: `.container` yatay boşluğu `max(tasarım payı, env(...))`, `.site-header` üst boşluğu `env(safe-area-inset-top)`, sabit `.mobile-contact-bar` dört kenarı, `.mobile-menu` iç boşluğu, `.skip-link` konumu, mobil `.site-footer` alt boşluğu ve `scroll-padding-top`. |
+| Doğrulama | `env()` çağrıları gerçek iPhone 14 Pro paylarıyla (portre 59/34, yatay 59/59/21) metinsel olarak değiştirilmiş bir kopya üretilip aynı denetim çalıştırıldı. Sonuç: **portrede header içeriği çentiğin 59 px altında**, **yatayda container yatay boşluğu 16 px → 59 px**, **iletişim çubuğu alt boşluğu 10 px → 44 px**, beş senaryonun hiçbirinde yatay kaydırma yok. Çentiksiz durumda (`env() = 0`) 19 senaryonun ölçümleri değişiklikten **önceki değerlerle birebir aynı** çıktı. |
+| Son durum | ✅ Güvenli alan payları uygulanıyor, çentiksiz cihazlarda hiçbir davranış değişikliği yok. |
+
+### 10. `404.html` yatay ekranda taşıyordu
+
+| | |
+| --- | --- |
+| Bileşen | `404.html` — `.code`, `h1`, `a` |
+| Ekranlar | 844×390, 667×375 |
+| Ölçüm | İçerik yüksekliği 844×390'da **465 px**, 667×375'te **423 px**; her ikisinde de sayfa dikey kaydırma üretiyordu. Sebep: "404" rakamı `clamp(6rem, 24vw, 13rem)` ile yalnızca genişliğe bağlıydı, 844 px genişlikte 202 px'e çıkıyordu. |
+| Çözüm | Rakam `clamp(4rem, min(24vw, 26vh), 13rem)`, başlık `clamp(1.75rem, min(7vw, 9vh), 4rem)`; başlık ve düğme dikey boşlukları `clamp(..., vh, ...)` ile kısa ekranlarda daralıyor. |
+| Son durum | ✅ Test edilen **13 ölçünün tamamında** dikey ve yatay kaydırma yok, taşma yok, kesilme yok. Bağlantı 52×196 px. |
+
+### 11. Kaydırılabilir şerit klavye odağında isimsizdi
+
+| | |
+| --- | --- |
+| Bileşen | `.hero-service-rail-inner` |
+| Neden | Şerit dar ekranda `overflow-x: auto` olduğu için Chrome onu kendiliğinden klavye durağı yapıyor. Ancak öğe isimsiz bir `div` idi ve odak halkası tanımlı değildi; `aria-label` ise erişilebilirlik ağacında yok sayılan, rolsüz dış `div` üzerindeydi. |
+| Ölçüm | Sekme sırasında 6. durak: `div.container`, erişilebilir ad **yok**, görünür odak göstergesi **yok**. |
+| Çözüm | `aria-label` kaydırma yapan iç öğeye taşındı, `role="group"` eklendi ve `:focus-visible` için görünür bir çerçeve tanımlandı. `tabindex` eklenmedi; böylece durak yalnızca şerit gerçekten kaydırılabilir olduğunda oluşur. |
+| Son durum | ✅ Durak isimli (`role=group`, "Öne çıkan hizmetler") ve görünür. Sınırlama: Firefox ve Safari kaydırılabilir kutuları kendiliğinden odaklanabilir yapmaz — bkz. kalan riskler. |
+
+### 12. Bu daldaki önceki düzeltmeler (yürürlükte)
 
 | Değişiklik | Dosya | Durum |
 | --- | --- | --- |
@@ -153,6 +184,25 @@ kullanıcıya sormadan değiştirilmemiştir.
 
 ---
 
+## İncelenip **kusur bulunmayan** alanlar
+
+Aşağıdakiler ölçülerek kontrol edildi; düzeltme gerektiren bulgu çıkmadı.
+
+| Alan | Ölçüm / sonuç |
+| --- | --- |
+| Form denetimlerinde iOS Safari otomatik yakınlaştırma | Yedi alanın tamamı **16 px** (eşik 16 px), `box-sizing: border-box`, yükseklik 52–133 px. Zoom tetiklenmez. |
+| Çapa bağlantıları | 34 iç bağlantının **tamamının** hedefi mevcut, kırık yok. Üç dış bağlantı WhatsApp'a gidiyor. |
+| Başlık hiyerarşisi | Tek `h1`; 26 başlıkta seviye atlaması **yok**. |
+| Erişilebilir ad | İsimsiz `<button>` veya `<a>` **yok** (0). |
+| Form etiketleri | Yedi alanın tamamı `<label>` içinde; `required`, `inputmode`, `autocomplete` tanımlı. |
+| Skip-link | Sekmede ilk durak, `:focus-visible` ile görünür oluyor (8, 8 konumunda, 44 px). |
+| Mobil menü | Açılışta odak panele giriyor, gövde kaydırma kilitleniyor, panel sağ kenarı = viewport genişliği (taşma yok), ESC kapatıyor, odak açan düğmeye dönüyor, kilit kalkıyor. |
+| SSS akordeonu | Fare ve klavye (Enter) ile açılıyor; ikinci öğe açıldığında birinci kapanıyor. Kapalı satır yüksekliği 78 px (yalnızca özet + kenarlık). |
+| Görseller | Tek `<img>`; yükleniyor (`naturalWidth 960`), açıklayıcı `alt` metni ve `width`/`height` öznitelikleri var (layout shift üretmez). |
+| `prefers-reduced-motion` | `reset.css` içinde `scroll-behavior: auto !important` dahil global azaltma; `style.css` içinde hero animasyonları ve parallax kapatılıyor. |
+| Yinelenen CSS | Aynı medya bağlamında iki kez tanımlanmış seçici **yok** (0). |
+| `!important` kullanımı | Toplam 8; **tamamı gerekçeli**: 5'i `prefers-reduced-motion` bloklarında, 3'ü `<noscript>` içinde ana stil sayfasını geçersiz kılmak için. |
+
 ## Test edilen ekran ölçüleri
 
 **Cihaz matrisi (16):** 320×568, 360×640, 375×667, 390×844, 412×915, 430×932,
@@ -163,6 +213,12 @@ kullanıcıya sormadan değiştirilmemiştir.
 
 **Ara genişlik taraması (29):** 320'den 2560'a 80 px adım — hepsinde yatay
 kaydırma yok.
+
+**`404.html`:** 13 ölçü (320×568 – 2560×1440 ve 844×390, 667×375).
+
+**Çentik simülasyonu (5):** portre 390×844, 430×932, 320×568; yatay 844×390,
+932×430 — `env(safe-area-inset-*)` değerleri gerçek iPhone paylarıyla
+değiştirilerek.
 
 ---
 
@@ -181,8 +237,11 @@ kaydırma yok.
 | Yatay ekranda hero / viewport oranı | 2,99× – 3,44× | **1,41× – 1,83×** |
 | SSS kapalı satır altı boşluk | 21,6 px | **0** |
 | Masaüstü footer ölü alanı | 104 px | **56 px** |
+| `404.html` yatay ekranda dikey taşma | 2 ölçüde var | **yok** |
+| Güvenli alan (`env()`) desteği | yok | **7 bileşende var** |
+| İsimsiz klavye durağı | 1 | **0** |
 | Konsol hatası (site kaynaklı) | 0 | **0** |
-| Kırık asset / 404 | 0 | **0** |
+| Kırık asset / kırık çapa | 0 | **0** |
 
 Denetim ortamının ağ politikası Google Fonts'u engellediği için yerel testte
 16 adet `net::ERR_CONNECTION_RESET` görülür. Bu **ortam kısıtıdır**, site kusuru

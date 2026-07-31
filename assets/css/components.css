@@ -7,9 +7,17 @@
    1. Yerleşim yardımcıları
    -------------------------------------------------------------------------- */
 
+/*
+ * Sayfa ölçüsü `viewport-fit=cover` ile çentik/ev göstergesi alanını da kapsar.
+ * Yatay boşluk padding olarak verilir; her kenar, tasarım boşluğu ile o kenarın
+ * güvenli alan payından hangisi büyükse onu alır. Çentiksiz cihazlarda
+ * env(...) = 0 olduğu için sonuç eski kuralla birebir aynıdır.
+ */
 .container {
-  width: min(100% - var(--container-gutter), var(--container-max));
+  width: min(100%, calc(var(--container-max) + var(--container-gutter)));
   margin-inline: auto;
+  padding-left: max(calc(var(--container-gutter) / 2), env(safe-area-inset-left, 0px));
+  padding-right: max(calc(var(--container-gutter) / 2), env(safe-area-inset-right, 0px));
 }
 
 /* Ekran okuyucular için görünmez ama erişilebilir metin */
@@ -28,8 +36,8 @@
 /* Klavye kullanıcıları için içeriğe atlama bağlantısı */
 .skip-link {
   position: absolute;
-  top: var(--space-2xs);
-  left: var(--space-2xs);
+  top: max(var(--space-2xs), env(safe-area-inset-top, 0px));
+  left: max(var(--space-2xs), env(safe-area-inset-left, 0px));
   z-index: calc(var(--z-panel) + 10);
   display: inline-flex;
   align-items: center;

@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
   <title>Okur Nakliyat | Edremit Evden Eve ve Şehirler Arası Nakliyat</title>
   <meta name="description" content="Okur Nakliyat; Edremit, Balıkesir ve Türkiye genelinde şehir içi, şehirler arası, evden eve ve ofis taşımacılığı sunar. Ücretsiz kurulum ve montaj desteği.">
@@ -38,9 +38,9 @@
   <link rel="stylesheet" href="assets/css/reset.css">
   <link rel="stylesheet" href="assets/css/variables.css">
   <link rel="stylesheet" href="assets/css/components.css">
-  <link rel="stylesheet" href="assets/css/style.css?v=4">
+  <link rel="stylesheet" href="assets/css/style.css?v=5">
 
-  <script defer src="assets/js/main.js?v=4"></script>
+  <script defer src="assets/js/main.js?v=5"></script>
 
   <noscript>
     <style>
@@ -307,8 +307,9 @@
         </div>
       </div>
 
-      <div class="hero-service-rail" aria-label="Öne çıkan hizmetler">
-        <div class="container hero-service-rail-inner">
+      <div class="hero-service-rail">
+        <div class="container hero-service-rail-inner" role="group"
+             aria-label="Öne çıkan hizmetler">
           <span>Evden Eve Nakliyat</span>
           <i aria-hidden="true"></i>
           <span>Şehirler Arası Taşıma</span>
@@ -749,12 +750,14 @@
 
             <label class="form-field">
               <span>Taşınacak yer</span>
-              <input type="text" name="from" placeholder="Örn. Edremit" required>
+              <input type="text" name="from" placeholder="Örn. Edremit"
+                     autocomplete="address-level2" required>
             </label>
 
             <label class="form-field">
               <span>Yeni adres</span>
-              <input type="text" name="to" placeholder="Örn. İzmir" required>
+              <input type="text" name="to" placeholder="Örn. İzmir"
+                     autocomplete="address-level2" required>
             </label>
 
             <label class="form-field">
