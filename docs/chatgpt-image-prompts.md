@@ -18,6 +18,7 @@ projeye sağlamıştır.** Claude bu görselleri dönüştürüp entegre etmiş 
 | 1 — Hero ön plan aracı | ✅ Kullanıcı üretti | ✅ WebP (şeffaflık korundu) + 900px varyant | ✅ `srcset` ile |
 | 2 — Open Graph görseli | ✅ Kullanıcı üretti | ✅ 1200×630 JPG | ✅ `og:image`, `twitter:image`, JSON-LD |
 | 3 — Hakkımızda görseli | ✅ Kullanıcı üretti | ✅ WebP | ✅ inline SVG'nin yerine |
+| 4 — Hizmet bölgesi haritası | ✅ Kullanıcı üretti | ✅ Kırpma + renk düzeltmesi + WebP, 2 varyant | ✅ `srcset` ile, inline SVG'nin yerine |
 
 ## Mevcut görsel envanteri
 
@@ -30,6 +31,8 @@ projeye sağlamıştır.** Claude bu görselleri dönüştürüp entegre etmiş 
 | `assets/images/hero/okur-nakliyat-hero-arac-900.webp` | Raster (WebP, şeffaf) | 900 × 600 | 44,5 KB | ✅ `srcset` mobil varyantı |
 | `assets/images/about/okur-nakliyat-hakkimizda.webp` | Raster (WebP) | 1217 × 1293 | 34,4 KB | ✅ Hakkımızda bölümü |
 | `assets/images/og/okur-nakliyat-og.jpg` | Raster (JPG) | 1200 × 630 | 57,5 KB | ✅ Paylaşım görseli |
+| `assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp` | Raster (WebP, şeffaf) | 1300 × 618 | 137,3 KB | ✅ Hizmet bölgesi (masaüstü) |
+| `assets/images/coverage/okur-nakliyat-hizmet-bolgesi-900.webp` | Raster (WebP, şeffaf) | 900 × 428 | 71,9 KB | ✅ `srcset` mobil varyantı |
 | `assets/images/logo/favicon.svg` | Logo / ikon | 64 × 64 | 331 B | ✅ Kural gereği SVG kalabilir |
 
 Prompt 1 ve 2 ile değiştirilen `okur-nakliyat-hero.svg` ve `okur-nakliyat-og.svg`
@@ -40,7 +43,7 @@ dosyaları **silinmiştir**.
 | Konum | viewBox | Rol | Durum |
 | --- | --- | --- | --- |
 | `.about-scene` (`#hakkimizda`) | — | Taşıma sahnesi illüstrasyonu | ✅ **Raster ile değiştirildi** (Prompt 3) |
-| `.coverage-map` (hizmet bölgesi) | 820 × 390 | Dekoratif Türkiye haritası + güzergâh noktaları | ⏳ Raster karşılığı bekleniyor (Prompt 4) |
+| `.coverage-map` (hizmet bölgesi) | — | Türkiye haritası + güzergâh noktaları | ✅ **Raster ile değiştirildi** (Prompt 4) |
 | Arayüz ikonları (telefon, WhatsApp, konum, menü, ok, onay, hizmet kartı ikonları) | çeşitli | İkon | ✅ Kural gereği inline SVG kalır |
 
 > **SVG kuralına uyum — dürüst durum bildirimi:** Bu denetim çalışmasında
@@ -295,7 +298,30 @@ dosyaları **silinmiştir**.
 >
 > Safe area: keep the silhouette within the central 92% of the frame.
 
-**Üretildikten sonra yapılacaklar:**
+**Sonuç — yapılanlar:**
+
+Gelen görsel 1536 × 1024 şeffaf PNG idi. Üzerinde üç işlem yapıldı:
+
+1. **Kırpma.** Silüetin gerçek sınırı `alfa > 128` maskesiyle bulundu
+   (1045 × 395, oran 2,646). Slotun oranı 2,103 olduğu için silüet merkezine
+   göre %6 pay bırakılarak 2,101 oranında kırpıldı.
+2. **Renk düzeltmesi.** Üretilen görselin karası `#303030`, sarısı `#F0D010`
+   idi; hedef `#101010` ve `#F5C400`. Her piksel koyu→sarı ekseni üzerine
+   izdüşürülüp iki hedef renk arasında harmanlandı — böylece kenar yumuşatması
+   korundu. İç alanlar tam düz renge sabitlendi (t < 0,15 → koyu, t > 0,85 →
+   sarı); bu, kayıpsız WebP boyutunu 355 → 198 KB'a indirdi.
+3. **Çözünürlük seçimi.** 1640 px (2×) sürüm 196 KB idi. 1640 · 1300 · 1100 ·
+   900 px sürümleri gerçek görüntüleme boyutunda (821 CSS px, 2× ekran) render
+   edilip 1640 ile piksel piksel karşılaştırıldı: 900 px'te bile ortalama fark
+   yalnızca **1,10/255**, farkın tamamı kıyı çizgisi kenarlarında. Bu yüzden
+   `srcset` ile 900w + 1300w sunuluyor.
+
+Ayrıca **"EDREMİT" etiketi görselin içinde değil, HTML'de.** Görsele gömülü
+yazı ölçeklenince bozulur ve ekran okuyucu okuyamaz. Etiket kendi koyu zeminini
+taşıyor (`#101010`): harita üzerinde görünmez, bir şehir noktasının veya sarı
+zeminin üstüne denk gelirse okunurluğu korur.
+
+**Genel yönerge — bir sonraki görsel için:**
 
 1. **Şeffaflığı koruyarak** PNG indir.
 2. Claude'a gönder; dönüşüm ve entegrasyon Claude tarafından yapılacak:

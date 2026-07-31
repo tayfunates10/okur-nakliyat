@@ -1215,15 +1215,41 @@ body.is-menu-open {
 }
 
 .coverage-map {
+  position: relative;
   grid-column: 6 / -1;
   min-width: 0;
 }
 
-.coverage-map svg {
+.coverage-map-image {
+  display: block;
   width: 112%;
   max-width: none;
+  height: auto;
   transform: translateX(-2%);
   filter: drop-shadow(0 30px 35px rgba(11, 11, 11, 0.18));
+}
+
+/* Köken etiketi görselin içine gömülü değil: gömülü yazı ölçeklenince
+   bozulur ve ekran okuyucu okuyamaz. Konum, görseldeki halka merkezine
+   (%24,7 soldan · %50,1 üstten) göre yüzdeyle hizalanır; böylece görsel
+   ölçeklendiğinde etiket birlikte kayar. */
+.coverage-origin {
+  position: absolute;
+  top: 62%;
+  left: 12%;
+  padding: 0.2em 0.45em;
+  font-family: var(--font-heading);
+  font-size: clamp(0.6rem, 1.35vw, 0.9rem);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-yellow);
+  /* Kara ile aynı renk: harita üzerinde görünmez, yalnızca bir şehir
+     noktasının veya sarı zeminin üstüne denk gelirse okunurluğu korur.
+     Boş alan aramaktan daha sağlam — görsel varyantları ve kırılma
+     noktaları değiştiğinde bozulmaz. */
+  background: #101010;
+  border-radius: var(--radius-sm);
+  pointer-events: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -1913,7 +1939,7 @@ body.is-menu-open {
     margin-inline: auto;
   }
 
-  .coverage-map svg {
+  .coverage-map-image {
     width: 100%;
     transform: none;
   }
