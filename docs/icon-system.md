@@ -120,22 +120,49 @@ Logo bu sistemin parçası değildir; kendi kuralları vardır.
 
 | | |
 | --- | --- |
-| viewBox | `0 0 66 36` (oran 11:6) |
-| Yükseklik | Header 38 px · ≤720 px'de 32 px · mobil menü ve footer 38 px |
+| viewBox | `0 0 568 278` (oran ≈ 2,04:1) |
+| Yükseklik | Her yerde 32 px (header, mobil menü, footer) |
 | Halka | Her zaman `#F5C400` — zemin ne olursa olsun sabit |
-| Kamyon | `currentColor` — koyu zeminde beyaz, açık zeminde siyah |
+| "N" / kamyon | `currentColor` — koyu zeminde beyaz, açık zeminde siyah |
 | Ayraç | OKUR ile NAKLİYAT arasında 2 px sarı çizgi |
 
-Kamyonun `currentColor` alması bilinçlidir: sağlanan logonun açık ve koyu zemin
-(knockout) olmak üzere iki sürümü var. Renk kapsayıcıdan geldiği için tek
-işaret her iki zeminde de doğru görünür, ikinci bir dosya gerekmez.
+İşaret, verilen logo dosyasından **ölçülerek** yeniden çizildi; gözle taklit
+edilmedi. Maske bileşenlere ayrıldı, kenarları RDP ile sadeleştirildi ve
+yuvarlak parçalara çember uyduruldu:
+
+| Parça | Ölçüm |
+| --- | --- |
+| "O" halkası | dış çap 267×255 px, iç çap 138×136 px |
+| "N"in sol kenarı | merkez (140,133), r = 139,2 — maks. sapma **0,71 px** |
+| Tekerlek | dış r = 33,0 · göbek r = 14,1 (sapma 1,5 / 0,9) |
+| Kabin kemeri | tekerlek merkezine göre r ≈ 40,3 |
+
+"N"in sol kenarı düz çizgi parçalarıyla değil tek bir `A` yayıyla çizildi —
+ölçüm bunun gerçek bir çember yayı olduğunu gösterdi. Kaynak logo ile çizimin
+piksel örtüşmesi: **beyaz IoU 0,985**, sarı IoU 0,952.
+
+Sarıdaki fark bilinçli: kaynaktaki "O" 267×255 px, yani %4,7 basık. Marka
+işareti olarak **tam çember** çizildi (çap 261) — favicon ile tutarlı olması
+ve 32 px'te basıklığın hata gibi okunması nedeniyle. 32 px yükseklikte fark
+0,3 px'in altında kalıyor.
+
+"N"/kamyonun `currentColor` alması bilinçlidir: sağlanan logonun açık ve koyu
+zemin (knockout) olmak üzere iki sürümü var. Renk kapsayıcıdan geldiği için
+tek işaret her iki zeminde de doğru görünür, ikinci bir dosya gerekmez.
 
 ### Animasyon
 
+Dönüşüm değerleri viewBox birimindedir — SVG öğelerinde CSS `px`, kullanıcı
+birimi olarak yorumlanır. Kutu 66 birimden 568 birime çıktığı için eski
+değerler yaklaşık 8,6 kat büyütüldü, görünen hareket aynı kaldı.
+
 - **Açılış** (yalnızca header): halka `scale(0.55) → 1` + opaklık, kamyon
-  `translateX(-7px) → 0`, 100 ms gecikmeyle. Süre 0,62 sn.
-- **Hover / odak** (her yerde): halka `scale(1.07)`, kamyon `translateX(2.4px)`.
+  `translateX(-60px) → 0`, 100 ms gecikmeyle. Süre 0,62 sn.
+- **Hover / odak** (her yerde): halka `scale(1.05)`, kamyon `translateX(20px)`.
   Halka ve kamyon ayrı hareket eder; tek parça döndürmek kamyonu yatırıyordu.
+  Halka büyürken kamyon sağa kaydığı için aradaki boşluk kapanmaz, açılır:
+  duruşta en dar yatay boşluk 16,0 birim, hover'da 29,5 birim; her iki durumda
+  da sarı/beyaz kesişimi 0 piksel (ölçüldü).
 - `animation-fill-mode: backwards` kullanılır — animasyon bitince öğe normal
   stiline döner, böylece hover geçişleri çalışmaya devam eder.
 - `prefers-reduced-motion: reduce` altında animasyon ve dönüşümlerin tamamı

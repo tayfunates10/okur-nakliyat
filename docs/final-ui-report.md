@@ -82,6 +82,15 @@ büyüğü seçildiği için (`max(...)`) çentiksiz cihazlarda hiçbir değer d
   ölü şerit kalktı.
 - **Hero hizmet şeridi:** 720 px altında kaydırılabilir olduğunu gösteren sağ
   kenar geçişi (`.hero-service-rail::after`) eklendi.
+- **Marka işareti yeni logodan çizildi:** `viewBox` 66×36 → 568×278. Maske
+  bileşenlere ayrılıp kenarlara çember/yay uyduruldu; kaynak logo ile piksel
+  örtüşmesi beyaz IoU 0,985 / sarı IoU 0,952. Dönüşüm değerleri viewBox
+  birimine göre yeniden ölçeklendi (`translateX` 2,4 → 20, açılışta −7 → −60).
+  Ayrıntı: `docs/icon-system.md`.
+- **Tüm yerel stil dosyaları sürümlendi:** `reset/variables/components/style`
+  bir yıl `immutable` önbelleklenirken yalnızca `style.css` `?v=` alıyordu;
+  `components.css`'teki marka değişikliği geri dönen ziyaretçilere hiç
+  ulaşmayacaktı. Dördü de `?v=13` ile isteniyor.
 - **Başlık üstü etiketler kaldırıldı:** Hero rozeti (`.badge.hero-badge`), altı
   bölüm etiketi (`.section-eyebrow`) ve CTA şeridindeki `.cta-inner p` satırı
   kaldırıldı; başlıklar artık doğrudan bölümün üstünde başlıyor. Kullanılmayan

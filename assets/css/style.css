@@ -1926,10 +1926,6 @@ body.is-menu-open {
     );
   }
 
-  .site-header .brand-mark {
-    height: 32px;
-  }
-
   .site-header .brand-name {
     font-size: 1.08rem;
   }

@@ -229,8 +229,9 @@
 }
 
 /* --------------------------------------------------------------------------
-   3. Marka logosu (yazı tabanlı geçici kimlik)
-   Görsel logo dosyası hazır olduğunda .brand-mark içindeki SVG değiştirilir.
+   3. Marka logosu
+   İşaret, verilen logo dosyasından ölçülerek çizilmiş SVG'dir; OKUR/NAKLİYAT
+   kilidi ise metin olarak kalır (seçilebilir, ekran okuyucuya açık, net).
    -------------------------------------------------------------------------- */
 
 .brand {
@@ -242,13 +243,14 @@
   border-radius: var(--radius-sm);
 }
 
-/* Marka işareti: sarı halka "O" + kamyon silueti "N".
-   Halka her zaman marka sarısı; kamyon currentColor ile gelir, böylece koyu
-   zeminde beyaz, açık zeminde siyah olur (logonun knockout sürümü).
-   Oran 66:36 — yükseklik verilir, genişlik oranla hesaplanır. */
+/* Marka işareti: sarı halka "O" + kamyona dönüşen "N".
+   Logo dosyasından ölçülerek çizildi; halka her zaman marka sarısı, "N"/kamyon
+   currentColor ile gelir, böylece koyu zeminde beyaz, açık zeminde siyah olur
+   (logonun knockout sürümü). Oran 568:278 — yükseklik verilir, genişlik
+   oranla hesaplanır. */
 .brand-mark {
   display: block;
-  height: 38px;
+  height: 32px;
   flex: none;
   color: currentColor;
 }
@@ -270,14 +272,19 @@
   transition: transform var(--transition-normal);
 }
 
+/* Ölçüler viewBox birimindedir (SVG öğelerinde CSS px = kullanıcı birimi),
+   bu yüzden eski 66 birimlik kutuya göre yaklaşık 8,6 kat büyüdüler.
+   Halka büyürken kamyon sağa kaydığı için aradaki boşluk kapanmaz, açılır:
+   duruşta en dar yatay boşluk 16,0 birim, hover'da 29,5 birim (ölçüldü;
+   her iki durumda da sarı/beyaz kesişimi 0 piksel). */
 .brand:hover .brand-ring,
 .brand:focus-visible .brand-ring {
-  transform: scale(1.07);
+  transform: scale(1.05);
 }
 
 .brand:hover .brand-truck,
 .brand:focus-visible .brand-truck {
-  transform: translateX(2.4px);
+  transform: translateX(20px);
 }
 
 /* Açılış animasyonu yalnızca header'da: footer ve mobil menüdeki kopyalar
@@ -302,7 +309,7 @@
 @keyframes brandTruckIn {
   from {
     opacity: 0;
-    transform: translateX(-7px);
+    transform: translateX(-60px);
   }
 }
 
