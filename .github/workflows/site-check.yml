@@ -105,6 +105,20 @@ jobs:
             fi
           done
 
+          # Kaldırılmış olması gereken içerik. Yayında hâlâ görünüyorsa
+          # dağıtım eski sürümü sunuyor demektir.
+          for stale in "section-eyebrow" \
+                       "hero-badge" \
+                       "Edremit Merkezli" \
+                       "Taşınmaya hazır mısınız?"; do
+            if grep -qF "$stale" page.html; then
+              printf "ARTIK  %s (kaldırılmış olmalıydı)\n" "$stale"
+              exit 1
+            else
+              printf "YOK    %s\n" "$stale"
+            fi
+          done
+
           echo
           echo ">>> SONUC: Sayfa ve üretim dosyaları beklendiği gibi yayında."
 
