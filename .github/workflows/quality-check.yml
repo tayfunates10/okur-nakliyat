@@ -29,7 +29,9 @@ jobs:
             assets/css/style.css \
             assets/js/main.js \
             assets/images/hero/okur-nakliyat-hero-background.webp \
-            assets/images/hero/okur-nakliyat-hero.svg \
+            assets/images/hero/okur-nakliyat-hero-arac.webp \
+            assets/images/about/okur-nakliyat-hakkimizda.webp \
+            assets/images/og/okur-nakliyat-og.jpg \
             assets/images/logo/favicon.svg; do
             test -f "$file"
             printf "OK  %s\n" "$file"

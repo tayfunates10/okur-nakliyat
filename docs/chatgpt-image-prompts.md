@@ -5,11 +5,19 @@ alanlar için hazırlanmış promptları içerir.
 
 ## Entegrasyon durumu
 
-Bu ortamda **ChatGPT görsel üretim aracı veya API entegrasyonu bulunmamaktadır.**
-Bu nedenle aşağıdaki promptlar hazırlanmış, ancak **görseller üretilmemiştir.**
+Bu ortamda ChatGPT görsel üretim aracı veya API entegrasyonu **bulunmamaktadır**;
+görseller Claude tarafından üretilmemiştir. Aşağıdaki promptlar hazırlanmış,
+**kullanıcı bunları kendi ChatGPT hesabında çalıştırıp üretilen üç görseli
+projeye sağlamıştır.** Claude bu görselleri dönüştürüp entegre etmiş ve
+ölçümle doğrulamıştır.
+
 İnternetten telifi belirsiz görsel indirilmemiş, sahte görsel oluşturulmamıştır.
 
-Görseller üretildikten sonra izlenecek yol her promptun altında yazılıdır.
+| Prompt | Üretildi mi? | Dönüştürüldü mü? | Entegre edildi mi? |
+| --- | --- | --- | --- |
+| 1 — Hero ön plan aracı | ✅ Kullanıcı üretti | ✅ WebP (şeffaflık korundu) + 900px varyant | ✅ `srcset` ile |
+| 2 — Open Graph görseli | ✅ Kullanıcı üretti | ✅ 1200×630 JPG | ✅ `og:image`, `twitter:image`, JSON-LD |
+| 3 — Hakkımızda görseli | ✅ Kullanıcı üretti | ✅ WebP | ✅ inline SVG'nin yerine |
 
 ## Mevcut görsel envanteri
 
@@ -17,16 +25,21 @@ Görseller üretildikten sonra izlenecek yol her promptun altında yazılıdır.
 
 | Dosya | Tür | Ölçü | Boyut | Durum |
 | --- | --- | --- | --- | --- |
-| `assets/images/hero/okur-nakliyat-hero-background.webp` | Raster (WebP) | 1672 × 941 | 71.882 B | ✅ Uygun, kullanımda (hero arka planı) |
-| `assets/images/hero/okur-nakliyat-hero.svg` | SVG illüstrasyon | 960 × 720 | 4.840 B | ⚠️ Raster ile değiştirilmeli (Prompt 1) |
-| `assets/images/og/okur-nakliyat-og.svg` | SVG paylaşım görseli | 1200 × 630 | 2.549 B | ⚠️ Raster ile değiştirilmeli (Prompt 2) |
+| `assets/images/hero/okur-nakliyat-hero-background.webp` | Raster (WebP) | 1672 × 941 | 71,9 KB | ✅ Hero arka planı |
+| `assets/images/hero/okur-nakliyat-hero-arac.webp` | Raster (WebP, şeffaf) | 1536 × 1024 | 117,8 KB | ✅ Hero ön planı (retina) |
+| `assets/images/hero/okur-nakliyat-hero-arac-900.webp` | Raster (WebP, şeffaf) | 900 × 600 | 44,5 KB | ✅ `srcset` mobil varyantı |
+| `assets/images/about/okur-nakliyat-hakkimizda.webp` | Raster (WebP) | 1217 × 1293 | 34,4 KB | ✅ Hakkımızda bölümü |
+| `assets/images/og/okur-nakliyat-og.jpg` | Raster (JPG) | 1200 × 630 | 57,5 KB | ✅ Paylaşım görseli |
 | `assets/images/logo/favicon.svg` | Logo / ikon | 64 × 64 | 331 B | ✅ Kural gereği SVG kalabilir |
+
+Prompt 1 ve 2 ile değiştirilen `okur-nakliyat-hero.svg` ve `okur-nakliyat-og.svg`
+dosyaları **silinmiştir**.
 
 **`index.html` içine gömülü (inline) illüstrasyonlar**
 
 | Konum | viewBox | Rol | Durum |
 | --- | --- | --- | --- |
-| `.about-scene` (`#hakkimizda`) | 640 × 680 | Taşıma sahnesi illüstrasyonu | ⚠️ Raster ile değiştirilebilir (Prompt 3) |
+| `.about-scene` (`#hakkimizda`) | — | Taşıma sahnesi illüstrasyonu | ✅ **Raster ile değiştirildi** (Prompt 3) |
 | `.coverage-map` (hizmet bölgesi) | 820 × 390 | Dekoratif Türkiye haritası + güzergâh noktaları | ℹ️ Vektör kalması tercih edildi — gerekçe aşağıda |
 | Arayüz ikonları (telefon, WhatsApp, konum, menü, ok, onay, hizmet kartı ikonları) | çeşitli | İkon | ✅ Kural gereği inline SVG kalır |
 
@@ -55,9 +68,9 @@ Görseller üretildikten sonra izlenecek yol her promptun altında yazılıdır.
 | Kullanım | Masaüstünde sağ sütun, 960 px altında metnin altında ortalanmış; `width: min(780px, 126%)` ile ölçekleniyor |
 | Şeffaflık | **Gerekli** — hero arka plan görselinin üzerine bineceği için PNG üretilip WebP'ye çevrilmeli |
 | Mobil varyasyon | Gerekmiyor; aynı görsel genişlik kuralıyla ölçekleniyor |
-| Üretildi mi? | ❌ Hayır (entegrasyon yok) |
-| WebP'ye çevrildi mi? | ❌ Hayır |
-| Projeye entegre edildi mi? | ❌ Hayır |
+| Üretildi mi? | ✅ Evet — kullanıcı ChatGPT'de üretti |
+| WebP'ye çevrildi mi? | ✅ Evet |
+| Projeye entegre edildi mi? | ✅ Evet |
 
 **Prompt:**
 
@@ -113,9 +126,9 @@ Görseller üretildikten sonra izlenecek yol her promptun altında yazılıdır.
 | Kullanım | WhatsApp, Facebook, X, LinkedIn önizlemesi |
 | Şeffaflık | Gerekmiyor |
 | Mobil varyasyon | Gerekmiyor |
-| Üretildi mi? | ❌ Hayır (entegrasyon yok) |
-| WebP'ye çevrildi mi? | ❌ Hayır — **bu görsel WebP olmamalı** |
-| Projeye entegre edildi mi? | ❌ Hayır |
+| Üretildi mi? | ✅ Evet — kullanıcı ChatGPT'de üretti |
+| WebP'ye çevrildi mi? | ✅ JPG'ye çevrildi (bu görsel WebP olmamalı) |
+| Projeye entegre edildi mi? | ✅ Evet |
 
 > **Önemli:** Open Graph görselleri için **JPG veya PNG kullanılmalıdır.** Birçok
 > sosyal platform WebP ve SVG önizlemelerini desteklemez. Bu tek istisnadır;
@@ -173,9 +186,9 @@ Görseller üretildikten sonra izlenecek yol her promptun altında yazılıdır.
 | Kullanım | Masaüstünde sol sütun, 960 px altında metnin üstünde ortalanmış, `width: min(100%, 670px)` |
 | Şeffaflık | Gerekmiyor — kendi koyu zemini olabilir, köşeler CSS'te `border-radius` ile yuvarlanıyor |
 | Mobil varyasyon | Gerekmiyor |
-| Üretildi mi? | ❌ Hayır (entegrasyon yok) |
-| WebP'ye çevrildi mi? | ❌ Hayır |
-| Projeye entegre edildi mi? | ❌ Hayır |
+| Üretildi mi? | ✅ Evet — kullanıcı ChatGPT'de üretti |
+| WebP'ye çevrildi mi? | ✅ Evet |
+| Projeye entegre edildi mi? | ✅ Evet |
 
 **Prompt:**
 
