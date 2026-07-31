@@ -51,12 +51,12 @@
   <link rel="preload" href="assets/images/hero/okur-nakliyat-hero-background.webp"
         as="image" type="image/webp" fetchpriority="high">
 
-  <link rel="stylesheet" href="assets/css/reset.css?v=13">
-  <link rel="stylesheet" href="assets/css/variables.css?v=13">
-  <link rel="stylesheet" href="assets/css/components.css?v=13">
-  <link rel="stylesheet" href="assets/css/style.css?v=13">
+  <link rel="stylesheet" href="assets/css/reset.css?v=14">
+  <link rel="stylesheet" href="assets/css/variables.css?v=14">
+  <link rel="stylesheet" href="assets/css/components.css?v=14">
+  <link rel="stylesheet" href="assets/css/style.css?v=14">
 
-  <script defer src="assets/js/main.js?v=13"></script>
+  <script defer src="assets/js/main.js?v=14"></script>
 
   <noscript>
     <style>
@@ -68,44 +68,194 @@
     </style>
   </noscript>
 
+  <!--
+    Yapısal veri tek bir @graph içinde toplanır; düğümler @id ile birbirine
+    bağlanır, böylece Google için "işletme", "sayfa" ve "SSS" aynı varlığın
+    parçaları olur. Uydurma alan yok: adres, çalışma saati, koordinat ve
+    puan bilgisi doğrulanamadığı için hiç yazılmadı — eksik alan, yanlış
+    alandan iyidir (yanlış NAP yerel sıralamayı doğrudan düşürür).
+  -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "MovingCompany",
-    "name": "Okur Nakliyat",
-    "url": "https://okurnakliyatedremit.com/",
-    "telephone": "+905372265043",
-    "image": "https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg",
-    "description": "Edremit merkezli şehir içi, şehirler arası ve Türkiye geneli evden eve nakliyat hizmeti. Ücretsiz kurulum ve montaj desteği.",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Edremit",
-      "addressRegion": "Balıkesir",
-      "addressCountry": "TR"
-    },
-    "areaServed": [
-      { "@type": "City", "name": "Edremit" },
-      { "@type": "AdministrativeArea", "name": "Balıkesir" },
-      { "@type": "Country", "name": "Türkiye" }
-    ],
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "telephone": "+905372265043",
-      "contactType": "customer service",
-      "availableLanguage": "Turkish"
-    },
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Nakliyat Hizmetleri",
-      "itemListElement": [
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Evden Eve Nakliyat" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Şehirler Arası Nakliyat" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Ofis ve İş Yeri Taşıma" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Parça Eşya Taşıma" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Paketleme ve Koruma" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Kurulum ve Montaj Desteği" } }
-      ]
-    }
+    "@graph": [
+      {
+        "@type": "MovingCompany",
+        "@id": "https://okurnakliyatedremit.com/#isletme",
+        "name": "Okur Nakliyat",
+        "alternateName": "Okur Nakliyat Edremit",
+        "url": "https://okurnakliyatedremit.com/",
+        "telephone": "+905372265043",
+        "image": "https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://okurnakliyatedremit.com/assets/images/logo/favicon.svg"
+        },
+        "description": "Edremit merkezli evden eve nakliyat, şehirler arası taşıma ve ofis taşıma hizmeti. Paketleme, koruma ve ücretsiz kurulum-montaj desteği.",
+        "knowsLanguage": "tr",
+        "currenciesAccepted": "TRY",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Edremit",
+          "addressRegion": "Balıkesir",
+          "addressCountry": "TR"
+        },
+        "areaServed": [
+          { "@type": "City", "name": "Edremit" },
+          { "@type": "City", "name": "Akçay" },
+          { "@type": "City", "name": "Altınoluk" },
+          { "@type": "City", "name": "Güre" },
+          { "@type": "City", "name": "Zeytinli" },
+          { "@type": "City", "name": "Burhaniye" },
+          { "@type": "City", "name": "Havran" },
+          { "@type": "City", "name": "Ayvalık" },
+          { "@type": "AdministrativeArea", "name": "Balıkesir" },
+          { "@type": "Country", "name": "Türkiye" }
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+905372265043",
+          "contactType": "customer service",
+          "availableLanguage": "Turkish",
+          "areaServed": "TR"
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Nakliyat Hizmetleri",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Evden Eve Nakliyat",
+                "serviceType": "Evden eve nakliyat",
+                "description": "Eşyaların paketlenmesi, planlı taşınması ve yeni adreste yerleştirilmesi.",
+                "provider": { "@id": "https://okurnakliyatedremit.com/#isletme" },
+                "areaServed": { "@type": "City", "name": "Edremit" }
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Şehirler Arası Nakliyat",
+                "serviceType": "Şehirler arası nakliyat",
+                "description": "Edremit ve Balıkesir çıkışlı ya da varışlı, güzergâha uygun planla Türkiye geneli taşıma.",
+                "provider": { "@id": "https://okurnakliyatedremit.com/#isletme" },
+                "areaServed": { "@type": "Country", "name": "Türkiye" }
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Ofis ve İş Yeri Taşıma",
+                "serviceType": "Ofis taşıma",
+                "description": "Mobilya, ekipman ve evrakların iş düzenini aksatmadan taşınması.",
+                "provider": { "@id": "https://okurnakliyatedremit.com/#isletme" }
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Parça Eşya Taşıma",
+                "serviceType": "Parça eşya taşıma",
+                "description": "Az miktardaki eşya ve tek parça ürünler için ekonomik taşıma seçeneği.",
+                "provider": { "@id": "https://okurnakliyatedremit.com/#isletme" }
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Paketleme ve Koruma",
+                "serviceType": "Paketleme",
+                "description": "Mobilya, beyaz eşya ve hassas ürünlerin taşıma koşullarına uygun malzemelerle korunması.",
+                "provider": { "@id": "https://okurnakliyatedremit.com/#isletme" }
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Kurulum ve Montaj Desteği",
+                "serviceType": "Mobilya kurulum ve montaj",
+                "description": "Taşınan mobilyaların söküm ve yeniden kurulum işlemlerinde ücretsiz destek.",
+                "provider": { "@id": "https://okurnakliyatedremit.com/#isletme" }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://okurnakliyatedremit.com/#site",
+        "url": "https://okurnakliyatedremit.com/",
+        "name": "Okur Nakliyat",
+        "inLanguage": "tr-TR",
+        "publisher": { "@id": "https://okurnakliyatedremit.com/#isletme" }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://okurnakliyatedremit.com/#sayfa",
+        "url": "https://okurnakliyatedremit.com/",
+        "name": "Okur Nakliyat | Edremit Evden Eve ve Şehirler Arası Nakliyat",
+        "description": "Okur Nakliyat; Edremit, Balıkesir ve Türkiye genelinde şehir içi, şehirler arası, evden eve ve ofis taşımacılığı sunar. Ücretsiz kurulum ve montaj desteği.",
+        "inLanguage": "tr-TR",
+        "isPartOf": { "@id": "https://okurnakliyatedremit.com/#site" },
+        "about": { "@id": "https://okurnakliyatedremit.com/#isletme" },
+        "primaryImageOfPage": "https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://okurnakliyatedremit.com/#sss",
+        "isPartOf": { "@id": "https://okurnakliyatedremit.com/#sayfa" },
+        "inLanguage": "tr-TR",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Nakliyat fiyatı nasıl belirleniyor?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Fiyat; eşya miktarı, kat bilgileri, bina erişimi, iki adres arasındaki mesafe ve istenen ek hizmetlere göre belirlenir."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Paketleme hizmeti veriyor musunuz?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Evet. Mobilya, beyaz eşya ve hassas ürünleri taşıma koşullarına uygun malzemelerle koruyarak hazırlıyoruz."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Kurulum ve montaj gerçekten ücretsiz mi?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Taşıma kapsamında sökülen ve yeniden kurulması gereken uygun mobilyalar için kurulum ve montaj desteği ücretsizdir."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Şehirler arası taşıma yapıyor musunuz?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Evet. Edremit ve Balıkesir çıkışlı veya varışlı olmak üzere Türkiye genelinde şehirler arası taşıma planlıyoruz."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Taşıma tarihi ne kadar önce belirlenmeli?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Özellikle ay sonu ve hafta sonu yoğunlukları için mümkün olduğunca erken iletişim kurmanız uygun tarih planlamasını kolaylaştırır."
+            }
+          }
+        ]
+      }
+    ]
   }
   </script>
 </head>
@@ -238,9 +388,10 @@
           </h1>
 
           <p class="hero-description">
-            Okur Nakliyat; şehir içi ve şehirler arası taşımacılıkta eşyalarınızı planlı,
-            dikkatli ve güvenli şekilde yeni adresine ulaştırır. Ücretsiz kurulum ve montaj
-            desteğimizle taşınma sürecinizi baştan sona kolaylaştırırız.
+            Okur Nakliyat; Edremit merkezli evden eve nakliyat, şehir içi ve şehirler arası
+            taşımacılıkta eşyalarınızı planlı, dikkatli ve güvenli şekilde yeni adresine
+            ulaştırır. Ücretsiz kurulum ve montaj desteğimizle taşınma sürecinizi baştan
+            sona kolaylaştırırız.
           </p>
 
           <div class="hero-actions">
@@ -279,7 +430,7 @@
                srcset="assets/images/hero/okur-nakliyat-hero-arac-900.webp 900w,
                        assets/images/hero/okur-nakliyat-hero-arac.webp 1536w"
                sizes="(max-width: 960px) 100vw, 780px"
-               alt="Sarı kabinli, beyaz kasalı Okur Nakliyat taşıma aracı"
+               alt="Okur Nakliyat'ın evden eve nakliyat taşımalarında kullandığı sarı kabinli, beyaz kasalı kamyon"
                width="1536" height="1024" decoding="async" fetchpriority="high">
 
           <div class="floating-card floating-card-location">
@@ -546,6 +697,21 @@
             Balıkesir, İstanbul, İzmir, Ankara, Bursa, Antalya ve Türkiye'nin tüm şehirleri
             için şehirler arası nakliyat planlaması yapıyoruz.
           </p>
+
+          <div class="coverage-local">
+            <h3 class="coverage-local-title">Edremit Körfezi'nde yerinde hizmet</h3>
+            <ul class="coverage-local-list">
+              <li>Edremit</li>
+              <li>Akçay</li>
+              <li>Altınoluk</li>
+              <li>Güre</li>
+              <li>Zeytinli</li>
+              <li>Burhaniye</li>
+              <li>Havran</li>
+              <li>Ayvalık</li>
+            </ul>
+          </div>
+
           <a class="btn coverage-button" href="#teklif">Güzergâh için teklif al</a>
         </div>
 

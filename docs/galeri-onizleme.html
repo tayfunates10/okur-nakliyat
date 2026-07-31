@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Galeri bölümü — önizleme (yayında değil)</title>
+
+  <link rel="icon" href="../assets/images/logo/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/main.js"></script>
+
+  <style>
+    /* Yalnızca bu önizleme sayfasına ait uyarı şeridi. */
+    .preview-note {
+      padding: 1rem 1.25rem;
+      font-family: var(--font-heading);
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: #0B0B0B;
+      background: #F5C400;
+    }
+    .preview-note code { font-family: ui-monospace, monospace; }
+  </style>
+</head>
+
+<body>
+  <p class="preview-note">
+    <strong>Önizleme.</strong> Bu dosya <code>docs/</code> altında; yayın klasörüne
+    kopyalanmıyor, dolayısıyla siteye çıkmıyor. Fotoğraflar gelince aşağıdaki
+    <code>&lt;section&gt;</code> ve <code>&lt;dialog&gt;</code> blokları
+    <code>index.html</code>'e taşınacak. Buradaki görseller sitede zaten bulunan
+    dosyalar — sadece düzeni ve davranışı göstermek için tekrar kullanıldı.
+  </p>
+
+  <main id="main">
+
+    <!-- ====== index.html'e taşınacak blok: başlangıç ====== -->
+    <section class="section section-light" id="galeri" aria-labelledby="galleryTitle">
+      <div class="container">
+        <div class="section-heading">
+          <div class="section-heading-main">
+            <h2 class="section-title" id="galleryTitle">
+              Taşıdığımız evlerden
+              <span>kareler.</span>
+            </h2>
+          </div>
+          <p class="section-intro">
+            Edremit ve çevresinde tamamladığımız taşımalardan fotoğraflar. Paketlemeden
+            yerleştirmeye kadar süreci nasıl yürüttüğümüzü buradan görebilirsiniz.
+          </p>
+        </div>
+
+        <ul class="gallery-grid">
+          <li class="gallery-item">
+            <button class="gallery-trigger" type="button"
+                    data-full="../assets/images/hero/okur-nakliyat-hero-arac.webp"
+                    data-caption="Edremit çıkışlı evden eve taşıma için hazırlanan araç">
+              <img class="gallery-image"
+                   src="../assets/images/hero/okur-nakliyat-hero-arac-900.webp"
+                   width="900" height="675" loading="lazy" decoding="async"
+                   alt="Okur Nakliyat taşıma aracı yükleme için hazır bekliyor">
+              <span class="gallery-caption">Edremit çıkışlı evden eve taşıma için hazırlanan araç</span>
+            </button>
+          </li>
+
+          <li class="gallery-item">
+            <button class="gallery-trigger" type="button"
+                    data-full="../assets/images/about/okur-nakliyat-hakkimizda.webp"
+                    data-caption="Paketlenen eşyaların iki kişiyle taşınması">
+              <img class="gallery-image"
+                   src="../assets/images/about/okur-nakliyat-hakkimizda.webp"
+                   width="900" height="675" loading="lazy" decoding="async"
+                   alt="Okur Nakliyat ekibinden iki görevli paketlenmiş bir kutuyu taşıyor">
+              <span class="gallery-caption">Paketlenen eşyaların iki kişiyle taşınması</span>
+            </button>
+          </li>
+
+          <li class="gallery-item">
+            <button class="gallery-trigger" type="button"
+                    data-full="../assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp"
+                    data-caption="Edremit merkezli hizmet bölgesi">
+              <img class="gallery-image"
+                   src="../assets/images/coverage/okur-nakliyat-hizmet-bolgesi-900.webp"
+                   width="900" height="675" loading="lazy" decoding="async"
+                   alt="Edremit merkezli, Türkiye genelindeki şehirlere uzanan taşıma güzergâhları">
+              <span class="gallery-caption">Edremit merkezli hizmet bölgesi</span>
+            </button>
+          </li>
+
+          <li class="gallery-item">
+            <button class="gallery-trigger" type="button"
+                    data-full="../assets/images/hero/okur-nakliyat-hero-arac.webp"
+                    data-caption="Yükleme öncesi son kontrol">
+              <img class="gallery-image"
+                   src="../assets/images/hero/okur-nakliyat-hero-arac-900.webp"
+                   width="900" height="675" loading="lazy" decoding="async"
+                   alt="Taşıma aracının kasası yükleme öncesi açık">
+              <span class="gallery-caption">Yükleme öncesi son kontrol</span>
+            </button>
+          </li>
+
+          <li class="gallery-item">
+            <button class="gallery-trigger" type="button"
+                    data-full="../assets/images/about/okur-nakliyat-hakkimizda.webp"
+                    data-caption="Beyaz eşyanın koruyucu malzemeyle hazırlanması">
+              <img class="gallery-image"
+                   src="../assets/images/about/okur-nakliyat-hakkimizda.webp"
+                   width="900" height="675" loading="lazy" decoding="async"
+                   alt="Koruyucu malzemeyle hazırlanmış eşyalar">
+              <span class="gallery-caption">Beyaz eşyanın koruyucu malzemeyle hazırlanması</span>
+            </button>
+          </li>
+
+          <li class="gallery-item">
+            <button class="gallery-trigger" type="button"
+                    data-full="../assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp"
+                    data-caption="Şehirler arası güzergâh planlaması">
+              <img class="gallery-image"
+                   src="../assets/images/coverage/okur-nakliyat-hizmet-bolgesi-900.webp"
+                   width="900" height="675" loading="lazy" decoding="async"
+                   alt="Şehirler arası taşıma güzergâhlarını gösteren harita">
+              <span class="gallery-caption">Şehirler arası güzergâh planlaması</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <dialog class="gallery-lightbox" id="galleryLightbox" aria-label="Galeri görüntüleyici">
+      <figure class="gallery-lightbox-figure">
+        <img class="gallery-lightbox-image" id="galleryLightboxImage" alt="">
+        <figcaption class="gallery-lightbox-bar">
+          <p class="gallery-lightbox-caption" id="galleryLightboxCaption"></p>
+          <p class="gallery-lightbox-counter" id="galleryLightboxCounter"></p>
+        </figcaption>
+      </figure>
+
+      <button class="gallery-lightbox-button gallery-lightbox-close" type="button" aria-label="Kapat">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+      <button class="gallery-lightbox-button gallery-lightbox-prev" type="button" aria-label="Önceki fotoğraf">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M14.5 5 7.5 12l7 7"/></svg>
+      </button>
+      <button class="gallery-lightbox-button gallery-lightbox-next" type="button" aria-label="Sonraki fotoğraf">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m9.5 5 7 7-7 7"/></svg>
+      </button>
+    </dialog>
+    <!-- ====== index.html'e taşınacak blok: bitiş ====== -->
+
+  </main>
+</body>
+</html>
