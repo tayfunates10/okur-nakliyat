@@ -110,35 +110,6 @@ summary {
   margin-top: var(--space-sm);
 }
 
-.section-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  margin: 0 0 var(--space-sm);
-  font-family: var(--font-heading);
-  font-size: var(--fs-micro);
-  font-weight: var(--weight-black);
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
-  color: var(--color-yellow-dark);
-}
-
-.section-eyebrow::before {
-  content: "";
-  width: 32px;
-  height: 2px;
-  background: currentColor;
-  border-radius: var(--radius-pill);
-}
-
-.section-eyebrow-on-dark {
-  color: var(--color-yellow);
-}
-
-.section-eyebrow-dark {
-  color: var(--color-black);
-}
-
 .section-title {
   max-width: 830px;
   margin: 0;
@@ -578,11 +549,6 @@ body.is-menu-open {
 .hero-content {
   grid-column: 1 / span 6;
   max-width: 710px;
-}
-
-.hero-badge {
-  margin-bottom: var(--space-lg);
-  animation: heroFadeUp 0.7s var(--ease-out-soft) 0.08s both;
 }
 
 .hero-title {
@@ -1193,7 +1159,7 @@ body.is-menu-open {
   background: var(--color-black);
 }
 
-.coverage-content > p:not(.section-eyebrow) {
+.coverage-content > p {
   max-width: 530px;
   margin: var(--space-lg) 0 0;
   font-size: var(--fs-lead);
@@ -1269,7 +1235,7 @@ body.is-menu-open {
   grid-column: 1 / span 5;
 }
 
-.faq-intro > p:not(.section-eyebrow) {
+.faq-intro > p {
   max-width: 500px;
   margin: var(--space-lg) 0;
   color: var(--text-on-light-muted);
@@ -1402,7 +1368,7 @@ body.is-menu-open {
   grid-column: 1 / span 5;
 }
 
-.quote-content > p:not(.section-eyebrow) {
+.quote-content > p {
   max-width: 560px;
   margin: var(--space-lg) 0 0;
   color: var(--text-on-dark-muted);
@@ -1566,15 +1532,6 @@ body.is-menu-open {
   gap: var(--space-lg);
   min-height: 190px;
   padding-block: var(--space-lg);
-}
-
-.cta-inner p {
-  margin: 0 0 var(--space-2xs);
-  font-family: var(--font-heading);
-  font-size: var(--fs-micro);
-  font-weight: var(--weight-black);
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
 }
 
 .cta-inner h2 {
@@ -2209,10 +2166,6 @@ body.is-menu-open {
     padding-inline: 1.25rem;
   }
 
-  .hero-badge {
-    font-size: 0.58rem;
-  }
-
   .hero-visual {
     min-height: 360px;
   }
@@ -2274,10 +2227,6 @@ body.is-menu-open {
     justify-content: flex-start;
   }
 
-  .hero-badge {
-    margin-bottom: var(--space-sm);
-  }
-
   .hero-title {
     font-size: clamp(1.6rem, 4vw, 2.35rem);
   }
@@ -2311,7 +2260,6 @@ body.is-menu-open {
 
 @media (prefers-reduced-motion: reduce) {
   .hero-background,
-  .hero-badge,
   .hero-title-line > span,
   .hero-description,
   .hero-actions,
