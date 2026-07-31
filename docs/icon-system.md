@@ -96,10 +96,41 @@ hedefKalınlık ≈ 1,50 + 0,02 × (renderBoyutu − 17)
 olarak farklı formlardır; ikisi de aynı sayfada göründüğü için birbirine
 benzemeleri istenmedi.
 
-## Kapsam dışı
+## Marka işareti
 
-- **Marka işareti** (`.brand-mark`, 64×24 ızgara) — logo olduğu için bu sistemin
-  parçası değildir.
+Logo bu sistemin parçası değildir; kendi kuralları vardır.
+
+| | |
+| --- | --- |
+| viewBox | `0 0 66 36` (oran 11:6) |
+| Yükseklik | Header 38 px · ≤720 px'de 32 px · mobil menü ve footer 38 px |
+| Halka | Her zaman `#F5C400` — zemin ne olursa olsun sabit |
+| Kamyon | `currentColor` — koyu zeminde beyaz, açık zeminde siyah |
+| Ayraç | OKUR ile NAKLİYAT arasında 2 px sarı çizgi |
+
+Kamyonun `currentColor` alması bilinçlidir: sağlanan logonun açık ve koyu zemin
+(knockout) olmak üzere iki sürümü var. Renk kapsayıcıdan geldiği için tek
+işaret her iki zeminde de doğru görünür, ikinci bir dosya gerekmez.
+
+### Animasyon
+
+- **Açılış** (yalnızca header): halka `scale(0.55) → 1` + opaklık, kamyon
+  `translateX(-7px) → 0`, 100 ms gecikmeyle. Süre 0,62 sn.
+- **Hover / odak** (her yerde): halka `scale(1.07)`, kamyon `translateX(2.4px)`.
+  Halka ve kamyon ayrı hareket eder; tek parça döndürmek kamyonu yatırıyordu.
+- `animation-fill-mode: backwards` kullanılır — animasyon bitince öğe normal
+  stiline döner, böylece hover geçişleri çalışmaya devam eder.
+- `prefers-reduced-motion: reduce` altında animasyon ve dönüşümlerin tamamı
+  kapanır. Kuralın özgüllüğü `.site-header .brand-ring` ile eşleşecek şekilde
+  yazılmıştır; aksi hâlde devreye girmiyordu.
+
+### Favicon
+
+`assets/images/logo/favicon.svg` yalnızca **sarı halkayı** koyu yuvarlatılmış
+kare üzerinde kullanır. 16 px'te kamyon okunmuyor; koyu zemin ise açık renkli
+sekmelerde halkanın kaybolmasını engelliyor.
+
+## Kapsam dışı
 - **Hizmet bölgesi haritası** (`.coverage-map`) — ikon değil, dekoratif
   haritadır; kendi `viewBox`'ını korur.
 

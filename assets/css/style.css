@@ -1944,8 +1944,7 @@ body.is-menu-open {
   }
 
   .site-header .brand-mark {
-    width: 38px;
-    height: 38px;
+    height: 32px;
   }
 
   .site-header .brand-name {
@@ -2299,6 +2298,17 @@ body.is-menu-open {
   }
 
   .hero-visual {
+    transform: none !important;
+  }
+
+  /* Özgüllük, components.css'teki ".site-header .brand-ring" kuralıyla
+     eşleşmeli; aksi hâlde animasyon kapanmaz ve yalnızca reset.css'in
+     genel süre kısıtlamasına bel bağlanmış olur. */
+  .site-header .brand-ring,
+  .site-header .brand-truck,
+  .brand-ring,
+  .brand-truck {
+    animation: none;
     transform: none !important;
   }
 
