@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
   <title>Okur Nakliyat | Edremit Evden Eve ve Şehirler Arası Nakliyat</title>
   <meta name="description" content="Okur Nakliyat; Edremit, Balıkesir ve Türkiye genelinde şehir içi, şehirler arası, evden eve ve ofis taşımacılığı sunar. Ücretsiz kurulum ve montaj desteği.">
@@ -30,7 +30,22 @@
   <link rel="icon" href="assets/images/logo/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+
+  <!--
+    Google Fonts stil sayfası render'ı bloklamaz. Blokladığında, servis
+    yavaşlarsa veya erişilemezse sayfa tamamen boş kalıyordu (ölçüldü: 13 sn).
+    media="print" ile indirilir, yüklenince "all" yapılır; yazı tipi gelene
+    kadar --font-body / --font-heading yedekleri (Segoe UI, system-ui)
+    kullanılır.
+  -->
+  <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+  <link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+  <noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+  </noscript>
 
   <link rel="preload" href="assets/images/hero/okur-nakliyat-hero-background.webp"
         as="image" type="image/webp" fetchpriority="high">
@@ -38,9 +53,9 @@
   <link rel="stylesheet" href="assets/css/reset.css">
   <link rel="stylesheet" href="assets/css/variables.css">
   <link rel="stylesheet" href="assets/css/components.css">
-  <link rel="stylesheet" href="assets/css/style.css?v=3">
+  <link rel="stylesheet" href="assets/css/style.css?v=6">
 
-  <script defer src="assets/js/main.js?v=3"></script>
+  <script defer src="assets/js/main.js?v=6"></script>
 
   <noscript>
     <style>
@@ -307,8 +322,9 @@
         </div>
       </div>
 
-      <div class="hero-service-rail" aria-label="Öne çıkan hizmetler">
-        <div class="container hero-service-rail-inner">
+      <div class="hero-service-rail">
+        <div class="container hero-service-rail-inner" role="group"
+             aria-label="Öne çıkan hizmetler">
           <span>Evden Eve Nakliyat</span>
           <i aria-hidden="true"></i>
           <span>Şehirler Arası Taşıma</span>
@@ -749,12 +765,14 @@
 
             <label class="form-field">
               <span>Taşınacak yer</span>
-              <input type="text" name="from" placeholder="Örn. Edremit" required>
+              <input type="text" name="from" placeholder="Örn. Edremit"
+                     autocomplete="address-level2" required>
             </label>
 
             <label class="form-field">
               <span>Yeni adres</span>
-              <input type="text" name="to" placeholder="Örn. İzmir" required>
+              <input type="text" name="to" placeholder="Örn. İzmir"
+                     autocomplete="address-level2" required>
             </label>
 
             <label class="form-field">
