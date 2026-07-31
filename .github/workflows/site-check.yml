@@ -49,9 +49,9 @@ jobs:
                       "/robots.txt" \
                       "/sitemap.xml" \
                       "/404.html" \
-                      "/assets/css/style.css?v=3" \
+                      "/assets/css/style.css?v=6" \
                       "/assets/css/variables.css" \
-                      "/assets/js/main.js?v=3" \
+                      "/assets/js/main.js?v=6" \
                       "/assets/images/hero/okur-nakliyat-hero-background.webp" \
                       "/assets/images/hero/okur-nakliyat-hero.svg" \
                       "/assets/images/logo/favicon.svg"; do
@@ -67,6 +67,17 @@ jobs:
           code=$(curl -sS -o missing.html -w "%{http_code}" --max-time 20 \
             "https://$SITE/bu-sayfa-yok-okur-kontrol")
           echo "http=$code"
+          echo "gövde: $(wc -c < missing.html) bayt"
+
+          # Hata durumunda ne döndüğü görünsün; sessiz başarısızlık teşhisi
+          # imkânsız kılıyordu.
+          if ! grep -qF "Bu sayfa taşınmış olabilir." missing.html; then
+            echo "--- sunucunun döndürdüğü gövde (ilk 600 bayt) ---"
+            head -c 600 missing.html
+            echo
+            echo "--- bitiş ---"
+          fi
+
           test "$code" = "404"
           grep -qF "Bu sayfa taşınmış olabilir." missing.html
 
@@ -81,7 +92,7 @@ jobs:
 
           echo
           echo "=== style.css ==="
-          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=3")
+          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=6")
           echo "$css_headers" | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)"
           echo "$css_headers" | grep -qi "max-age=31536000"
 
