@@ -82,6 +82,12 @@ büyüğü seçildiği için (`max(...)`) çentiksiz cihazlarda hiçbir değer d
   ölü şerit kalktı.
 - **Hero hizmet şeridi:** 720 px altında kaydırılabilir olduğunu gösteren sağ
   kenar geçişi (`.hero-service-rail::after`) eklendi.
+- **Başlık üstü etiketler kaldırıldı:** Hero rozeti (`.badge.hero-badge`), altı
+  bölüm etiketi (`.section-eyebrow`) ve CTA şeridindeki `.cta-inner p` satırı
+  kaldırıldı; başlıklar artık doğrudan bölümün üstünde başlıyor. Kullanılmayan
+  `.badge`, `.badge-dot`, `.section-eyebrow*`, `.hero-badge` kuralları ve bunlara
+  bağlı `:not(.section-eyebrow)` seçicileri de silindi. Hero animasyon zinciri
+  başlıktan (gecikme 0 sn) başlıyor; ara gecikmeler değişmedi.
 
 ### Buton düzenlemeleri
 
