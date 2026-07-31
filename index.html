@@ -17,15 +17,16 @@
   <meta property="og:url" content="https://okurnakliyatedremit.com/">
   <meta property="og:title" content="Okur Nakliyat | Edremit Evden Eve ve Şehirler Arası Nakliyat">
   <meta property="og:description" content="Edremit merkezli şehir içi, şehirler arası ve Türkiye geneli taşımacılık. Ücretsiz kurulum ve montaj desteği.">
-  <meta property="og:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.svg">
+  <meta property="og:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:alt" content="Okur Nakliyat — Eşyalarınızı değil, güveninizi taşıyoruz.">
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Okur Nakliyat | Edremit Evden Eve ve Şehirler Arası Nakliyat">
   <meta name="twitter:description" content="Edremit merkezli şehir içi, şehirler arası ve Türkiye geneli taşımacılık. Ücretsiz kurulum ve montaj desteği.">
-  <meta name="twitter:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.svg">
+  <meta name="twitter:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg">
 
   <link rel="icon" href="assets/images/logo/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,9 +54,9 @@
   <link rel="stylesheet" href="assets/css/reset.css">
   <link rel="stylesheet" href="assets/css/variables.css">
   <link rel="stylesheet" href="assets/css/components.css">
-  <link rel="stylesheet" href="assets/css/style.css?v=6">
+  <link rel="stylesheet" href="assets/css/style.css?v=7">
 
-  <script defer src="assets/js/main.js?v=6"></script>
+  <script defer src="assets/js/main.js?v=7"></script>
 
   <noscript>
     <style>
@@ -74,7 +75,7 @@
     "name": "Okur Nakliyat",
     "url": "https://okurnakliyatedremit.com/",
     "telephone": "+905372265043",
-    "image": "https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.svg",
+    "image": "https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg",
     "description": "Edremit merkezli şehir içi, şehirler arası ve Türkiye geneli evden eve nakliyat hizmeti. Ücretsiz kurulum ve montaj desteği.",
     "address": {
       "@type": "PostalAddress",
@@ -288,9 +289,12 @@
         <div class="hero-visual" id="heroVisual">
           <div class="hero-visual-glow" aria-hidden="true"></div>
           <img class="hero-visual-image"
-               src="assets/images/hero/okur-nakliyat-hero.svg"
-               alt="Okur Nakliyat şehir içi ve şehirler arası taşımacılık illüstrasyonu"
-               width="960" height="720" decoding="async" fetchpriority="high">
+               src="assets/images/hero/okur-nakliyat-hero-arac.webp"
+               srcset="assets/images/hero/okur-nakliyat-hero-arac-900.webp 900w,
+                       assets/images/hero/okur-nakliyat-hero-arac.webp 1536w"
+               sizes="(max-width: 960px) 100vw, 780px"
+               alt="Sarı kabinli, beyaz kasalı Okur Nakliyat taşıma aracı"
+               width="1536" height="1024" decoding="async" fetchpriority="high">
 
           <div class="floating-card floating-card-location">
             <span class="floating-card-icon" aria-hidden="true">
@@ -445,22 +449,10 @@
       <div class="container about-grid">
         <div class="about-visual reveal">
           <div class="about-frame" aria-hidden="true"></div>
-          <div class="about-scene" aria-hidden="true">
-            <svg viewBox="0 0 640 680" fill="none">
-              <rect x="58" y="44" width="524" height="570" rx="30" fill="#181818"/>
-              <rect x="92" y="78" width="456" height="502" rx="22" fill="#222"/>
-              <path d="M92 409h456" stroke="#F5C400" stroke-width="8"/>
-              <rect x="128" y="238" width="132" height="163" rx="8" fill="#F5C400"/>
-              <rect x="282" y="174" width="184" height="227" rx="8" fill="#E8E8E3"/>
-              <path d="M322 174v227M282 265h184" stroke="#151515" stroke-width="6"/>
-              <circle cx="182" cy="475" r="44" fill="#F5C400"/>
-              <path d="M150 540c0-44 22-68 32-68s32 24 32 68v40h-64v-40Z" fill="#F5C400"/>
-              <circle cx="448" cy="475" r="44" fill="#E8E8E3"/>
-              <path d="M416 540c0-44 22-68 32-68s32 24 32 68v40h-64v-40Z" fill="#E8E8E3"/>
-              <rect x="248" y="452" width="136" height="84" rx="10" fill="#F5C400"/>
-              <path d="M214 475h34m136 0h20M292 452v84m48-84v84" stroke="#0B0B0B" stroke-width="7"/>
-              <path d="M92 78 58 44m490 34 34-34M92 580l-34 34m490-34 34 34" stroke="#F5C400" stroke-width="5"/>
-            </svg>
+          <div class="about-scene">
+            <img src="assets/images/about/okur-nakliyat-hakkimizda.webp"
+                 width="1217" height="1293" loading="lazy" decoding="async"
+                 alt="Okur Nakliyat ekibinden iki taşıma görevlisi paketlenmiş bir kutuyu birlikte taşıyor">
           </div>
           <div class="about-note">
             <span class="about-note-mark">✓</span>

@@ -157,7 +157,7 @@ sorun bulunmadı:**
   önceden yükleniyor (LCP kaynağı).
 - `.htaccess` üzerinden gzip/brotli; statik dosyalar için 1 yıllık `immutable`
   önbellek, HTML için `no-cache` — canlıda yanıt başlıklarıyla doğrulanmıştı.
-- CSS ve JavaScript sürgüsü `?v=3 → ?v=6` yapıldı; yayına alındığında eski
+- CSS ve JavaScript sürgüsü `?v=3 → ?v=7` yapıldı; yayına alındığında eski
   CSS önbellekten servis edilmeyecek.
 
 ---
@@ -260,15 +260,17 @@ Lighthouse çalıştırılamadığı için metrikler doğrudan tarayıcı API'si
 | Metrik | Mobil 390×844 | Masaüstü 1440×900 | Eşik | Durum |
 | --- | --- | --- | --- | --- |
 | FCP — **önce** | 13.016 ms | 12.776 ms | < 1.800 ms | ❌ |
-| FCP — **sonra** | **152 ms** | **240 ms** | < 1.800 ms | ✅ |
-| LCP — **sonra** | **152 ms** | **240 ms** | < 2.500 ms | ✅ |
+| FCP — **sonra** | **132 ms** | **168 ms** | < 1.800 ms | ✅ |
+| LCP — **sonra** | **132 ms** | **168 ms** | < 2.500 ms | ✅ |
 | CLS | **0** | **0,001** | < 0,1 | ✅ |
 | `domInteractive` | 23 ms | 21 ms | — | ✅ |
-| Toplam aktarım | 189,5 KB | 189,5 KB | — | ✅ |
+| Toplam aktarım | 263,2 KB | 263,2 KB | — | ✅ |
 | Kaynak sayısı | 9 | 9 | — | ✅ |
 
 LCP kaynağı masaüstünde `div.hero-background` (önceden yüklenen WebP).
-Aktarımın dağılımı: HTML 40,0 KB · CSS 63,1 KB · görsel 75,2 KB · JS 11,2 KB.
+Aktarımın dağılımı: HTML 39,4 KB · CSS 63,3 KB · görsel 149,4 KB · JS 11,2 KB.
+Görsel payı gerçek fotoğraf/illüstrasyonların eklenmesiyle 75,2 → 149,4 KB'a
+çıktı; `srcset` sayesinde mobilde bu artış sınırlı kaldı ve LCP düşmedi.
 
 **Ölçümün sınırı:** Denetim ortamı Google Fonts'a erişemiyor. Bu, "font servisi
 erişilemez" senaryosunu gerçekçi biçimde test etmemizi sağladı ve düzeltilen
@@ -281,25 +283,37 @@ bağlı değildir.
 
 ## 5. WebP dönüşüm raporu
 
-**Projede dönüştürülecek PNG/JPEG bulunmamaktadır.**
-`find assets -name "*.png" -o -name "*.jpg" -o -name "*.jpeg"` sonucu boştur.
-
-Tek raster görsel bu oturumdan önce dönüştürülmüştü:
+Kullanıcının ChatGPT'de ürettiği üç görsel dönüştürülüp entegre edildi.
 
 | Kaynak | Yeni dosya | Önceki boyut | Yeni boyut | Tasarruf | Kullanıldığı bölüm | Kalite kontrolü |
 | --- | --- | --- | --- | --- | --- | --- |
-| Kullanıcının yüklediği PNG | `assets/images/hero/okur-nakliyat-hero-background.webp` | 1.429.670 B | 71.882 B | **%95,0** | Hero arka planı (CSS `background-image`) | Kanal başına ortalama fark ~1/255; görünür kayıp yok. 1672×941 çözünürlük korundu. |
+| Kullanıcının yüklediği PNG | `assets/images/hero/okur-nakliyat-hero-background.webp` | 1.429.670 B | 71,9 KB | **%95,0** | Hero arka planı (CSS) | Kanal başına ortalama fark ~1/255; görünür kayıp yok |
+| `9e01fec0…png` (şeffaf) | `assets/images/hero/okur-nakliyat-hero-arac.webp` | 2.133 KB | 117,8 KB | **%94,5** | Hero ön planı (retina) | Opak bölgede ortalama fark **1,68/255**, en yüksek 29. Alfa kanalı korundu (%83,5 tamamen şeffaf) |
+| ↳ mobil varyant | `assets/images/hero/okur-nakliyat-hero-arac-900.webp` | — | 44,5 KB | — | `srcset` 900w | 900×600'e LANCZOS ile küçültüldü |
+| `309b3759…png` | `assets/images/about/okur-nakliyat-hakkimizda.webp` | 1.221 KB | 34,4 KB | **%97,2** | Hakkımızda bölümü | Görünür kayıp yok |
+| `98071a90…png` | `assets/images/og/okur-nakliyat-og.jpg` | 1.447 KB | 57,5 KB | **%96,0** | `og:image` / `twitter:image` | 1200×630'a LANCZOS; **JPG** seçildi çünkü sosyal platformlar WebP önizlemeyi desteklemiyor |
 
-Kalan görseller SVG'dir ve raster dönüşüm kapsamına girmez:
+**Silinen dosyalar:** `okur-nakliyat-hero.svg`, `okur-nakliyat-og.svg` — yerlerini
+raster karşılıkları aldı. `.about-scene` içindeki inline SVG de kaldırıldı.
+
+Kalan SVG'ler:
 
 | Öğe | Tür | Durum |
 | --- | --- | --- |
-| `assets/images/logo/favicon.svg` | Logo / ikon | ✅ Kural gereği SVG kalabilir |
-| `assets/images/hero/okur-nakliyat-hero.svg` | Hero illüstrasyonu | ⚠️ Raster ile değiştirilmeli (Prompt 1) |
-| `assets/images/og/okur-nakliyat-og.svg` | Paylaşım görseli | ⚠️ **JPG/PNG** ile değiştirilmeli (Prompt 2) |
-| `.about-scene` (inline) | Hakkımızda illüstrasyonu | ⚠️ Raster ile değiştirilebilir (Prompt 3) |
+| `assets/images/logo/favicon.svg` | Logo / ikon | ✅ Kural gereği SVG kalır |
 | `.coverage-map` (inline) | Dekoratif harita | ℹ️ Vektör bırakıldı — gerekçe prompt dosyasında |
 | Arayüz ikonları (inline) | İkon | ✅ Kural gereği SVG kalır |
+
+### Responsive görsel (`srcset`) doğrulaması
+
+| Senaryo | Seçilen dosya | İndirilen | Oran bozulması |
+| --- | --- | --- | --- |
+| Mobil 390 @2x | `…-900.webp` | **44,5 KB** | 0,0000 |
+| Mobil 390 @1x | `…-900.webp` | 44,5 KB | 0,0000 |
+| Masaüstü 1440 @1x | `…-900.webp` | 44,5 KB | 0,0000 |
+| Masaüstü 1440 @2x | `…-arac.webp` | 117,8 KB | 0,0000 |
+
+Mobilde tek boyutlu sunuma göre **%62 daha az** veri iniyor.
 
 ---
 
@@ -308,10 +322,10 @@ Kalan görseller SVG'dir ve raster dönüşüm kapsamına girmez:
 | | |
 | --- | --- |
 | Hazırlanan prompt sayısı | 3 |
-| Üretilen görsel sayısı | **0** |
-| Üretilemeyen görseller | Hero ön plan aracı, Open Graph paylaşım görseli, hakkımızda illüstrasyonu |
-| Entegrasyon durumu | **Yok** — bu ortamda ChatGPT görsel üretme aracı veya API entegrasyonu bulunmuyor |
-| Eksik kullanıcı işlemleri | Promptları ChatGPT'ye verip görselleri üretmek, `docs/chatgpt-image-prompts.md` içindeki adımlarla entegre etmek |
+| Üretilen görsel sayısı | **3** — kullanıcı kendi ChatGPT hesabında üretti |
+| Claude tarafından üretilen görsel | **0** — bu ortamda görsel üretim entegrasyonu yok |
+| Entegrasyon durumu | ✅ Üçü de dönüştürülüp siteye yerleştirildi ve ölçümle doğrulandı |
+| Eksik kullanıcı işlemi | Yok |
 
 Sahte görsel üretilmedi, internetten telif durumu belirsiz görsel indirilmedi,
 base64 görsel kaynak koda gömülmedi.
@@ -348,10 +362,6 @@ kural kapsamında inline SVG olarak kalmaya devam ediyor.
   HTML'de kullanılmıyor. Tasarım sisteminin belgelenmiş bir varyantı olduğu ve
   ileride açık zeminli bir bölümde gerekebileceği için silinmedi. Taranan diğer
   380 kuralın tamamı ya kullanılıyor ya da durum bağımlı.
-- **Open Graph önizlemesi:** `og:image` hâlâ SVG. Bazı platformlar SVG önizlemeyi
-  desteklemez; paylaşım kartı bu görsel değişene kadar bazı uygulamalarda boş
-  görünebilir. (Prompt 2)
-- **Kullanıcı tarafından sağlanacak görseller:** Üç raster görsel bekliyor.
 - **Gerçek cihaz testi yapılmadı:** Özellikle iOS Safari'de dinamik adres çubuğu
   davranışı fiziksel cihazda doğrulanmalı.
 - **Mobilde başlık 4 satır:** 540 px ve altında hero başlığı 4 satıra düşüyor.
@@ -393,9 +403,11 @@ Yalnızca gerçekten ölçülüp doğrulanan kutular işaretlenmiştir.
 - [x] Metin kesilmesi giderildi (hero başlık satırları: `scrollHeight === clientHeight`)
 - [x] Öğe çakışması giderildi (1024×768 ve 1280×720)
 - [x] Form 320 px dahil tüm ölçülerde kapsayıcı içinde
-- [x] Görseller optimize edildi (tek raster görsel WebP, %95 tasarruf)
+- [x] Görseller optimize edildi (4 raster görsel, %94,5–%97,2 tasarruf)
+- [x] `srcset` responsive görsel eklendi ve 4 senaryoda doğrulandı (mobilde %62 tasarruf)
+- [x] Open Graph görseli SVG'den JPG'ye çevrildi (sosyal önizleme sorunu giderildi)
 - [x] SVG kuralına uyuldu (yeni SVG illüstrasyon üretilmedi)
-- [x] ChatGPT promptları hazırlandı (3 adet)
+- [x] ChatGPT promptları hazırlandı (3 adet) ve üçü de entegre edildi
 - [x] Console error yok (site kaynaklı)
 - [x] Kırık asset yok (404 yok)
 - [x] Ekran görüntüsüyle görsel doğrulama yapıldı (hero, hizmetler, SSS, footer × 3 ölçü)
