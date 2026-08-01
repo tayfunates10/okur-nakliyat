@@ -5,6 +5,12 @@ name: Site kontrolü
 # Yalnızca elle tetiklenir; siteye hiçbir değişiklik yazmaz.
 on:
   workflow_dispatch:
+    inputs:
+      kapsam:
+        description: "Denetim kapsamı"
+        type: choice
+        default: tam
+        options: [tam, 404]
 
 jobs:
   check:
@@ -34,6 +40,7 @@ jobs:
           python3 tools/sayfa.py --kontrol
 
       - name: DNS, SSL ve yönlendirme
+        if: inputs.kapsam == 'tam'
         run: |
           set -e
 
@@ -53,6 +60,7 @@ jobs:
 
 
       - name: Kritik dosyalar
+        if: inputs.kapsam == 'tam'
         run: |
           set -e
 
@@ -88,6 +96,7 @@ jobs:
           done
 
       - name: Sayfa içerik bütünlüğü
+        if: inputs.kapsam == 'tam'
         run: |
           set -e
 
@@ -202,6 +211,7 @@ jobs:
           echo ">>> SONUC: Sayfa ve üretim dosyaları beklendiği gibi yayında."
 
       - name: Sayfa başlıkları benzersiz mi
+        if: inputs.kapsam == 'tam'
         run: |
           set -e
 
@@ -259,6 +269,7 @@ jobs:
           echo "OK    on bir başlık da benzersiz"
 
       - name: Yanıt başlıkları
+        if: inputs.kapsam == 'tam'
         # Yönlendirme kontrolü gibi bu da sona alındı: bot koruması devreye
         # girdiğinde bu adım düşüyor ve arkasındaki adımları körleştiriyordu.
         run: |
@@ -337,6 +348,7 @@ jobs:
           echo "$css_headers" | grep -qi "max-age=31536000"
 
       - name: HTTP -> HTTPS yönlendirmesi
+        if: inputs.kapsam == 'tam'
         # Bu kontrol bilerek sona alındı. 301 yerine 200 döndüğü durumların
         # nedeni bulundu: bot koruması ara sayfası, RewriteRule çalışmadan
         # önce 200 ile yanıtlıyor. Ara sayfa artık tanınıyor ve yeniden
