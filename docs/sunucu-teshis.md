@@ -96,24 +96,67 @@ satırları 404 yanıtına bile uygulanıyor (yukarıdaki dört başlık).
 **`AllowOverride` açıklamıyor.** `Header`, `RewriteRule` ve `ErrorDocument`
 üçü de `FileInfo` sınıfında. İlk ikisi çalışıyor, üçüncüsü çalışmıyor.
 
-### Geriye kalan ayrım
+### Son ayrım da ölçüldü: direktif tümden geçersiz
 
-Metin biçimli bir `ErrorDocument` ile ölçülüyor:
+`.htaccess`'e geçici olarak **metin biçimli** bir `ErrorDocument` konuldu:
 
-| Sonuç | Anlamı |
-| --- | --- |
-| Test metni görünürse | Direktif okunuyor; engellenen yalnızca `/404.html`'e yapılan **iç alt-istek** |
-| `404 Not Found` sürerse | `ErrorDocument` **tümüyle geçersiz kılınıyor** — sunucu seviyesinde veya bir güvenlik modülünce |
+```apache
+ErrorDocument 404 "Sayfa bulunamadi. okurnakliyatedremit.com"
+```
+
+Dağıtım sonrası ölçüm:
+
+```
+--- .htaccess sürüm işareti ---
+depoda: 2   yayında: 2
+TESHIS: yayındaki .htaccess güncel
+
+gövde: 13 bayt
+--- hata yanıtının gövdesi ---
+404 Not Found
+```
+
+Sürüm 2 yayında — yani test satırını içeren dosya sunucuda. **Test metni
+görünmedi.**
+
+Sonuç: sorun `/404.html`'e yapılan iç alt-istekte değil. `ErrorDocument`
+direktifi **hiçbir biçimde** işlenmiyor — ne dosya yolu ne düz metin — oysa
+aynı dosyadaki `Header always set` satırları çalışıyor.
+
+**`.htaccess` üzerinden uygulanabilecek bir çözüm yok.** Hosting desteğinin
+müdahalesi gerekiyor. Direktif dosyada bırakıldı ki sunucu tarafı
+düzeldiğinde doğru davranış kendiliğinden devreye girsin.
 
 ### Hosting desteğine sorulacak
 
 > Alan adı: okurnakliyatedremit.com
 >
 > `.htaccess` dosyamızdaki `Header always set` direktifleri uygulanıyor —
-> 404 yanıtlarında bile görünüyorlar. Aynı dosyadaki
-> `ErrorDocument 404 /404.html` ise yok sayılıyor: olmayan bir URL 13
-> baytlık çıplak `404 Not Found` gövdesi ve `charset=iso-8859-1` ile
-> dönüyor. `/404.html` doğrudan istendiğinde 200 ve doğru içerikle geliyor.
+> 404 yanıtlarında bile görünüyorlar. Aynı dosyadaki `ErrorDocument` ise
+> hiçbir biçimde işlenmiyor.
+>
+> Denenen ve sonuç vermeyen iki biçim:
+>
+> ```apache
+> ErrorDocument 404 /404.html
+> ErrorDocument 404 "Sayfa bulunamadi. okurnakliyatedremit.com"
+> ```
+>
+> İkisinde de olmayan bir URL şunu döndürüyor:
+>
+> ```
+> HTTP/2 404
+> content-type: text/html; charset=iso-8859-1
+> server: Apache
+> gövde: 13 bayt -> "404 Not Found"
+> ```
+>
+> `/404.html` doğrudan istendiğinde 200 ve doğru içerikle (2994 bayt)
+> geliyor, yani dosya yerinde.
+>
+> Düz metin biçiminin de çalışmaması, sorunun `/404.html`'e yapılan iç
+> alt-istekte değil, direktifin tümden geçersiz kılınmasında olduğunu
+> gösteriyor.
 >
 > `Header` ve `ErrorDocument` aynı `FileInfo` override sınıfında olduğu
 > için `AllowOverride` bunu açıklamıyor.

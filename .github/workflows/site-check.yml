@@ -403,17 +403,6 @@ jobs:
             head -c 600 missing.html
             echo
 
-            # Metin biçimli ErrorDocument ölçümü (.htaccess'teki geçici test).
-            # Bu metin görünüyorsa ErrorDocument okunuyor demektir; engellenen
-            # yalnızca dosyaya yapılan iç alt-istektir.
-            if grep -qF "Sayfa bulunamadi. okurnakliyatedremit.com" missing.html; then
-              echo
-              echo "TESHIS: metin biçimli ErrorDocument ÇALIŞIYOR"
-              echo "        -> direktif okunuyor; engellenen, /404.html'e"
-              echo "           yapılan iç alt-istek."
-              echo
-            fi
-
             # Hangi katmanın bu yanıtı ürettiğini ayırt eden ölçüm.
             # .htaccess'teki direktif "Header ALWAYS set" -- Apache bunu hata
             # yanıtlarına da uygular. Dolayısıyla:
