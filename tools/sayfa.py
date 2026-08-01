@@ -34,7 +34,7 @@ SABLON = KOK / "sablon"
 SAYFALAR = KOK / "sayfalar"
 SITE = "https://okurnakliyatedremit.com"
 
-ONBELLEK_SURUMU = "19"  # ?v= — bkz. docs/ekran-denetimi.md
+ONBELLEK_SURUMU = "20"  # ?v= — bkz. docs/ekran-denetimi.md
 
 ISLETME = f"{SITE}/#isletme"
 
@@ -126,8 +126,38 @@ def uret(veri: dict, govde: str, sablonlar: dict) -> tuple[Path, str]:
     return cikti, html.rstrip("\n") + "\n"
 
 
+def css_surumlerini_dogrula() -> list[str]:
+    """CSS içindeki url() referansları da ?v= taşımalı ve sürüm güncel olmalı.
+
+    HTML'deki ?v= şablondan geliyor, ama CSS şablonlanmıyor: oradaki sürüm
+    elle güncelleniyor ve unutuluyor. Bu tam olarak yaşandı -- harita yeniden
+    çizildiğinde CSS'teki eski sürüm yüzünden ziyaretçide bir yıl boyunca
+    eski görsel kaldı.
+    """
+    sorunlar = []
+    for css in sorted((KOK / "assets" / "css").glob("*.css")):
+        metin = css.read_text(encoding="utf-8")
+        for ham in re.findall(r'url\(\s*["\']?([^"\')]+)["\']?\s*\)', metin):
+            if ham.startswith("data:"):
+                continue
+            if "?v=" not in ham:
+                sorunlar.append(f"{css.name}: {ham} — ?v= yok")
+            elif ham.rsplit("?v=", 1)[1] != ONBELLEK_SURUMU:
+                sorunlar.append(
+                    f"{css.name}: {ham} — sürüm {ONBELLEK_SURUMU} olmalı"
+                )
+    return sorunlar
+
+
 def main() -> int:
     kontrol = "--kontrol" in sys.argv
+
+    css_sorunlari = css_surumlerini_dogrula()
+    if css_sorunlari:
+        print("CSS İÇİNDEKİ VARLIK SÜRÜMÜ HATALI:")
+        for s in css_sorunlari:
+            print("  ", s)
+        return 1
 
     sablonlar = {
         ad: (SABLON / f"{ad}.html").read_text(encoding="utf-8").rstrip("\n")
