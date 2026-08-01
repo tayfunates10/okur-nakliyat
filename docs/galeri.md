@@ -58,8 +58,20 @@ tutmasın diye).
   fotoğrafların üstü ve altı kesiliyor.
 - Gündüz, doğal ışık. Flaşla çekilmiş karanlık kare sitede kötü duruyor.
 
-**Bana nasıl gönderin:** ham JPG/PNG olarak, boyutu küçültmeden. Dönüştürme
-işini ben yapıyorum:
+Her fotoğraf için bir de **tek cümlelik açıklama** yazın ("Akçay'da 3+1 daire
+taşıması, mobilya söküm ve montaj dahil" gibi). Bu cümle hem kartın üstünde
+görünüyor hem de görselin `alt` metnine temel oluyor — yer adı geçmesi yerel
+aramada işe yarıyor.
+
+## Çerçeve otomasyonu
+
+Ham fotoğrafları `galeri-kaynak/` klasörüne koymanız yeterli. Kırpma,
+çerçeveleme, boyutlandırma ve WebP dönüşümü otomatik:
+
+    python3 tools/cerceve.py            # yerelde
+    # ya da: main dalına push edin, "Galeri çerçevesi" iş akışı çalıştırır
+
+Her fotoğraftan üç dosya üretilir:
 
 | Amaç | Genişlik | Dosya adı |
 | --- | --- | --- |
@@ -67,10 +79,41 @@ işini ben yapıyorum:
 | Izgara (büyük ekran) | 900 px | `okur-nakliyat-galeri-01-900.webp` |
 | Büyütme penceresi | 1400 px | `okur-nakliyat-galeri-01-1400.webp` |
 
-Her fotoğraf için bir de **tek cümlelik açıklama** yazın ("Akçay'da 3+1 daire
-taşıması, mobilya söküm ve montaj dahil" gibi). Bu cümle hem kartın üstünde
-görünüyor hem de görselin `alt` metnine temel oluyor — yer adı geçmesi yerel
-aramada işe yarıyor.
+`galeri-kaynak/` yayın klasörüne kopyalanmaz; sunucuya yalnızca çıktılar gider.
+
+### Çerçeve nasıl görünüyor
+
+Fotoğrafın altında siyah şerit, üst kenarında marka sarısı çizgi. Solda marka
+işareti ve adı, sağda telefon (sarı) ile ikincil bilgi satırı (e-posta, adres,
+site).
+
+İçerik `tools/cerceve.json` dosyasından okunur; **boş bırakılan alan çerçeveye
+hiç yazılmaz**. E-posta alanı şu an boş — doldurulduğunda otomatik eklenir.
+
+Şerit ölçüleri çıktı genişliğine oranlanır, yani 600 px ile 1400 px çıktı
+birebir aynı düzendedir. Çerçeve her boyut için ayrıca çizilir; 1400'ü
+küçültmek yazıyı bulanıklaştırırdı.
+
+**Sığdırma:** ikincil satır sol bloğa çarpacak olursa önce puntosu düşürülür,
+yetmezse en az öncelikli bilgiden başlayarak (site → adres → e-posta) parça
+atılır. Uzun adres + uzun e-posta ile denendi; çakışma olmuyor.
+
+Yazı tipi olarak DejaVu Sans kullanılır. Sitenin Manrope'u yerel bir dosya
+değil; çerçeve metni çıktı dosyasına gömüldüğü için ağdan gelen bir yazı
+tipine bağlamak sonucu belirsiz yapardı.
+
+### Google Business Profile
+
+Fotoğrafları GBP'den **otomatik çekmek** bu kurulumda mümkün değil: site
+tamamen statik (sunucu yok), GBP API'si OAuth istiyor ve token'ı tarayıcıda
+tutmak güvenli değil. Places API ile çekmek teknik olarak mümkün ama Google'ın
+şartları o fotoğrafları değiştirmeyi (çerçeve eklemeyi) ve saklamayı
+yasaklıyor.
+
+Pratik yol: aynı fotoğrafları hem `galeri-kaynak/` klasörüne koyun hem de
+GBP'ye elle yükleyin. Çerçeveli çıktılar (`assets/images/gallery/`) GBP'ye
+yüklemek için de uygundur — marka bilgisi görselin içinde olduğu için
+paylaşıldığında iletişim bilgisi kaybolmaz.
 
 ## Yayına alma
 

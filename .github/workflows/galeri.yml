@@ -1,0 +1,59 @@
+name: Galeri çerçevesi
+
+# galeri-kaynak/ klasörüne fotoğraf eklendiğinde çerçeveyi uygular, WebP'ye
+# çevirir ve sonucu depoya yazar. Ardından "Yayına al (FTP)" iş akışı bu
+# commit ile tetiklenip siteyi günceller.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "galeri-kaynak/**"
+      - "tools/cerceve.py"
+      - "tools/cerceve.json"
+      - "tools/marka-isaret.png"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: galeri-cerceve
+  cancel-in-progress: false
+
+jobs:
+  cerceve:
+    name: Fotoğraflara çerçeve uygula
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Depoyu al
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pillow kur
+        run: pip install --quiet "Pillow>=10"
+
+      - name: Çerçeveyi uygula
+        run: |
+          set -e
+          # --temiz: kaynaktan silinen bir fotoğrafın çıktısı geride kalmasın.
+          python3 tools/cerceve.py --temiz
+
+      - name: Değişiklikleri işle
+        run: |
+          set -e
+
+          if git diff --quiet -- assets/images/gallery; then
+            echo "çıktılar zaten güncel, commit yok"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/images/gallery
+          git commit -m "Galeri fotoğraflarına çerçeve uygula (otomatik)"
+          git push
