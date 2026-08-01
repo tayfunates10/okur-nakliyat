@@ -255,6 +255,27 @@ jobs:
             echo "--- hata yanıtının gövdesi (ilk 600 bayt) ---"
             head -c 600 missing.html
             echo
+
+            # Hangi katmanın bu yanıtı ürettiğini ayırt eden ölçüm.
+            # .htaccess'teki direktif "Header ALWAYS set" -- Apache bunu hata
+            # yanıtlarına da uygular. Dolayısıyla:
+            #   başlıklar VARSA  -> yanıt Apache'den geliyor, sorun ErrorDocument'ta
+            #   başlıklar YOKSA  -> yanıtı .htaccess'i görmeyen bir ön katman üretiyor
+            echo "--- hata yanıtının başlıkları ---"
+            hata_basliklari=$(curl -sS -I --max-time 20 \
+              "https://$SITE/bu-sayfa-yok-okur-kontrol" | tr -d '\r')
+            echo "$hata_basliklari" | grep -iE "^(HTTP/|server|content-type|content-length|x-content-type-options|referrer-policy|x-frame-options|permissions-policy)" || true
+            if echo "$hata_basliklari" | grep -qiE "^x-content-type-options:"; then
+              echo "TESHIS: hata yanıtı .htaccess başlıklarını taşıyor"
+              echo "        -> yanıtı Apache üretiyor, sorun ErrorDocument satırında"
+            else
+              echo "TESHIS: hata yanıtı .htaccess başlıklarını TAŞIMIYOR"
+              echo "        -> yanıtı .htaccess'i uygulamayan bir ön katman üretiyor"
+              echo "        (aynı katman aralıklı olarak güvenlik başlıklarını ve"
+              echo "         http->https yönlendirmesini de düşürüyor)"
+            fi
+            echo
+
             echo "--- /404.html dosyasının kendisi ---"
             curl -sS -o direct404.html -w "http=%{http_code}\n" --max-time 20 \
               "https://$SITE/404.html"
