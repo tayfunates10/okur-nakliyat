@@ -503,7 +503,7 @@ body.is-menu-open {
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=21");
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=22");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -2632,9 +2632,11 @@ body.is-menu-open {
     padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
   }
 
-  .hero {
-    /* Güven listesinin son satırı da çubuğun üstünde kalmalı. */
-    padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+  /* Dolgu hero'nun kendisine verilince şeridin ALTINDA siyah bir boşluk
+     kalıyordu -- şerit hero'nun son öğesi. Dolgu içerik kutusuna taşındı;
+     şerit artık bölümün alt kenarına oturuyor. */
+  .hero-inner {
+    padding-bottom: var(--space-lg);
   }
 
   .site-footer {
@@ -3045,8 +3047,13 @@ body.is-menu-open {
    yarısına ve dikey ortasına konur; sağ uç görselin kenarında kesiliyor. */
 .hero-kasa-logo .brand-glyph {
   position: absolute;
-  top: 46.5%;
-  left: 66%;
+  /* Kasa yüzü görselde ölçüldü: x %66.1-97.3, sarı şeridin üstünde kalan
+     temiz alan y %36.7-61.8 (merkez %49.3).
+     Kasanın sağ yarısı kapsayıcı kırpmasının dışında kalıyor (görsel %126
+     genişlikte ve sağa taşıyor); görünen aralık kabaca %10-90. Logo, kasa
+     ile görünen alanın kesişiminin ortasına konur: %66.1-90 -> merkez %78. */
+  top: 43.8%;
+  left: 70.5%;
   display: block;
   width: 15%;
   height: auto;
@@ -3054,7 +3061,8 @@ body.is-menu-open {
      halka zaten sarı. */
   color: var(--color-black);
   opacity: 0;
-  transform: translateY(6px) scale(0.94);
+  transform: perspective(760px) rotateY(-7deg) skewY(0.9deg) translateY(6px) scale(0.94);
+  transform-origin: 50% 50%;
   filter: drop-shadow(0 1px 2px rgba(11, 11, 11, 0.18));
   animation: kasaLogoBelir 900ms var(--ease-out-soft) 700ms forwards;
 }
@@ -3062,30 +3070,40 @@ body.is-menu-open {
 @keyframes kasaLogoBelir {
   to {
     opacity: 0.96;
-    transform: translateY(0) scale(1);
+    transform: perspective(760px) rotateY(-7deg) skewY(0.9deg) translateY(0) scale(1);
   }
 }
 
-/* --- Hero bilgi kartları: sırayla belirir ------------------------------- */
+/* --- Hero bilgi kutuları -----------------------------------------------
+   Altı kutu kamyonun çevresine dağınık yerleşir; sayfa kaydırıldıkça sol
+   kenarda düzenli bir listeye geçerler. Konumlar data-dagi / data-liste
+   ile veriliyor, aradaki geçişi main.js hesaplıyor. */
 .floating-card {
+  /* --kx / --ky: JS'in verdiği piksel kayması. */
+  --kx: 0px;
+  --ky: 0px;
+
+  /* Konumlandırma eskiden .floating-card-location / -service sınıflarındaydı;
+     altı kutuya geçince temel sınıfa alındı. left/top değerlerini JS,
+     markup'taki data-dagi'den yazıyor. */
+  position: absolute;
+  max-width: min(58%, 300px);
   opacity: 0;
+  transform: translate3d(var(--kx), var(--ky), 0);
   animation: kartBelir 620ms var(--ease-out-soft) forwards;
+  will-change: transform;
 }
 
-.floating-card-location  { animation-delay: 900ms; }
-.floating-card-service   { animation-delay: 1080ms; }
-.floating-card-lift      { animation-delay: 1260ms; }
+.kart-1 { animation-delay: 820ms; }
+.kart-2 { animation-delay: 920ms; }
+.kart-3 { animation-delay: 1020ms; }
+.kart-4 { animation-delay: 1120ms; }
+.kart-5 { animation-delay: 1220ms; }
+.kart-6 { animation-delay: 1320ms; }
 
 @keyframes kartBelir {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* --- İki satırlı sonsuz kayan hizmet şeridi ----------------------------- */
@@ -3093,10 +3111,11 @@ body.is-menu-open {
   position: relative;
   z-index: 1;
   display: grid;
+  /* Satırlar arasındaki ince sarı çizgi. */
   gap: 1px;
   padding: 1px 0;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.09);
+  background: var(--color-yellow);
   border-top: 1px solid var(--border-on-dark);
   border-bottom: 1px solid var(--border-on-dark);
   /* Kenarlarda yumuşak kesim; yazılar duvara çarpmış gibi bitmesin. */
@@ -3115,6 +3134,10 @@ body.is-menu-open {
   animation-duration: 41s;
 }
 
+.hero-serit-konum .icon {
+  color: var(--color-yellow);
+}
+
 .hero-serit:hover .hero-serit-satir {
   animation-play-state: paused;
 }
@@ -3126,7 +3149,9 @@ body.is-menu-open {
   align-items: center;
   margin: 0;
   /* Sağ dolgu, öğe aralığıyla aynı: iki kopya birleştiğinde ritim bozulmaz. */
-  padding: 0.85rem clamp(1.75rem, 4vw, 3.25rem) 0.85rem 0;
+  /* Sağ dolgu, öğe aralığıyla aynı: iki kopya birleştiğinde ritim bozulmaz.
+     Dikey dolgu artırıldı; satırlar çok bitişik duruyordu. */
+  padding: 1.15rem clamp(1.75rem, 4vw, 3.25rem) 1.15rem 0;
   list-style: none;
 }
 
@@ -3407,5 +3432,30 @@ body.is-menu-open {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 4;
     overflow: hidden;
+  }
+}
+
+/* Altı bilgi kutusu dar ekranda çakışıyordu: her biri kapsayıcının %58'i
+   kadar genişken yan yana duran ikisi üst üste biniyordu. Ölçüldü ve
+   daraltıldı; kamyon alanı da altı kutuyu alacak kadar yükseltildi. */
+@media (max-width: 720px) {
+  .hero-visual {
+    min-height: 470px;
+  }
+
+  .floating-card {
+    max-width: 46%;
+    padding: 0.6rem 0.7rem;
+    gap: 0.5rem;
+  }
+
+  .floating-card-title {
+    font-size: 0.72rem;
+    line-height: 1.25;
+  }
+
+  .floating-card-icon {
+    width: 30px;
+    height: 30px;
   }
 }

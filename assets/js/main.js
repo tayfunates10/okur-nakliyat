@@ -5,7 +5,7 @@
    2. Mobil menü ve odak yönetimi
    3. Yumuşak kaydırma
    4. Aktif menü bağlantısı
-   5. Hero parallax
+   5. Hero parallax ve bilgi kutuları
    6. Görünürlük animasyonları
    7. SSS davranışı
    8. Galeri büyütme penceresi
@@ -472,6 +472,71 @@
     });
   }
 
+
+  /* Hero bilgi kutuları: dağınık -> liste
+     Kutular kamyonun çevresine dağınık başlar. Sayfa hero boyunca
+     kaydırıldıkça sol kenarda düzenli bir listeye geçerler. Konumlar
+     markup'ta data-dagi / data-liste ile "x,y" yüzdesi olarak duruyor;
+     burada yalnızca aradaki oran hesaplanıp piksel kayması veriliyor.
+     Böylece konumlar CSS/markup tarafında kalıyor. */
+  function initializeHeroCards() {
+    var visual = document.getElementById("heroVisual");
+    if (!visual) return;
+
+    var cards = [].slice.call(visual.querySelectorAll(".floating-card[data-dagi]"));
+    if (!cards.length) return;
+
+    function parsePair(value) {
+      var parts = String(value || "").split(",");
+      return { x: parseFloat(parts[0]) || 0, y: parseFloat(parts[1]) || 0 };
+    }
+
+    cards.forEach(function (card) {
+      var dagi = parsePair(card.getAttribute("data-dagi"));
+      card.style.left = dagi.x + "%";
+      card.style.top = dagi.y + "%";
+      card._dagi = dagi;
+      card._liste = parsePair(card.getAttribute("data-liste"));
+    });
+
+    // Hareketi azaltma tercihi: kutular dağınık ve sabit kalır.
+    if (prefersReducedMotion()) return;
+
+    var hero = visual.closest(".hero") || visual;
+    var ticking = false;
+
+    function update() {
+      ticking = false;
+
+      var rect = hero.getBoundingClientRect();
+      // 0 = hero tam görünür (dağınık), 1 = hero yukarı kaymış (liste)
+      var span = rect.height || 1;
+      var progress = Math.min(1, Math.max(0, -rect.top / span));
+      // Yumuşat: geçiş baştan ve sondan yumuşak olsun.
+      var t = progress * progress * (3 - 2 * progress);
+
+      var w = visual.clientWidth;
+      var h = visual.clientHeight;
+
+      cards.forEach(function (card) {
+        var dx = ((card._liste.x - card._dagi.x) / 100) * w * t;
+        var dy = ((card._liste.y - card._dagi.y) / 100) * h * t;
+        card.style.setProperty("--kx", dx.toFixed(1) + "px");
+        card.style.setProperty("--ky", dy.toFixed(1) + "px");
+      });
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(update);
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+  }
+
   function initializeCurrentYear() {
     var element = document.getElementById("currentYear");
     if (element) element.textContent = String(new Date().getFullYear());
@@ -483,6 +548,7 @@
     initializeSmoothScroll();
     initializeActiveNavigation();
     initializeHeroParallax();
+    initializeHeroCards();
     initializeRevealAnimations();
     initializeFaq();
     initializeGallery();
