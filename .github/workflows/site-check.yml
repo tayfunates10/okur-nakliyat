@@ -207,6 +207,42 @@ jobs:
           fi
           echo "OK    önbelleklenen varlıkların tamamı ?v= taşıyor"
 
+          # Yerel arama için yerleşim adları görünür metinde geçmeli.
+          # Bu eksiklik aylarca fark edilmedi çünkü hiçbir kontrol bakmıyordu:
+          # yedi yerleşim yalnızca ana sayfada, yalnızca bir kez ve çıplak
+          # liste maddesi olarak geçiyordu.
+          #
+          # Ölçüm Python ile yapılıyor. grep'in çok baytlı karakterleri bayt
+          # olarak eşleştirmesi ilk ölçümü yanlış göstermişti: [cç] kalıbı
+          # yüzünden "Akçay" ve "Altınoluk" hiç geçmiyor sanıldı.
+          python3 - page.html <<'PY'
+          import re, sys
+
+          # Edremit Körfezi + Edremit'ten Balıkesir merkeze uzanan hat.
+          # "Balıkesir merkez" diye tek bir ilçe yok; merkez Altıeylül ve
+          # Karesi olarak ikiye ayrılmış durumda.
+          YERLER = ["Edremit", "Zeytinli", "Akçay", "Güre", "Altınoluk",
+                    "Burhaniye", "Gömeç", "Ayvalık",
+                    "Havran", "İvrindi", "Savaştepe", "Altıeylül", "Karesi"]
+
+          def katla(s):
+              return (s.replace("İ", "i").replace("I", "ı").lower()
+                       .replace("ı", "i").replace("ç", "c").replace("ğ", "g")
+                       .replace("ö", "o").replace("ş", "s").replace("ü", "u"))
+
+          h = open(sys.argv[1], encoding="utf-8").read()
+          h = re.sub(r"<script.*?</script>|<style.*?</style>", " ", h, flags=re.S)
+          metin = katla(re.sub(r"<[^>]+>", " ", h))
+
+          eksik = [y for y in YERLER if katla(y) not in metin]
+          for y in YERLER:
+              print(f"{'OK   ' if katla(y) in metin else 'EKSIK'} {y}")
+          if eksik:
+              print("\nEKSİK YERLEŞİM: " + ", ".join(eksik))
+              sys.exit(1)
+          print(f"OK    {len(YERLER)} yerleşim adı da görünür metinde geçiyor")
+          PY
+
           echo
           echo ">>> SONUC: Sayfa ve üretim dosyaları beklendiği gibi yayında."
 

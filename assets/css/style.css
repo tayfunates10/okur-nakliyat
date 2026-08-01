@@ -1203,6 +1203,46 @@ body.is-menu-open {
   border-radius: var(--radius-pill);
 }
 
+/* Yerleşim listesinin öncesi ve sonrası. Liste tek başınayken hangi
+   yerleşimin neye bağlı olduğu ve bölgede hangi hizmetlerin verildiği
+   görünmüyordu. */
+.coverage-local-intro,
+.coverage-local-baglanti {
+  max-width: 530px;
+  font-size: var(--fs-xs);
+  line-height: var(--leading-normal);
+  color: var(--text-on-light-muted);
+}
+
+.coverage-local-intro {
+  margin: 0 0 var(--space-sm);
+}
+
+/* Körfez listesiyle iç kesim listesi arasındaki ayrım. Aynı blokta iki liste
+   üst üste gelince hangi yerin hangi gruba ait olduğu kayboluyordu. */
+.coverage-local-ikinci {
+  margin-top: var(--space-md);
+}
+
+.coverage-local-baglanti {
+  margin: var(--space-sm) 0 0;
+}
+
+.coverage-local-baglanti a {
+  color: var(--color-black);
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: from-font;
+}
+
+.coverage-local-baglanti a:hover,
+.coverage-local-baglanti a:focus-visible {
+  color: var(--color-anthracite);
+  text-decoration-color: var(--color-yellow);
+  text-decoration-thickness: 0.14em;
+}
+
 .coverage-button {
   --btn-bg: var(--color-black);
   --btn-color: var(--color-white);
