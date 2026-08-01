@@ -49,11 +49,11 @@ jobs:
                       "/robots.txt" \
                       "/sitemap.xml" \
                       "/404.html" \
-                      "/assets/css/reset.css?v=13" \
-                      "/assets/css/variables.css?v=13" \
-                      "/assets/css/components.css?v=13" \
-                      "/assets/css/style.css?v=13" \
-                      "/assets/js/main.js?v=13" \
+                      "/assets/css/reset.css?v=14" \
+                      "/assets/css/variables.css?v=14" \
+                      "/assets/css/components.css?v=14" \
+                      "/assets/css/style.css?v=14" \
+                      "/assets/js/main.js?v=14" \
                       "/assets/images/hero/okur-nakliyat-hero-background.webp" \
                       "/assets/images/hero/okur-nakliyat-hero-arac.webp" \
                       "/assets/images/about/okur-nakliyat-hakkimizda.webp" \
@@ -75,7 +75,7 @@ jobs:
 
           echo
           echo "=== style.css ==="
-          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=13")
+          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=14")
           echo "$css_headers" | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)"
           echo "$css_headers" | grep -qi "max-age=31536000"
 

@@ -8,7 +8,8 @@
    5. Hero parallax
    6. Görünürlük animasyonları
    7. SSS davranışı
-   8. WhatsApp teklif formu
+   8. Galeri büyütme penceresi
+   9. WhatsApp teklif formu
    ========================================================================== */
 
 (function () {
@@ -328,6 +329,101 @@
     });
   }
 
+  /*
+   * Galeri büyütme penceresi.
+   *
+   * Native <dialog>.showModal() kullanılır: odak tuzağı, Esc ile kapanma ve
+   * arka planın inert olması tarayıcıdan gelir. Elle yazılan çözümler bu
+   * üçünü genelde eksik yapıyor. Odağın açılış düğmesine geri dönmesini
+   * <dialog> garanti etmediği için onu biz saklıyoruz.
+   *
+   * Galeri bölümü sayfada yoksa fonksiyon hiçbir şey yapmadan çıkar.
+   */
+  function initializeGallery() {
+    var dialog = document.getElementById("galleryLightbox");
+    var triggers = Array.prototype.slice.call(document.querySelectorAll(".gallery-trigger"));
+    if (!dialog || !triggers.length || typeof dialog.showModal !== "function") return;
+
+    var image = document.getElementById("galleryLightboxImage");
+    var caption = document.getElementById("galleryLightboxCaption");
+    var counter = document.getElementById("galleryLightboxCounter");
+    var prevButton = dialog.querySelector(".gallery-lightbox-prev");
+    var nextButton = dialog.querySelector(".gallery-lightbox-next");
+    var closeButton = dialog.querySelector(".gallery-lightbox-close");
+    var lastTrigger = null;
+    var current = 0;
+
+    var single = triggers.length < 2;
+    if (prevButton) prevButton.hidden = single;
+    if (nextButton) nextButton.hidden = single;
+
+    function show(index) {
+      current = (index + triggers.length) % triggers.length;
+
+      var trigger = triggers[current];
+      var thumbnail = trigger.querySelector("img");
+
+      image.src = trigger.getAttribute("data-full") || (thumbnail && thumbnail.currentSrc) || "";
+      image.alt = (thumbnail && thumbnail.alt) || "";
+      caption.textContent = trigger.getAttribute("data-caption") || "";
+      counter.textContent = current + 1 + " / " + triggers.length;
+    }
+
+    function open(index) {
+      lastTrigger = triggers[index];
+      show(index);
+      dialog.showModal();
+      if (closeButton) closeButton.focus();
+    }
+
+    triggers.forEach(function (trigger, index) {
+      trigger.addEventListener("click", function () {
+        open(index);
+      });
+    });
+
+    if (prevButton) {
+      prevButton.addEventListener("click", function () {
+        show(current - 1);
+      });
+    }
+
+    if (nextButton) {
+      nextButton.addEventListener("click", function () {
+        show(current + 1);
+      });
+    }
+
+    if (closeButton) {
+      closeButton.addEventListener("click", function () {
+        dialog.close();
+      });
+    }
+
+    dialog.addEventListener("keydown", function (event) {
+      if (single) return;
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        show(current - 1);
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        show(current + 1);
+      }
+    });
+
+    /* Görselin dışına tıklayınca kapansın. <dialog>'un kendi kutusu tüm
+       ekranı kaplamadığı için hedefi doğrudan dialog olan tıklama, arka
+       plana (::backdrop) yapılan tıklamadır. */
+    dialog.addEventListener("click", function (event) {
+      if (event.target === dialog) dialog.close();
+    });
+
+    dialog.addEventListener("close", function () {
+      image.removeAttribute("src");
+      if (lastTrigger) lastTrigger.focus();
+    });
+  }
+
   function initializeQuoteForm() {
     var form = document.getElementById("quoteForm");
     if (!form) return;
@@ -389,6 +485,7 @@
     initializeHeroParallax();
     initializeRevealAnimations();
     initializeFaq();
+    initializeGallery();
     initializeQuoteForm();
     initializeCurrentYear();
   }
