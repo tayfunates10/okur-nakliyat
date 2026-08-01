@@ -503,7 +503,7 @@ body.is-menu-open {
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=22");
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=23");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -3028,51 +3028,9 @@ body.is-menu-open {
   bottom: 14px;
 }
 
-/* --- Kamyon kasasındaki marka işareti ----------------------------------- */
-/* Katman, kamyon görseliyle birebir aynı yere ve boyuta oturur; böylece
-   içindeki yüzdeler görsele göre okunur ve her ekran boyutunda kasanın
-   üstünde kalır. Konumlandırma değerleri .hero-visual-image ile aynı. */
-.hero-kasa-logo {
-  position: absolute;
-  left: 50%;
-  bottom: 2%;
-  z-index: 2;
-  width: min(780px, 126%);
-  aspect-ratio: 1536 / 1024;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-/* Kasa görselde ölçüldü: x %53.5-%99.9, y %36.7-%67.7. Logo kasanın sol
-   yarısına ve dikey ortasına konur; sağ uç görselin kenarında kesiliyor. */
-.hero-kasa-logo .brand-glyph {
-  position: absolute;
-  /* Kasa yüzü görselde ölçüldü: x %66.1-97.3, sarı şeridin üstünde kalan
-     temiz alan y %36.7-61.8 (merkez %49.3).
-     Kasanın sağ yarısı kapsayıcı kırpmasının dışında kalıyor (görsel %126
-     genişlikte ve sağa taşıyor); görünen aralık kabaca %10-90. Logo, kasa
-     ile görünen alanın kesişiminin ortasına konur: %66.1-90 -> merkez %78. */
-  top: 43.8%;
-  left: 70.5%;
-  display: block;
-  width: 15%;
-  height: auto;
-  /* Kasa beyaz: beyaz logo görünmüyordu. Kamyon parçası koyu çizilir,
-     halka zaten sarı. */
-  color: var(--color-black);
-  opacity: 0;
-  transform: perspective(760px) rotateY(-7deg) skewY(0.9deg) translateY(6px) scale(0.94);
-  transform-origin: 50% 50%;
-  filter: drop-shadow(0 1px 2px rgba(11, 11, 11, 0.18));
-  animation: kasaLogoBelir 900ms var(--ease-out-soft) 700ms forwards;
-}
-
-@keyframes kasaLogoBelir {
-  to {
-    opacity: 0.96;
-    transform: perspective(760px) rotateY(-7deg) skewY(0.9deg) translateY(0) scale(1);
-  }
-}
+/* Kamyonun kasasındaki marka işareti eskiden CSS ile üstüne bindiriliyordu.
+   Yeni hero görselinde logo doğrudan kasanın üzerine basılı geldiği için o
+   katman kaldırıldı; kalsaydı logo iki kez görünürdü. */
 
 /* --- Hero bilgi kutuları -----------------------------------------------
    Altı kutu kamyonun çevresine dağınık yerleşir; sayfa kaydırıldıkça sol
@@ -3375,19 +3333,13 @@ body.is-menu-open {
   .mcb-ikon,
   .hero-serit-satir,
   .cta-parlama,
-  .floating-card,
-  .hero-kasa-logo .brand-glyph {
+  .floating-card {
     animation: none;
   }
 
   /* Animasyonla belirenler kapalıyken de görünür kalmalı. */
   .floating-card {
     opacity: 1;
-    transform: none;
-  }
-
-  .hero-kasa-logo .brand-glyph {
-    opacity: 0.96;
     transform: none;
   }
 }

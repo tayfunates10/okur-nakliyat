@@ -34,7 +34,7 @@ SABLON = KOK / "sablon"
 SAYFALAR = KOK / "sayfalar"
 SITE = "https://okurnakliyatedremit.com"
 
-ONBELLEK_SURUMU = "22"  # ?v= — bkz. docs/ekran-denetimi.md
+ONBELLEK_SURUMU = "23"  # ?v= — bkz. docs/ekran-denetimi.md
 
 ISLETME = f"{SITE}/#isletme"
 
