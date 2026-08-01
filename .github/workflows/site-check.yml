@@ -218,10 +218,14 @@ jobs:
           python3 - page.html <<'PY'
           import re, sys
 
-          # Körfez ve iç kesim ayrı gruplar; ikisi de görünür metinde geçmeli.
-          YERLER = ["Edremit", "Akçay", "Altınoluk", "Güre",
-                    "Zeytinli", "Burhaniye", "Havran", "Ayvalık",
-                    "İvrindi", "Savaştepe", "Susurluk"]
+          # Balıkesir'in 20 ilçesi + Edremit'e bağlı körfez yerleşimleri.
+          # "Balıkesir merkez" diye tek bir ilçe yok; merkez Altıeylül ve
+          # Karesi olarak ikiye ayrılmış durumda.
+          YERLER = ["Altıeylül", "Ayvalık", "Balya", "Bandırma", "Bigadiç",
+                    "Burhaniye", "Dursunbey", "Edremit", "Erdek", "Gömeç",
+                    "Gönen", "Havran", "İvrindi", "Karesi", "Kepsut",
+                    "Manyas", "Marmara", "Savaştepe", "Sındırgı", "Susurluk",
+                    "Zeytinli", "Akçay", "Güre", "Altınoluk"]
 
           def katla(s):
               return (s.replace("İ", "i").replace("I", "ı").lower()

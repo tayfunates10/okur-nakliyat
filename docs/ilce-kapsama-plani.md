@@ -9,10 +9,16 @@ Kullanıcı kararıyla iki ekleme yapıldı:
    **Edremit eşya taşıma**, **Edremit şehirler arası**, **Edremit ofis
    taşıma**. Her biri kendi sayfasında `<title>`, `<h1>` ve gövde metninde
    olmak üzere üç kez, ana sayfada iki-üç kez geçiyor.
-2. Balıkesir'in iç kesimindeki **İvrindi, Savaştepe, Susurluk** ve
-   **Balıkesir merkez** eklendi. Bunlar Edremit Körfezi'nde değil, o yüzden
-   körfez listesine karıştırılmadı; ayrı grup olarak yazıldı. Coğrafyayı
-   yanlış göstermek yerel aramada güvenilirliği doğrudan düşürür.
+2. **Balıkesir'in yirmi ilçesinin tamamı** adıyla yazıldı: Altıeylül,
+   Ayvalık, Balya, Bandırma, Bigadiç, Burhaniye, Dursunbey, Edremit, Erdek,
+   Gömeç, Gönen, Havran, İvrindi, Karesi, Kepsut, Manyas, Marmara,
+   Savaştepe, Sındırgı, Susurluk. "Komşu ilçeler" gibi toplu ifadeler
+   kaldırıldı — arayan kişi kendi ilçesinin adını görmeli.
+
+   İki düzeltme: "Balıkesir merkez" diye tek bir ilçe yok, merkez
+   **Altıeylül** ve **Karesi** olarak ikiye ayrılmış. Ayrıca Zeytinli,
+   Akçay, Güre ve Altınoluk ilçe değil, Edremit'e bağlı yerleşimler; yerel
+   arama açısından önemli oldukları için ayrı grup hâlinde listeleniyorlar.
 
 Sorun: Akçay, Altınoluk, Burhaniye gibi ilçe adları sitede neredeyse hiç
 geçmiyor. "altınoluk nakliyat" arayan biri için Google'ın eşleştireceği
