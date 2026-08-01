@@ -13,6 +13,14 @@ jobs:
 
     env:
       SITE: okurnakliyatedremit.com
+      # Sunucuda bot koruması (cPanel/Imunify360 türü) var. Denetim ~20
+      # saniyede ~45 istek atınca devreye giriyor ve gerçek sayfa yerine
+      # "One moment, please..." ara sayfasını 200 ile döndürüyor -- başlıklar
+      # da o ara sayfanın başlıkları oluyor. Kendini tanıtan bir UA, hosting
+      # tarafında beyaz listeye alınabilir olması için gerekli.
+      UA: "OkurNakliyatSiteCheck/1.0 (+https://github.com/tayfunates10/okur-nakliyat)"
+      # İstekler arasına konan kısa bekleme, hız tabanlı tetiklemeyi azaltır.
+      ARA: "0.7"
 
     steps:
       - name: Depoyu al
@@ -34,7 +42,7 @@ jobs:
 
           echo
           echo "=== HTTPS ==="
-          curl -sS -o /dev/null \
+          curl -sS -A "$UA" -o /dev/null \
             -w "http=%{http_code} ssl_verify=%{ssl_verify_result} redirect=%{redirect_url}\n" \
             --max-time 25 "https://$SITE/"
 
@@ -55,6 +63,10 @@ jobs:
                       "/parca-esya-tasima/" \
                       "/paketleme-hizmeti/" \
                       "/kurulum-montaj/" \
+                      "/sikca-sorulan-sorular/" \
+                      "/nakliyat-fiyatlari/" \
+                      "/kvkk-aydinlatma-metni/" \
+                      "/gizlilik-politikasi/" \
                       "/robots.txt" \
                       "/sitemap.xml" \
                       "/404.html" \
@@ -69,33 +81,77 @@ jobs:
                       "/assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp?v=19" \
                       "/assets/images/og/okur-nakliyat-og.jpg" \
                       "/assets/images/logo/favicon.svg?v=19"; do
-            code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 -L "https://$SITE$path")
+            code=$(curl -sS -A "$UA" -o /dev/null -w "%{http_code}" --max-time 20 -L "https://$SITE$path")
             printf "%-64s %s\n" "$path" "$code"
             test "$code" = "200"
+            sleep "$ARA"
           done
-
-      - name: Yanıt başlıkları
-        run: |
-          set -e
-
-          echo "=== index.html ==="
-          headers=$(curl -sS -I -L --max-time 20 "https://$SITE/")
-          echo "$headers" | grep -iE "^(HTTP/|content-type|cache-control|x-content-type-options|referrer-policy|x-frame-options|permissions-policy)"
-          echo "$headers" | grep -qi "cache-control: no-cache"
-
-          echo
-          echo "=== style.css ==="
-          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=19")
-          echo "$css_headers" | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)"
-          echo "$css_headers" | grep -qi "max-age=31536000"
 
       - name: Sayfa içerik bütünlüğü
         run: |
           set -e
 
-          curl -sS -L --max-time 25 "https://$SITE/" -o page.html
+          # Sunucudaki bot koruması, ana sayfa yerine "One moment, please..."
+          # ara sayfasını 200 ile döndürebiliyor. Bunu genel bir "sayfa
+          # eksik" hatası saymak yanlış teşhis üretiyordu: site sağlam,
+          # engellenen bizim denetimimiz. Ara sayfa ayrı olarak tanınıyor ve
+          # koruma gevşeyene kadar artan aralıklarla yeniden deneniyor.
+          iyi=""
+          engel=0
+          bekleme=3
+          for deneme in 1 2 3 4 5; do
+            [ "$deneme" -gt 1 ] && sleep "$bekleme" && bekleme=$((bekleme * 2))
+            curl -sS -A "$UA" -L --max-time 25 "https://$SITE/" -o "ornek-$deneme.html" || true
+            boyut=$(wc -c < "ornek-$deneme.html")
+
+            if grep -qF "One moment, please" "ornek-$deneme.html"; then
+              printf "deneme %s: %s bayt -- BOT KORUMASI ara sayfası\n" "$deneme" "$boyut"
+              engel=1
+              continue
+            fi
+
+            printf "deneme %s: %s bayt\n" "$deneme" "$boyut"
+            if [ "$boyut" -gt 30000 ]; then
+              iyi="ornek-$deneme.html"
+              break
+            fi
+
+            echo "  --- kısa yanıtın başlıkları ---"
+            curl -sS -A "$UA" -I -L --max-time 25 "https://$SITE/" | tr -d '\r' \
+              | grep -iE "^(HTTP/|server|content-type|content-length|content-encoding|cache-control)" || true
+            echo "  --- kısa yanıtın ilk 400 baytı ---"
+            head -c 400 "ornek-$deneme.html"
+            echo
+            echo "  --- bitiş ---"
+          done
+
+          if [ -z "$iyi" ] && [ "$engel" = "1" ]; then
+            echo
+            echo "HATA: ana sayfa hiçbir denemede alınamadı; her seferinde bot"
+            echo "koruması ara sayfası döndü."
+            echo
+            echo "Bu bir site arızası DEĞİL. Sunucudaki koruma (cPanel/Imunify360"
+            echo "türü) bu denetimin isteklerini otomatik trafik sayıyor."
+            echo "Sayfaların yayında olduğu 'Kritik dosyalar' adımında ayrıca"
+            echo "doğrulanıyor; engellenen yalnızca içerik okuması."
+            echo
+            echo "Kalıcı çözüm: hosting panelinden şu User-Agent beyaz listeye"
+            echo "alınmalı:"
+            echo "  $UA"
+            exit 1
+          fi
+
+          if [ -z "$iyi" ]; then
+            echo "HATA: ana sayfa hiçbir denemede tam gelmedi."
+            exit 1
+          fi
+
+          if [ "$engel" = "1" ]; then
+            echo "UYARI: denemelerin bir kısmında bot koruması devreye girdi."
+            echo "Ölçüm, korumanın gevşediği denemeyle yapıldı."
+          fi
+          cp "$iyi" page.html
           echo "boyut: $(wc -c < page.html) bayt"
-          test "$(wc -c < page.html)" -gt 30000
 
           for needle in "<html lang=\"tr\">" \
                         "Okur Nakliyat | Edremit" \
@@ -158,11 +214,40 @@ jobs:
                       "/ofis-tasima/" \
                       "/parca-esya-tasima/" \
                       "/paketleme-hizmeti/" \
-                      "/kurulum-montaj/"; do
-            baslik=$(curl -sS -L --max-time 20 "https://$SITE$path" \
-              | tr -d '\r\n' | grep -oE '<title>[^<]*</title>' | head -1)
+                      "/kurulum-montaj/" \
+                      "/sikca-sorulan-sorular/" \
+                      "/nakliyat-fiyatlari/" \
+                      "/kvkk-aydinlatma-metni/" \
+                      "/gizlilik-politikasi/"; do
+            # Bot koruması devreye girerse başlık "One moment, please..."
+            # olur. Bunu gerçek başlık sayarsak, birden çok sayfada aynı
+            # değeri görüp "tekrar eden başlık" diye tamamen yanlış bir
+            # teşhis basarız. Ara sayfa tanınıp yeniden deneniyor.
+            baslik=""
+            for deneme in 1 2 3; do
+              [ "$deneme" -gt 1 ] && sleep 4
+              baslik=$(curl -sS -A "$UA" -L --max-time 20 "https://$SITE$path" \
+                | tr -d '\r\n' | grep -oE '<title>[^<]*</title>' | head -1)
+              case "$baslik" in
+                *"One moment, please"*)
+                  printf "%-30s bot koruması (deneme %s)\n" "$path" "$deneme"
+                  baslik=""
+                  ;;
+                *) break ;;
+              esac
+            done
+
+            if [ -z "$baslik" ]; then
+              echo "HATA: $path başlığı alınamadı; bot koruması engelledi."
+              echo "Kalıcı çözüm: şu User-Agent hosting panelinde beyaz"
+              echo "listeye alınmalı:"
+              echo "  $UA"
+              exit 1
+            fi
+
             printf "%-30s %s\n" "$path" "$baslik"
             echo "$baslik" >> basliklar.txt
+            sleep "$ARA"
           done
 
           tekrar=$(sort basliklar.txt | uniq -d)
@@ -171,25 +256,120 @@ jobs:
             echo "$tekrar"
             exit 1
           fi
-          echo "OK    yedi başlık da benzersiz"
+          echo "OK    on bir başlık da benzersiz"
 
-      - name: HTTP -> HTTPS yönlendirmesi
-        # Bu kontrol bilerek sona alındı. Aralıklı olarak 301 yerine 200
-        # dönüyor (1 Ağustos'ta iki kez görüldü, aralarında bir kez de 301
-        # döndü). İlk adımda olduğu için tek başına tüm denetimi kör
-        # bırakıyor, sayfaların yayında olup olmadığı hiç ölçülemiyordu.
+      - name: Yanıt başlıkları
+        # Yönlendirme kontrolü gibi bu da sona alındı: bot koruması devreye
+        # girdiğinde bu adım düşüyor ve arkasındaki adımları körleştiriyordu.
         run: |
           set -e
 
-          code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 25 "http://$SITE/")
-          location=$(curl -sS -I --max-time 25 "http://$SITE/" | tr -d '\r' | awk -F': ' 'tolower($1)=="location"{print $2}')
+          echo "=== index.html ==="
+          # Başlıklarla birlikte gövdeyi de alıyoruz. Bot koruması ara
+          # sayfasının başlıkları .htaccess'ten gelmez; gövdeye bakmadan
+          # ölçersek "güvenlik başlıkları kayboldu" diye yanlış teşhis
+          # koyarız -- 1 Ağustos'ta tam olarak bu oldu.
+          bekleme=3
+          for deneme in 1 2 3 4 5; do
+            [ "$deneme" -gt 1 ] && sleep "$bekleme" && bekleme=$((bekleme * 2))
+            curl -sS -A "$UA" -L --max-time 20 -D basliklar.raw \
+              "https://$SITE/" -o govde.html || true
+            if grep -qF "One moment, please" govde.html; then
+              echo "deneme $deneme: bot koruması ara sayfası, başlıklar ölçülemez"
+              continue
+            fi
+            break
+          done
+
+          if grep -qF "One moment, please" govde.html; then
+            echo
+            echo "HATA: başlıklar ölçülemedi; her denemede bot koruması döndü."
+            echo "Ölçülen başlıklar .htaccess'in değil, koruma ara sayfasının"
+            echo "başlıkları olurdu."
+            echo
+            echo "Kalıcı çözüm: şu User-Agent hosting panelinde beyaz listeye"
+            echo "alınmalı:"
+            echo "  $UA"
+            exit 1
+          fi
+
+          headers=$(tr -d '\r' < basliklar.raw)
+          echo "$headers" | grep -iE "^(HTTP/|content-type|cache-control|x-content-type-options|referrer-policy|x-frame-options|permissions-policy)"
+
+          echo
+          # cache-control virgülle ayrılmış bir direktif listesi olabilir
+          # ("private, no-cache, no-store, ..."). Düz metin araması bu biçimde
+          # yanlış yere alarm veriyordu; direktifi tek tek arıyoruz.
+          if echo "$headers" | grep -qiE '^cache-control:.*(^|[ ,])no-cache([ ,]|$)'; then
+            echo "OK    cache-control no-cache taşıyor"
+          else
+            echo "EKSIK cache-control no-cache taşımıyor"
+            exit 1
+          fi
+
+          echo
+          # Güvenlik başlıkları .htaccess'ten geliyor. Kaybolmaları, yanıtın
+          # bizim yapılandırmamızı görmeyen başka bir katmandan geldiğine
+          # işaret eder -- bu bulguyu cache-control hatasının arkasına
+          # saklamak yerine ayrıca raporluyoruz.
+          eksik=""
+          for h in x-content-type-options referrer-policy x-frame-options permissions-policy; do
+            if echo "$headers" | grep -qiE "^$h:"; then
+              printf "OK    %s\n" "$h"
+            else
+              printf "EKSIK %s\n" "$h"
+              eksik="$eksik $h"
+            fi
+          done
+          if [ -n "$eksik" ]; then
+            echo
+            echo "UYARI: .htaccess'ten gelmesi gereken başlıklar yok:$eksik"
+            echo "Yanıt büyük olasılıkla .htaccess'i uygulamayan bir ara"
+            echo "katmandan geldi. Aynı belirti http-> https yönlendirmesinde"
+            echo "de görülüyor."
+            exit 1
+          fi
+
+          echo
+          echo "=== style.css ==="
+          css_headers=$(curl -sS -A "$UA" -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=19" | tr -d '\r')
+          echo "$css_headers" | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)"
+          echo "$css_headers" | grep -qi "max-age=31536000"
+
+      - name: HTTP -> HTTPS yönlendirmesi
+        # Bu kontrol bilerek sona alındı. 301 yerine 200 döndüğü durumların
+        # nedeni bulundu: bot koruması ara sayfası, RewriteRule çalışmadan
+        # önce 200 ile yanıtlıyor. Ara sayfa artık tanınıyor ve yeniden
+        # deneniyor; ".htaccess bozuk" gibi yanlış teşhis üretmiyor.
+        run: |
+          set -e
+
+          bekleme=3
+          for deneme in 1 2 3 4 5; do
+            [ "$deneme" -gt 1 ] && sleep "$bekleme" && bekleme=$((bekleme * 2))
+            code=$(curl -sS -A "$UA" -o govde-http.html -w "%{http_code}" --max-time 25 "http://$SITE/")
+            if [ "$code" != "301" ] && grep -qF "One moment, please" govde-http.html; then
+              echo "deneme $deneme: bot koruması ara sayfası (http=$code)"
+              continue
+            fi
+            break
+          done
+
+          location=$(curl -sS -A "$UA" -I --max-time 25 "http://$SITE/" | tr -d '\r' | awk -F': ' 'tolower($1)=="location"{print $2}')
           echo "http=$code redirect=$location"
 
+          if [ "$code" != "301" ] && grep -qF "One moment, please" govde-http.html; then
+            echo "HATA: yönlendirme ölçülemedi; her denemede bot koruması döndü."
+            echo "Kalıcı çözüm: şu User-Agent hosting panelinde beyaz listeye"
+            echo "alınmalı:"
+            echo "  $UA"
+            exit 1
+          fi
+
           if [ "$code" != "301" ]; then
-            echo "UYARI: http:// isteği 301 yerine $code döndü."
-            echo ".htaccess'teki RewriteRule değişmedi; sunucu tarafında"
-            echo "aralıklı bir sorun var. Aynı gün içinde hem 301 hem 200"
-            echo "gözlendi."
+            echo "UYARI: http:// isteği 301 yerine $code döndü ve gelen yanıt"
+            echo "bot koruması ara sayfası değil. Bu gerçek bir yönlendirme"
+            echo "sorunu."
           fi
 
           test "$code" = "301"
@@ -199,7 +379,7 @@ jobs:
         run: |
           set -e
 
-          code=$(curl -sS -o missing.html -w "%{http_code}" --max-time 20 \
+          code=$(curl -sS -A "$UA" -o missing.html -w "%{http_code}" --max-time 20 \
             "https://$SITE/bu-sayfa-yok-okur-kontrol")
           echo "http=$code"
           echo "gövde: $(wc -c < missing.html) bayt"
@@ -210,8 +390,49 @@ jobs:
             echo "--- hata yanıtının gövdesi (ilk 600 bayt) ---"
             head -c 600 missing.html
             echo
+
+            # Hangi katmanın bu yanıtı ürettiğini ayırt eden ölçüm.
+            # .htaccess'teki direktif "Header ALWAYS set" -- Apache bunu hata
+            # yanıtlarına da uygular. Dolayısıyla:
+            #   başlıklar VARSA  -> yanıt Apache'den geliyor, sorun ErrorDocument'ta
+            #   başlıklar YOKSA  -> yanıtı .htaccess'i görmeyen bir ön katman üretiyor
+            # Sunucudaki .htaccess bizim dosyamız mı? Depodaki işaret ile
+            # yayındaki değeri karşılaştırıyoruz. Eşleşmiyorsa sorun
+            # ErrorDocument'ta değil, dosyanın hiç güncellenmemiş olmasında.
+            beklenen=$(grep -oE 'X-Okur-Htaccess "[^"]+"' .htaccess | grep -oE '"[^"]+"' | tr -d '"')
+            canli=$(curl -sS -A "$UA" -I -L --max-time 20 "https://$SITE/" | tr -d '\r' \
+              | awk -F': ' 'tolower($1)=="x-okur-htaccess"{print $2}')
+            echo "--- .htaccess sürüm işareti ---"
+            echo "depoda: ${beklenen:-yok}   yayında: ${canli:-yok}"
+            if [ -z "$canli" ]; then
+              echo "TESHIS: yayındaki .htaccess bu işareti taşımıyor"
+              echo "        -> sunucudaki dosya güncel değil, sorun dağıtımda"
+            elif [ "$canli" != "$beklenen" ]; then
+              echo "TESHIS: yayındaki .htaccess eski sürüm ($canli)"
+              echo "        -> sorun dağıtımda"
+            else
+              echo "TESHIS: yayındaki .htaccess güncel"
+              echo "        -> dosya doğru, Apache ErrorDocument satırını yok sayıyor"
+            fi
+            echo
+
+            echo "--- hata yanıtının başlıkları ---"
+            hata_basliklari=$(curl -sS -A "$UA" -I --max-time 20 \
+              "https://$SITE/bu-sayfa-yok-okur-kontrol" | tr -d '\r')
+            echo "$hata_basliklari" | grep -iE "^(HTTP/|server|content-type|content-length|x-content-type-options|referrer-policy|x-frame-options|permissions-policy)" || true
+            if echo "$hata_basliklari" | grep -qiE "^x-content-type-options:"; then
+              echo "TESHIS: hata yanıtı .htaccess başlıklarını taşıyor"
+              echo "        -> yanıtı Apache üretiyor, sorun ErrorDocument satırında"
+            else
+              echo "TESHIS: hata yanıtı .htaccess başlıklarını TAŞIMIYOR"
+              echo "        -> yanıtı .htaccess'i uygulamayan bir ön katman üretiyor"
+              echo "        (aynı katman aralıklı olarak güvenlik başlıklarını ve"
+              echo "         http->https yönlendirmesini de düşürüyor)"
+            fi
+            echo
+
             echo "--- /404.html dosyasının kendisi ---"
-            curl -sS -o direct404.html -w "http=%{http_code}\n" --max-time 20 \
+            curl -sS -A "$UA" -o direct404.html -w "http=%{http_code}\n" --max-time 20 \
               "https://$SITE/404.html"
             echo "boyut: $(wc -c < direct404.html) bayt"
             if grep -qF "Bu sayfa taşınmış olabilir." direct404.html; then
