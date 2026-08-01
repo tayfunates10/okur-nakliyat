@@ -55,6 +55,10 @@ jobs:
                       "/parca-esya-tasima/" \
                       "/paketleme-hizmeti/" \
                       "/kurulum-montaj/" \
+                      "/sikca-sorulan-sorular/" \
+                      "/nakliyat-fiyatlari/" \
+                      "/kvkk-aydinlatma-metni/" \
+                      "/gizlilik-politikasi/" \
                       "/robots.txt" \
                       "/sitemap.xml" \
                       "/404.html" \
@@ -158,7 +162,11 @@ jobs:
                       "/ofis-tasima/" \
                       "/parca-esya-tasima/" \
                       "/paketleme-hizmeti/" \
-                      "/kurulum-montaj/"; do
+                      "/kurulum-montaj/" \
+                      "/sikca-sorulan-sorular/" \
+                      "/nakliyat-fiyatlari/" \
+                      "/kvkk-aydinlatma-metni/" \
+                      "/gizlilik-politikasi/"; do
             baslik=$(curl -sS -L --max-time 20 "https://$SITE$path" \
               | tr -d '\r\n' | grep -oE '<title>[^<]*</title>' | head -1)
             printf "%-30s %s\n" "$path" "$baslik"
@@ -171,7 +179,7 @@ jobs:
             echo "$tekrar"
             exit 1
           fi
-          echo "OK    yedi başlık da benzersiz"
+          echo "OK    on bir başlık da benzersiz"
 
       - name: HTTP -> HTTPS yönlendirmesi
         # Bu kontrol bilerek sona alındı. Aralıklı olarak 301 yerine 200
