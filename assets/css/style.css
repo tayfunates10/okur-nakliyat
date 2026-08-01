@@ -1222,50 +1222,34 @@ body.is-menu-open {
   min-width: 0;
 }
 
+/* Görsel kapsayıcıya tam oturur. Daha önce %112 genişletilip -%2
+   kaydırılıyordu; bu, haritayı iki yandan da taşırıyor ve gerçek cihazda
+   Türkiye'nin batı ucunu (Edremit'in bulunduğu yer) ve doğu ucunu
+   kırpıyordu. Taşma `body { overflow-x: hidden }` tarafından yutulduğu için
+   sayfa kaymıyor, ama kara parçası görünmez oluyordu. */
 .coverage-map-image {
   display: block;
-  width: 112%;
-  max-width: none;
+  width: 100%;
+  max-width: 100%;
   height: auto;
-  transform: translateX(-2%);
   filter: drop-shadow(0 30px 35px rgba(11, 11, 11, 0.18));
 }
 
 /* Köken etiketi görselin içine gömülü değil: gömülü yazı ölçeklenince
    bozulur ve ekran okuyucu okuyamaz.
 
-   Konum, görseldeki halka işaretine göre yüzdeyle verilir; böylece görsel
-   ölçeklendiğinde etiket birlikte kayar. Ölçüldü (1300x618 kaynak üzerinde):
-   halka merkezi %24,6 soldan · %50,3 üstten, dış yarıçap ≈ %9,7 yükseklik,
-   yani halkanın alt kenarı %60. Etiket %62'den başlar.
+   Konum, tools/harita.py'nin çizdiği halkaya göre verilir: halka merkezi
+   görselin %8,0 solundan, %42,3 üstünden; koyu zemin yarıçapı yüksekliğin
+   ~%11'i, yani halkanın altı %53,3'te bitiyor. Etiket %55'ten başlar.
 
-   `left` daha önce %12 idi ve etiketin SOL kenarını oraya koyuyordu; etiket
-   halkanın ~%8,5 soluna düşüp bağımsız bir yazı gibi duruyordu. Artık
-   merkezi hizalanıyor.
-
-   Yüzdeler kapsayıcıya göre çözülür, görsele göre değil. 1080 px üstünde
-   görsel kapsayıcıdan geniş (%112) ve sola kaydırılmış (-%2 kendi
-   genişliğinin) olduğu için halkanın kapsayıcı içindeki yeri farklı:
-   0,246 x 1,12 - 0,0224 = %25,3. 1080 px altında görsel kapsayıcıyla
-   birebir olduğu için değer %24,6'ya döner. */
+   Halka sol kenara yakın olduğu için etiket ortalanmıyor — ortalansaydı sol
+   kenardan taşardı. Sol kenarı halkanın merkezine oturur, sağa doğru uzar;
+   haritacılıkta alışılmış yerleşim budur. */
 .coverage-origin {
   position: absolute;
-  top: 62%;
-  left: 25.3%;
-  transform: translateX(-50%);
-  /* Yatay iç boşluk, etiketin hemen solundaki şehir noktasını tamamen
-     örtecek kadar geniş. Daha darken noktanın bir ucu çipin kenarından
-     sarı bir hilal olarak taşıyordu. Değer göz kararı değil: çipin
-     çevresindeki 14 px'lik şeritte kalan sarı piksel sayısı ölçülerek
-     tarandı; 0,75em'de solda 61 piksel kalıyordu, 1,2em'de 0'a düşüyor.
-     1,3em pay bırakır. */
-  padding: 0.25em 1.3em;
-  /* Punto `vw`'ye bağlı, harita genişliğine değil; kapsayıcı 1080 px altında
-     tavana dayandığı için çip haritaya göre orantısız daralıyordu (768 px'te
-     harita genişliğinin yalnızca %11,6'sı) ve nokta yine yarım kalıyordu.
-     Yüzde min-width çipi haritaya bağlar: %17, noktayı her ölçekte örter. */
-  min-width: 17%;
-  text-align: center;
+  top: 55%;
+  left: 8%;
+  padding: 0.25em 0.7em;
   font-family: var(--font-heading);
   font-size: clamp(0.6rem, 1.35vw, 0.9rem);
   font-weight: var(--weight-black);
@@ -2181,15 +2165,6 @@ body.is-menu-open {
     margin-inline: auto;
   }
 
-  .coverage-map-image {
-    width: 100%;
-    transform: none;
-  }
-
-  /* Görsel artık kapsayıcıyla birebir; halkanın yeri doğrudan %24,6. */
-  .coverage-origin {
-    left: 24.6%;
-  }
 
   .faq-intro {
     position: static;
@@ -2341,11 +2316,6 @@ body.is-menu-open {
 
   .coverage-title {
     font-size: clamp(2.8rem, 14vw, 4.6rem);
-  }
-
-  .coverage-map {
-    width: 118%;
-    margin-left: -9%;
   }
 
   .faq-item summary {

@@ -17,35 +17,44 @@
 
 ## Düzeltilen
 
-**Hizmet bölgesi haritasındaki "EDREMİT" etiketi yanlış konumdaydı.**
+### 1. Harita kapsayıcıdan taşıyordu
 
-`left: 12%` etiketin **sol kenarını** oraya koyuyordu; halkanın merkezi ise
-%24,6'da. Etiket halkanın ~%8,5 soluna düşüyor, işaretin adı değil bağımsız
-bir yazı gibi duruyordu. Kaynak görselden ölçüldü (1300×618): halka merkezi
-%24,6 soldan · %50,3 üstten, dış yarıçap ≈ %9,7 yükseklik.
+Görsel bilerek büyütülüyordu — masaüstünde `width: 112%` + `translateX(-2%)`,
+720 px altında ise `.coverage-map { width: 118%; margin-left: -9% }`. Amaç
+tam genişlik etkisiydi ama sonuç, gerçek cihazda Türkiye'nin **batı ucunu
+(Edremit'in bulunduğu yer) ve doğu ucunu kırpmaktı**. Taşma
+`body { overflow-x: hidden }` tarafından yutulduğu için sayfa kaymıyor, kara
+parçası görünmez oluyordu.
 
-Düzeltme üç parçalı:
+Her iki taşma kuralı da kaldırıldı; görsel artık kapsayıcıya tam oturuyor.
+12 genişlikte ölçüldü (320 → 2560 px): görselin viewport dışına taşan
+piksel sayısı **0**, kapsayıcı dışına taşan **0**, yatay kaydırma yok.
 
-1. `left` merkez hizasına alındı, `transform: translateX(-50%)` eklendi.
-2. 1080 px üstünde görsel kapsayıcıdan geniş (%112) ve sola kaydırılmış
-   olduğu için oradaki değer ayrı hesaplandı:
-   `0,246 × 1,12 − 0,0224 = %25,3`. Altındaki kırılmada %24,6'ya döner.
-3. Etiketin hemen solundaki şehir noktası çipin kenarından yarım kalıyordu.
-   Çipin çevresindeki 14 px'lik şeritte kalan sarı piksel sayısı taranarak
-   iç boşluk belirlendi (0,75em → solda 61 piksel; 1,2em → 0). Ayrıca punto
-   `vw`'ye bağlı olduğu için çip 768 px'te haritanın yalnızca %11,6'sı
-   kadar kalıyor ve nokta yine örtülmüyordu; `min-width: 17%` çipi haritaya
-   bağladı.
+### 2. Edremit işareti yanlış konumdaydı
 
-Doğrulama — dört genişlikte, etiket merkezi ile halka merkezi arasındaki
-yatay fark ve çipin iki yanındaki sarı piksel:
+Halka, Edremit'in **216 px doğusunda ve 50 px güneyinde** duruyordu — kabaca
+Afyon/Kütahya hizası. Konum, Türkiye anakarasının uç koordinatları
+(26,0°–44,8° boylam · 35,8°–42,1° enlem) taban görselin kara sınırına
+oturtularak hesaplandı; Edremit (27,024°D · 39,596°K) görselin **%8,0
+solunda, %42,3 üstünde** çıkıyor.
 
-| Genişlik | Yatay fark | Sol | Sağ |
-| --- | --- | --- | --- |
-| 390 px | −0,01 px | 0 | 0 |
-| 768 px | −0,01 px | 0 | 0 |
-| 1440 px | −0,09 px | 0 | 0 |
-| 2560 px | −0,09 px | 0 | 0 |
+İşaret görselin içine gömülü olduğu için CSS ile taşınamıyordu. `tools/harita.py`
+eklendi:
+
+- `tools/harita-taban.webp` — halka ve güzergâhlar silinmiş taban (kara
+  parçası + şehir noktaları). Silme maskesi genişletilerek yapıldı; ilk
+  denemede kenar yumuşatma pikselleri kalıp hayalet halka bırakmıştı.
+- Betik her çalıştığında halkayı ve üç kesikli güzergâhı doğru konumdan
+  yeniden çizer, 1300 ve 900 px WebP üretir. Konum değişirse görsel elle
+  rötuşlanmaz — koordinat değiştirilip betik yeniden çalıştırılır.
+
+Edremit kıyıda olduğu için işaretin bir kısmı denize (sarı zemine) taşıyor;
+altına kara rengiyle aynı koyu disk konuldu — karada görünmez, denizin
+üstünde rozet gibi okunur.
+
+HTML'deki "EDREMİT" etiketi de yeni halkaya taşındı. Halka sol kenara yakın
+olduğu için etiket ortalanmıyor; ortalansaydı görselin sol kenarından
+taşardı. Sol kenarı halkanın merkezine oturur, sağa doğru uzar.
 
 ## Rapor edilen ama düzeltilmeyenler
 
@@ -56,7 +65,6 @@ Denetim betiği bunları işaretliyor; incelendi, hepsi tasarım gereği:
 | `.hero-background` taşması | Parallax katmanı bilerek büyük; `.hero` `overflow: hidden` ile kırpıyor. Sayfa kaymıyor. |
 | `.hero-visual-image` taşması | Araç görseli kenardan bilerek taşıyor. |
 | Hero şeridindeki `span`/`i` taşması | Şerit yatay kaydırılabilir; öğelerin viewport dışına çıkması beklenen davranış. |
-| `.coverage-map` taşması | Tam genişlik taşma, iki yanda **simetrik** (ör. 390 px'te −16,2 / +16,2). |
 | `.service-card` "kırpık" | Yanlış pozitif: kartın hiçbir çocuğu kutunun altına taşmıyor (ölçüldü); `scrollHeight` farkı pseudo-element kaynaklı. |
 | Sabit çubuk × hero düğmeleri | Yalnız belirli kaydırma konumlarında; kaydırınca açılıyor. Sayfa sonunda örtülen içerik yok. |
 
