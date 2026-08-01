@@ -82,9 +82,42 @@ jobs:
         run: |
           set -e
 
-          curl -sS -L --max-time 25 "https://$SITE/" -o page.html
+          # Sunucunun önündeki katman aralıklı olarak eksik gövde döndürüyor
+          # (1 Ağustos: tam sayfa yerine 7075 bayt). Tek örnekle ölçmek yazı
+          # tura atmaya dönüşüyor; üç deneme yapıp hepsini raporluyoruz.
+          # Kısa yanıt alındığında ne geldiği yazdırılıyor -- boyut testinde
+          # sessizce durmak teşhisi imkânsız kılıyordu.
+          iyi=""
+          for deneme in 1 2 3; do
+            curl -sS -L --max-time 25 "https://$SITE/" -o "ornek-$deneme.html" || true
+            boyut=$(wc -c < "ornek-$deneme.html")
+            printf "deneme %s: %s bayt\n" "$deneme" "$boyut"
+            if [ "$boyut" -gt 30000 ]; then
+              if [ -z "$iyi" ]; then iyi="ornek-$deneme.html"; fi
+            else
+              echo "  --- kısa yanıtın başlıkları ---"
+              curl -sS -I -L --max-time 25 "https://$SITE/" | tr -d '\r' \
+                | grep -iE "^(HTTP/|server|content-type|content-length|content-encoding|cache-control)" || true
+              echo "  --- kısa yanıtın ilk 400 baytı ---"
+              head -c 400 "ornek-$deneme.html"
+              echo
+              echo "  --- bitiş ---"
+            fi
+          done
+
+          if [ -z "$iyi" ]; then
+            echo "HATA: üç denemenin üçünde de ana sayfa eksik geldi."
+            exit 1
+          fi
+
+          if [ "$iyi" != "ornek-1.html" ]; then
+            echo "UYARI: ilk deneme eksik geldi, $iyi kullanılıyor."
+            echo "Sunucu önündeki katman aralıklı olarak kısa gövde dönüyor;"
+            echo "aynı belirti güvenlik başlıklarında ve http->https"
+            echo "yönlendirmesinde de görülüyor."
+          fi
+          cp "$iyi" page.html
           echo "boyut: $(wc -c < page.html) bayt"
-          test "$(wc -c < page.html)" -gt 30000
 
           for needle in "<html lang=\"tr\">" \
                         "Okur Nakliyat | Edremit" \
