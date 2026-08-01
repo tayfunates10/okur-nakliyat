@@ -200,8 +200,11 @@ def main() -> int:
         dosyalar = sorted(p for p in KAYNAK.iterdir() if p.suffix in UZANTILAR)
 
     if not dosyalar:
-        print(f"işlenecek fotoğraf bulunamadı ({KAYNAK})")
-        return 1
+        # Boş kaynak klasörü hata değil, normal bir durum: fotoğraflar henüz
+        # eklenmemiş olabilir. Hata döndürülünce iş akışı her seferinde
+        # kırmızıya düşüyordu. Klasörün kendisi yoksa yukarıda 1 dönülür.
+        print(f"kaynak klasörde fotoğraf yok ({KAYNAK}) — yapılacak iş yok")
+        return 0
 
     eksik = [d for d in dosyalar if not d.exists()]
     if eksik:
