@@ -1232,14 +1232,40 @@ body.is-menu-open {
 }
 
 /* Köken etiketi görselin içine gömülü değil: gömülü yazı ölçeklenince
-   bozulur ve ekran okuyucu okuyamaz. Konum, görseldeki halka merkezine
-   (%24,7 soldan · %50,1 üstten) göre yüzdeyle hizalanır; böylece görsel
-   ölçeklendiğinde etiket birlikte kayar. */
+   bozulur ve ekran okuyucu okuyamaz.
+
+   Konum, görseldeki halka işaretine göre yüzdeyle verilir; böylece görsel
+   ölçeklendiğinde etiket birlikte kayar. Ölçüldü (1300x618 kaynak üzerinde):
+   halka merkezi %24,6 soldan · %50,3 üstten, dış yarıçap ≈ %9,7 yükseklik,
+   yani halkanın alt kenarı %60. Etiket %62'den başlar.
+
+   `left` daha önce %12 idi ve etiketin SOL kenarını oraya koyuyordu; etiket
+   halkanın ~%8,5 soluna düşüp bağımsız bir yazı gibi duruyordu. Artık
+   merkezi hizalanıyor.
+
+   Yüzdeler kapsayıcıya göre çözülür, görsele göre değil. 1080 px üstünde
+   görsel kapsayıcıdan geniş (%112) ve sola kaydırılmış (-%2 kendi
+   genişliğinin) olduğu için halkanın kapsayıcı içindeki yeri farklı:
+   0,246 x 1,12 - 0,0224 = %25,3. 1080 px altında görsel kapsayıcıyla
+   birebir olduğu için değer %24,6'ya döner. */
 .coverage-origin {
   position: absolute;
   top: 62%;
-  left: 12%;
-  padding: 0.2em 0.45em;
+  left: 25.3%;
+  transform: translateX(-50%);
+  /* Yatay iç boşluk, etiketin hemen solundaki şehir noktasını tamamen
+     örtecek kadar geniş. Daha darken noktanın bir ucu çipin kenarından
+     sarı bir hilal olarak taşıyordu. Değer göz kararı değil: çipin
+     çevresindeki 14 px'lik şeritte kalan sarı piksel sayısı ölçülerek
+     tarandı; 0,75em'de solda 61 piksel kalıyordu, 1,2em'de 0'a düşüyor.
+     1,3em pay bırakır. */
+  padding: 0.25em 1.3em;
+  /* Punto `vw`'ye bağlı, harita genişliğine değil; kapsayıcı 1080 px altında
+     tavana dayandığı için çip haritaya göre orantısız daralıyordu (768 px'te
+     harita genişliğinin yalnızca %11,6'sı) ve nokta yine yarım kalıyordu.
+     Yüzde min-width çipi haritaya bağlar: %17, noktayı her ölçekte örter. */
+  min-width: 17%;
+  text-align: center;
   font-family: var(--font-heading);
   font-size: clamp(0.6rem, 1.35vw, 0.9rem);
   font-weight: var(--weight-black);
@@ -2158,6 +2184,11 @@ body.is-menu-open {
   .coverage-map-image {
     width: 100%;
     transform: none;
+  }
+
+  /* Görsel artık kapsayıcıyla birebir; halkanın yeri doğrudan %24,6. */
+  .coverage-origin {
+    left: 24.6%;
   }
 
   .faq-intro {
