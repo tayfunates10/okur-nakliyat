@@ -79,3 +79,29 @@ boyanmıyordu.
 Betik, ekran görüntüsünden önce tüm görselleri `eager`'a çevirip
 `img.decode()` ile çözülmesini bekleyecek şekilde düzeltildi. Ondan sonra
 alınan görüntülerde harita her boyutta görünüyor.
+
+## Önbellek tuzağı: değişen görsel ziyaretçiye ulaşmadı
+
+Harita yeniden çizildi, yayına alındı, denetim geçti — ama gerçek cihazda
+**eski harita görünmeye devam etti**.
+
+Sebep: `.htaccess` her `.webp/.svg/.jpg/.css/.js` dosyasına
+`max-age=31536000, immutable` veriyor. `immutable`, tarayıcıya "bu URL'i bir
+daha doğrulama" demek. Dosya adları ve URL'ler değişmediği için tarayıcı bir
+yıl boyunca eski görseli göstermeye devam ederdi.
+
+Bu, daha önce `components.css` için bulunup düzeltilen hatanın aynısı;
+düzeltme o zaman yalnızca stil ve betiklere uygulanmış, görseller atlanmıştı.
+
+Kalıcı çözüm iki parçalı:
+
+1. **Önbelleklenen her varlık aynı `?v=` numarasını taşır** — stil, betik ve
+   görseller. Herhangi biri değişince numara artırılır. Tek numara olduğu
+   için birini unutmak zorlaşıyor.
+2. **Denetim bunu artık kontrol ediyor.** `Sayfa içerik bütünlüğü` adımı
+   yayındaki HTML'de `?v=` taşımayan `assets/...` bağlantısı arar; bulursa
+   adım durur ve hangi dosya olduğunu yazar.
+
+Ödünleşme: yalnız CSS değiştiğinde görseller de yeniden indirilir. Sitenin
+toplam görsel yükü ~500 KB ve sürüm artışı seyrek olduğu için bu, sessizce
+eski içerik sunma riskine tercih edildi.

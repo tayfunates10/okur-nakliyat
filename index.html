@@ -28,7 +28,7 @@
   <meta name="twitter:description" content="Edremit merkezli şehir içi, şehirler arası ve Türkiye geneli taşımacılık. Ücretsiz kurulum ve montaj desteği.">
   <meta name="twitter:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg">
 
-  <link rel="icon" href="assets/images/logo/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/images/logo/favicon.svg?v=17" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -48,15 +48,29 @@
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
   </noscript>
 
-  <link rel="preload" href="assets/images/hero/okur-nakliyat-hero-background.webp"
+  <link rel="preload" href="assets/images/hero/okur-nakliyat-hero-background.webp?v=17"
         as="image" type="image/webp" fetchpriority="high">
 
-  <link rel="stylesheet" href="assets/css/reset.css?v=16">
-  <link rel="stylesheet" href="assets/css/variables.css?v=16">
-  <link rel="stylesheet" href="assets/css/components.css?v=16">
-  <link rel="stylesheet" href="assets/css/style.css?v=16">
+  <!--
+    ÖNEMLİ: .htaccess her .css/.js/.webp/.svg/.jpg dosyasına
+    `max-age=31536000, immutable` veriyor. `immutable`, tarayıcıya "bu URL'i
+    bir daha doğrulama" demek; dosyanın içeriği değişse bile aynı URL eski
+    sürümü göstermeye devam eder.
 
-  <script defer src="assets/js/main.js?v=16"></script>
+    Bu yüzden **önbelleklenen her varlık** — stil, betik ve görseller —
+    aynı `?v=` numarasını taşır. Herhangi biri değiştiğinde numara artırılır;
+    tek yerden bakıldığı için unutulması zorlaşır.
+
+    Bu kural bir kez ihlal edildi: hizmet bölgesi haritası yeniden çizildi
+    ama dosya adı ve URL'i aynı kaldığı için ziyaretçilerde eski harita
+    görünmeye devam etti.
+  -->
+  <link rel="stylesheet" href="assets/css/reset.css?v=17">
+  <link rel="stylesheet" href="assets/css/variables.css?v=17">
+  <link rel="stylesheet" href="assets/css/components.css?v=17">
+  <link rel="stylesheet" href="assets/css/style.css?v=17">
+
+  <script defer src="assets/js/main.js?v=17"></script>
 
   <noscript>
     <style>
@@ -426,9 +440,9 @@
         <div class="hero-visual" id="heroVisual">
           <div class="hero-visual-glow" aria-hidden="true"></div>
           <img class="hero-visual-image"
-               src="assets/images/hero/okur-nakliyat-hero-arac.webp"
-               srcset="assets/images/hero/okur-nakliyat-hero-arac-900.webp 900w,
-                       assets/images/hero/okur-nakliyat-hero-arac.webp 1536w"
+               src="assets/images/hero/okur-nakliyat-hero-arac.webp?v=17"
+               srcset="assets/images/hero/okur-nakliyat-hero-arac-900.webp?v=17 900w,
+                       assets/images/hero/okur-nakliyat-hero-arac.webp?v=17 1536w"
                sizes="(max-width: 960px) 100vw, 780px"
                alt="Okur Nakliyat'ın evden eve nakliyat taşımalarında kullandığı sarı kabinli, beyaz kasalı kamyon"
                width="1536" height="1024" decoding="async" fetchpriority="high">
@@ -566,7 +580,7 @@
         <div class="about-visual reveal">
           <div class="about-frame" aria-hidden="true"></div>
           <div class="about-scene">
-            <img src="assets/images/about/okur-nakliyat-hakkimizda.webp"
+            <img src="assets/images/about/okur-nakliyat-hakkimizda.webp?v=17"
                  width="1217" height="1293" loading="lazy" decoding="async"
                  alt="Okur Nakliyat ekibinden iki taşıma görevlisi paketlenmiş bir kutuyu birlikte taşıyor">
           </div>
@@ -717,9 +731,9 @@
 
         <div class="coverage-map reveal">
           <img class="coverage-map-image"
-               src="assets/images/coverage/okur-nakliyat-hizmet-bolgesi-900.webp"
-               srcset="assets/images/coverage/okur-nakliyat-hizmet-bolgesi-900.webp 900w,
-                       assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp 1300w"
+               src="assets/images/coverage/okur-nakliyat-hizmet-bolgesi-900.webp?v=17"
+               srcset="assets/images/coverage/okur-nakliyat-hizmet-bolgesi-900.webp?v=17 900w,
+                       assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp?v=17 1300w"
                sizes="(max-width: 1080px) 100vw, 821px"
                width="1300" height="618" loading="lazy" decoding="async"
                alt="Edremit merkezli, Türkiye genelindeki şehirlere uzanan taşıma güzergâhlarını gösteren harita">
