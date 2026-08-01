@@ -56,6 +56,12 @@ jobs:
           set -e
 
           for path in "/" \
+                      "/evden-eve-nakliyat/" \
+                      "/sehirler-arasi-nakliyat/" \
+                      "/ofis-tasima/" \
+                      "/parca-esya-tasima/" \
+                      "/paketleme-hizmeti/" \
+                      "/kurulum-montaj/" \
                       "/robots.txt" \
                       "/sitemap.xml" \
                       "/404.html" \
@@ -145,6 +151,34 @@ jobs:
 
           echo
           echo ">>> SONUC: Sayfa ve üretim dosyaları beklendiği gibi yayında."
+
+      - name: Sayfa başlıkları benzersiz mi
+        run: |
+          set -e
+
+          # Aynı <title> iki sayfada görünürse Google hangisini göstereceğini
+          # bilemez ve ikisini de zayıflatır.
+          : > basliklar.txt
+          for path in "/" \
+                      "/evden-eve-nakliyat/" \
+                      "/sehirler-arasi-nakliyat/" \
+                      "/ofis-tasima/" \
+                      "/parca-esya-tasima/" \
+                      "/paketleme-hizmeti/" \
+                      "/kurulum-montaj/"; do
+            baslik=$(curl -sS -L --max-time 20 "https://$SITE$path" \
+              | tr -d '\r\n' | grep -oE '<title>[^<]*</title>' | head -1)
+            printf "%-30s %s\n" "$path" "$baslik"
+            echo "$baslik" >> basliklar.txt
+          done
+
+          tekrar=$(sort basliklar.txt | uniq -d)
+          if [ -n "$tekrar" ]; then
+            echo "TEKRAR EDEN BAŞLIK:"
+            echo "$tekrar"
+            exit 1
+          fi
+          echo "OK    yedi başlık da benzersiz"
 
       - name: Özel 404 davranışı
         run: |
