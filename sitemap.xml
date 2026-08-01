@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://okurnakliyatedremit.com/</loc>
-    <lastmod>2026-07-31</lastmod>
+    <lastmod>2026-08-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -18,5 +18,41 @@
       <image:loc>https://okurnakliyatedremit.com/assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp</image:loc>
       <image:title>Edremit merkezli Türkiye geneli hizmet bölgesi</image:title>
     </image:image>
+  </url>
+  <url>
+    <loc>https://okurnakliyatedremit.com/evden-eve-nakliyat/</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://okurnakliyatedremit.com/kurulum-montaj/</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://okurnakliyatedremit.com/ofis-tasima/</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://okurnakliyatedremit.com/paketleme-hizmeti/</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://okurnakliyatedremit.com/parca-esya-tasima/</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://okurnakliyatedremit.com/sehirler-arasi-nakliyat/</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
 </urlset>

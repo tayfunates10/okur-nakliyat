@@ -34,7 +34,7 @@ SABLON = KOK / "sablon"
 SAYFALAR = KOK / "sayfalar"
 SITE = "https://okurnakliyatedremit.com"
 
-ONBELLEK_SURUMU = "17"  # ?v= — bkz. docs/ekran-denetimi.md
+ONBELLEK_SURUMU = "18"  # ?v= — bkz. docs/ekran-denetimi.md
 
 ISLETME = f"{SITE}/#isletme"
 
@@ -119,6 +119,9 @@ def uret(veri: dict, govde: str, sablonlar: dict) -> tuple[Path, str]:
         html = html.replace(anahtar, deger)
 
     html = html.replace("{{KOK}}", kok)
+    # "Ana Sayfa" bağlantısı yalnızca ana sayfada aktif işaretlenir. Şablonda
+    # sabit yazılıydı ve alt sayfalarda da aktif görünüyordu.
+    html = html.replace("{{ANASAYFA}}", ' aria-current="page"' if not slug else "")
     html = html.replace("{{v}}", ONBELLEK_SURUMU)
     return cikti, html.rstrip("\n") + "\n"
 

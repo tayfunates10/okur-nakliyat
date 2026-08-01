@@ -503,7 +503,7 @@ body.is-menu-open {
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=17");
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=18");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -1265,7 +1265,170 @@ body.is-menu-open {
 }
 
 /* --------------------------------------------------------------------------
-   9. Galeri
+   9. Hizmet sayfaları
+
+   Ana sayfa dışındaki sayfaların ortak yapısı. Kendi ızgara sistemini
+   kurmaz; mevcut .section / .container / .section-title bileşenlerini
+   kullanır, yalnızca bu sayfalara özgü metin blokları burada tanımlanır.
+   -------------------------------------------------------------------------- */
+
+.kirinti {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2xs);
+  margin-bottom: var(--space-md);
+  font-size: var(--fs-xs);
+  color: var(--text-on-dark-muted);
+}
+
+.kirinti a {
+  color: var(--color-yellow);
+}
+
+.kirinti a:hover {
+  text-decoration: underline;
+}
+
+/* Sabit header'ın altında kalmasın: hero'su olmayan sayfalarda ilk bölüm
+   doğrudan header'a dayanıyor. */
+.hizmet-hero {
+  padding-top: calc(var(--header-height) + clamp(2.5rem, 6vh, 5rem));
+}
+
+.hizmet-giris {
+  max-width: 68ch;
+  margin: var(--space-md) 0 0;
+  font-size: var(--fs-lead);
+  line-height: 1.75;
+  color: var(--text-on-dark-muted);
+}
+
+.hizmet-eylem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-lg);
+}
+
+/* Adımlar: sayı ::before ile gelir, işaretlemede tekrar edilmez. */
+.hizmet-adimlar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: var(--space-sm);
+  margin: var(--space-lg) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: adim;
+}
+
+.hizmet-adim {
+  position: relative;
+  min-width: 0;
+  padding: var(--space-md);
+  background: var(--color-white);
+  border: 1px solid var(--border-on-light);
+  border-radius: var(--radius-lg);
+  counter-increment: adim;
+}
+
+.hizmet-adim::before {
+  content: "0" counter(adim);
+  display: block;
+  margin-bottom: var(--space-xs);
+  font-family: var(--font-heading);
+  font-size: var(--fs-xs);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-yellow-dark);
+}
+
+.hizmet-adim h3 {
+  margin: 0 0 var(--space-2xs);
+  font-family: var(--font-heading);
+  font-size: var(--fs-md);
+  font-weight: var(--weight-bold);
+}
+
+.hizmet-adim p {
+  margin: 0;
+  color: var(--text-on-light-muted);
+}
+
+.hizmet-bilgi {
+  max-width: 78ch;
+}
+
+.hizmet-liste {
+  margin: var(--space-lg) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hizmet-liste li {
+  position: relative;
+  padding: var(--space-xs) 0 var(--space-xs) var(--space-md);
+  color: var(--text-on-light-muted);
+  border-bottom: 1px solid var(--border-on-light);
+}
+
+.hizmet-liste li::before {
+  content: "";
+  position: absolute;
+  top: calc(var(--space-xs) + 0.62em);
+  left: 0;
+  width: 10px;
+  height: 2px;
+  background: var(--color-yellow-dark);
+}
+
+.hizmet-kapanis {
+  margin: var(--space-lg) 0 0;
+  font-size: var(--fs-lead);
+  color: var(--text-on-light-muted);
+}
+
+.hizmet-ilgili {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: var(--space-lg) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hizmet-ilgili a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-target);
+  padding: 0 var(--space-md);
+  font-family: var(--font-heading);
+  font-weight: var(--weight-bold);
+  color: var(--color-black);
+  background: var(--color-white);
+  border: 1px solid var(--border-on-light);
+  border-radius: var(--radius-pill);
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.hizmet-ilgili a:hover {
+  border-color: var(--color-yellow);
+  transform: translateY(-2px);
+}
+
+.hizmet-ilgili a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hizmet-ilgili a:hover {
+    transform: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   10. Galeri
 
    Izgara `auto-fill` ile kurulur, sabit sütun sayısıyla değil: fotoğraf
    sayısı değiştiğinde kırılma noktalarına dokunmak gerekmez. Her kart sabit
@@ -1488,7 +1651,7 @@ body.is-menu-open {
 }
 
 /* --------------------------------------------------------------------------
-   10. SSS
+   11. SSS
    -------------------------------------------------------------------------- */
 
 .faq-grid {
@@ -1616,7 +1779,7 @@ body.is-menu-open {
 }
 
 /* --------------------------------------------------------------------------
-   11. Teklif formu
+   12. Teklif formu
    -------------------------------------------------------------------------- */
 
 .quote-section {
@@ -1785,7 +1948,7 @@ body.is-menu-open {
 }
 
 /* --------------------------------------------------------------------------
-   12. CTA ve footer
+   13. CTA ve footer
    -------------------------------------------------------------------------- */
 
 .cta-band {
@@ -1925,7 +2088,7 @@ body.is-menu-open {
 }
 
 /* --------------------------------------------------------------------------
-   13. Animasyonlar
+   14. Animasyonlar
    -------------------------------------------------------------------------- */
 
 @keyframes heroBackgroundDrift {
@@ -2014,7 +2177,7 @@ body.is-menu-open {
 }
 
 /* --------------------------------------------------------------------------
-   14. Responsive
+   15. Responsive
    -------------------------------------------------------------------------- */
 
 @media (min-width: 1080px) {
