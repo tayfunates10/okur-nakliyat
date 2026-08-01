@@ -396,6 +396,26 @@ jobs:
             # yanıtlarına da uygular. Dolayısıyla:
             #   başlıklar VARSA  -> yanıt Apache'den geliyor, sorun ErrorDocument'ta
             #   başlıklar YOKSA  -> yanıtı .htaccess'i görmeyen bir ön katman üretiyor
+            # Sunucudaki .htaccess bizim dosyamız mı? Depodaki işaret ile
+            # yayındaki değeri karşılaştırıyoruz. Eşleşmiyorsa sorun
+            # ErrorDocument'ta değil, dosyanın hiç güncellenmemiş olmasında.
+            beklenen=$(grep -oE 'X-Okur-Htaccess "[^"]+"' .htaccess | grep -oE '"[^"]+"' | tr -d '"')
+            canli=$(curl -sS -A "$UA" -I -L --max-time 20 "https://$SITE/" | tr -d '\r' \
+              | awk -F': ' 'tolower($1)=="x-okur-htaccess"{print $2}')
+            echo "--- .htaccess sürüm işareti ---"
+            echo "depoda: ${beklenen:-yok}   yayında: ${canli:-yok}"
+            if [ -z "$canli" ]; then
+              echo "TESHIS: yayındaki .htaccess bu işareti taşımıyor"
+              echo "        -> sunucudaki dosya güncel değil, sorun dağıtımda"
+            elif [ "$canli" != "$beklenen" ]; then
+              echo "TESHIS: yayındaki .htaccess eski sürüm ($canli)"
+              echo "        -> sorun dağıtımda"
+            else
+              echo "TESHIS: yayındaki .htaccess güncel"
+              echo "        -> dosya doğru, Apache ErrorDocument satırını yok sayıyor"
+            fi
+            echo
+
             echo "--- hata yanıtının başlıkları ---"
             hata_basliklari=$(curl -sS -A "$UA" -I --max-time 20 \
               "https://$SITE/bu-sayfa-yok-okur-kontrol" | tr -d '\r')
