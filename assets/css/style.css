@@ -503,7 +503,7 @@ body.is-menu-open {
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=19");
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=20");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -2758,5 +2758,213 @@ body.is-menu-open {
   .reveal {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* ==========================================================================
+   16. Kapsayıcı ve buton vurgusu
+   --------------------------------------------------------------------------
+   Kartlar beyaz zeminde 1px gri çizgi ve neredeyse görünmeyen bir gölgeyle
+   duruyordu; zeminden ayrılmıyorlardı. Bu bölüm yüzeyleri öne çıkarır ve
+   butonlara belirgin bir hareket verir.
+
+   Bilerek en sonda: mevcut bileşen kurallarının üzerine bir vurgu katmanı
+   olarak biniyor, onları yeniden yazmıyor. Marka renkleri değişmedi.
+   -------------------------------------------------------------------------- */
+
+/* Bölge bölümünün giriş paragrafı. Önce `.hizmet-giris` kullanılmıştı ama o
+   sınıf koyu hero için yazılmış (--text-on-dark-muted); açık zeminde metin
+   neredeyse görünmez oluyordu. */
+.hizmet-bolge-giris {
+  max-width: 68ch;
+  margin: var(--space-md) 0 0;
+  font-size: var(--fs-lead);
+  line-height: 1.75;
+  color: var(--text-on-light-muted);
+}
+
+/* --- Kartlar: açık zeminli yüzeyler --- */
+.service-card,
+.process-card,
+.hizmet-adim,
+.faq-item {
+  border-color: var(--border-card);
+  box-shadow: var(--shadow-card);
+  transition:
+    transform var(--transition-normal),
+    border-color var(--transition-normal),
+    box-shadow var(--transition-normal);
+}
+
+.service-card:hover,
+.process-card:hover,
+.hizmet-adim:hover,
+.faq-item:hover,
+.faq-item[open] {
+  border-color: var(--border-card-hover);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Kaldırma yalnızca tıklanabilir kartlarda. Süreç ve adım kartları bilgi
+   taşıyor; onları da kaldırmak "tıklanır" izlenimi veriyordu. */
+.service-card:hover {
+  transform: translateY(-10px);
+}
+
+.process-card {
+  /* Yarı saydam beyaz zemin, altındaki desen yüzünden gölgeyi yutuyordu. */
+  background: var(--color-white);
+}
+
+.process-card:hover,
+.hizmet-adim:hover {
+  transform: translateY(-4px);
+}
+
+/* --- Yüzeyi hiç olmayan kapsayıcılar --- */
+
+/* Hizmet sayfalarındaki bilgi ve bölge blokları yalnızca genişlik
+   sınırıydı; artık kendi yüzeyleri var. */
+.hizmet-bilgi {
+  padding: clamp(1.35rem, 3vw, 2.1rem);
+  background: var(--color-white);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+/* Hizmet bölgesi listesi sarı zemin üzerinde yalnızca üst çizgiyle
+   ayrılıyordu. */
+.coverage-local {
+  padding: clamp(1.2rem, 2.5vw, 1.75rem);
+  background: var(--color-white);
+  border: 1px solid var(--border-card);
+  border-top: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.benefit-item {
+  padding: var(--space-sm);
+  background: var(--color-white);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  transition:
+    transform var(--transition-normal),
+    border-color var(--transition-normal),
+    box-shadow var(--transition-normal);
+}
+
+.benefit-item:hover {
+  transform: translateY(-3px);
+  border-color: var(--border-card-hover);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* --- Koyu zeminli kapsayıcılar --- */
+.contact-card {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--border-on-dark-strong);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3);
+}
+
+.contact-card:hover {
+  border-color: var(--color-yellow);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+/* --- Butonlar: belirginlik ve hareket --- */
+.btn {
+  position: relative;
+  border-width: 2px;
+  box-shadow: var(--shadow-btn);
+  /* Parlama, ayrı bir katman yerine arka plan görselinde taşınıyor.
+     Konumlandırılmış bir ::before, metnin üstünde boyanıp onu örtüyordu. */
+  background-image: linear-gradient(
+    115deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.42) 50%,
+    transparent 58%
+  );
+  background-repeat: no-repeat;
+  background-size: 250% 100%;
+  background-position: 150% 0;
+  transition:
+    background-color var(--transition-fast),
+    background-position var(--transition-slow),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-normal);
+}
+
+.btn:hover {
+  background-position: -50% 0;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: var(--shadow-btn-hover);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--shadow-btn);
+}
+
+.btn-primary {
+  box-shadow: var(--shadow-btn), 0 0 0 0 rgba(245, 196, 0, 0.5);
+}
+
+.btn-primary:hover {
+  box-shadow: var(--shadow-btn-hover), var(--shadow-accent);
+}
+
+/* Sarı zemin üzerindeki siyah buton: sarı parlama görünmez, beyaz kalır. */
+.coverage-button:hover {
+  transform: translateY(-3px) scale(1.03);
+}
+
+/* --- Kart içi metin bağlantısı: buton gibi davransın --- */
+.service-link {
+  padding: 0.35rem 0.9rem 0.35rem 0;
+  transition:
+    color var(--transition-fast),
+    gap var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.service-card:hover .service-link,
+.service-link:hover {
+  gap: var(--space-xs);
+  transform: translateX(4px);
+}
+
+/* --- Hareketi azaltma tercihi --- */
+@media (prefers-reduced-motion: reduce) {
+  .service-card,
+  .process-card,
+  .hizmet-adim,
+  .faq-item,
+  .benefit-item,
+  .contact-card,
+  .btn,
+  .service-link {
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .service-card:hover,
+  .process-card:hover,
+  .hizmet-adim:hover,
+  .benefit-item:hover,
+  .btn:hover,
+  .btn:active,
+  .coverage-button:hover,
+  .service-card:hover .service-link,
+  .service-link:hover {
+    transform: none;
+  }
+
+  .btn,
+  .btn:hover {
+    background-image: none;
   }
 }

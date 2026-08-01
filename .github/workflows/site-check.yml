@@ -78,17 +78,17 @@ jobs:
                       "/robots.txt" \
                       "/sitemap.xml" \
                       "/404.html" \
-                      "/assets/css/reset.css?v=19" \
-                      "/assets/css/variables.css?v=19" \
-                      "/assets/css/components.css?v=19" \
-                      "/assets/css/style.css?v=19" \
-                      "/assets/js/main.js?v=19" \
-                      "/assets/images/hero/okur-nakliyat-hero-background.webp?v=19" \
-                      "/assets/images/hero/okur-nakliyat-hero-arac.webp?v=19" \
-                      "/assets/images/about/okur-nakliyat-hakkimizda.webp?v=19" \
-                      "/assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp?v=19" \
+                      "/assets/css/reset.css?v=20" \
+                      "/assets/css/variables.css?v=20" \
+                      "/assets/css/components.css?v=20" \
+                      "/assets/css/style.css?v=20" \
+                      "/assets/js/main.js?v=20" \
+                      "/assets/images/hero/okur-nakliyat-hero-background.webp?v=20" \
+                      "/assets/images/hero/okur-nakliyat-hero-arac.webp?v=20" \
+                      "/assets/images/about/okur-nakliyat-hakkimizda.webp?v=20" \
+                      "/assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp?v=20" \
                       "/assets/images/og/okur-nakliyat-og.jpg" \
-                      "/assets/images/logo/favicon.svg?v=19"; do
+                      "/assets/images/logo/favicon.svg?v=20"; do
             code=$(curl -sS -A "$UA" -o /dev/null -w "%{http_code}" --max-time 20 -L "https://$SITE$path")
             printf "%-64s %s\n" "$path" "$code"
             test "$code" = "200"
@@ -379,7 +379,7 @@ jobs:
 
           echo
           echo "=== style.css ==="
-          css_headers=$(curl -sS -A "$UA" -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=19" | tr -d '\r')
+          css_headers=$(curl -sS -A "$UA" -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=20" | tr -d '\r')
           echo "$css_headers" | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)"
           echo "$css_headers" | grep -qi "max-age=31536000"
 
