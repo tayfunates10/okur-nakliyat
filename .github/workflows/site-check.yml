@@ -15,6 +15,16 @@ jobs:
       SITE: okurnakliyatedremit.com
 
     steps:
+      - name: Depoyu al
+        uses: actions/checkout@v4
+
+      - name: Üretilen sayfalar güncel mi
+        # sablon/ veya sayfalar/ değişip `tools/sayfa.py` çalıştırılmazsa
+        # depodaki HTML şablonun gerisinde kalır ve yayına eski hâli çıkar.
+        run: |
+          python3 -m pip install --quiet --upgrade pip >/dev/null
+          python3 tools/sayfa.py --kontrol
+
       - name: DNS, SSL ve yönlendirme
         run: |
           set -e
@@ -49,17 +59,17 @@ jobs:
                       "/robots.txt" \
                       "/sitemap.xml" \
                       "/404.html" \
-                      "/assets/css/reset.css?v=17" \
-                      "/assets/css/variables.css?v=17" \
-                      "/assets/css/components.css?v=17" \
-                      "/assets/css/style.css?v=17" \
-                      "/assets/js/main.js?v=17" \
-                      "/assets/images/hero/okur-nakliyat-hero-background.webp?v=17" \
-                      "/assets/images/hero/okur-nakliyat-hero-arac.webp?v=17" \
-                      "/assets/images/about/okur-nakliyat-hakkimizda.webp?v=17" \
-                      "/assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp?v=17" \
+                      "/assets/css/reset.css?v=18" \
+                      "/assets/css/variables.css?v=18" \
+                      "/assets/css/components.css?v=18" \
+                      "/assets/css/style.css?v=18" \
+                      "/assets/js/main.js?v=18" \
+                      "/assets/images/hero/okur-nakliyat-hero-background.webp?v=18" \
+                      "/assets/images/hero/okur-nakliyat-hero-arac.webp?v=18" \
+                      "/assets/images/about/okur-nakliyat-hakkimizda.webp?v=18" \
+                      "/assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp?v=18" \
                       "/assets/images/og/okur-nakliyat-og.jpg" \
-                      "/assets/images/logo/favicon.svg?v=17"; do
+                      "/assets/images/logo/favicon.svg?v=18"; do
             code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 -L "https://$SITE$path")
             printf "%-64s %s\n" "$path" "$code"
             test "$code" = "200"
@@ -76,7 +86,7 @@ jobs:
 
           echo
           echo "=== style.css ==="
-          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=17")
+          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=18")
           echo "$css_headers" | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)"
           echo "$css_headers" | grep -qi "max-age=31536000"
 

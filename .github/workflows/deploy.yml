@@ -20,13 +20,36 @@ jobs:
       - name: Depoyu al
         uses: actions/checkout@v4
 
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Sayfaları üret
+        # sablon/ + sayfalar/ -> index.html ve <slug>/index.html.
+        # Üretilenler depoya da işlenir; burada yeniden üretilmesi, depodaki
+        # sürümün şablonla tutarlı olduğunu garanti eder.
+        run: python3 tools/sayfa.py
+
       - name: Yayın klasörünü hazırla
         # Sunucuya yalnızca sitenin çalışması için gereken dosyalar gider.
-        # README.md, DEPLOY.md, .cpanel.yml ve .github/ yüklenmez.
+        # README.md, DEPLOY.md, .cpanel.yml, sablon/, sayfalar/, tools/,
+        # galeri-kaynak/ ve .github/ yüklenmez.
         run: |
           mkdir -p dist
           cp index.html dist/
           cp 404.html dist/
+          # Üretilen alt sayfalar: her biri kendi klasöründe index.html
+          for dizin in $(python3 -c "
+          import json, re, pathlib
+          for p in sorted(pathlib.Path('sayfalar').glob('*.html')):
+              m = re.match(r'\\s*<!--json\\s*(\\{.*?\\})\\s*-->', p.read_text(encoding='utf-8'), re.S)
+              slug = json.loads(m.group(1))['slug'].strip('/')
+              if slug: print(slug)
+          "); do
+            mkdir -p "dist/$dizin"
+            cp "$dizin/index.html" "dist/$dizin/"
+          done
           cp robots.txt dist/
           cp sitemap.xml dist/
           cp .htaccess dist/

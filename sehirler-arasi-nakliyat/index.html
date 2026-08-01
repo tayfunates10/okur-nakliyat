@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <title>Edremit Şehirler Arası Nakliyat | Okur Nakliyat</title>
+  <meta name="description" content="Edremit ve Balıkesir çıkışlı ya da varışlı şehirler arası nakliyat. İstanbul, İzmir, Ankara, Bursa, Antalya ve Türkiye'nin tüm şehirleri için güzergâh planlaması.">
+  <meta name="author" content="Okur Nakliyat">
+  <meta name="theme-color" content="#0B0B0B">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <link rel="canonical" href="https://okurnakliyatedremit.com/sehirler-arasi-nakliyat/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="tr_TR">
+  <meta property="og:site_name" content="Okur Nakliyat">
+  <meta property="og:url" content="https://okurnakliyatedremit.com/sehirler-arasi-nakliyat/">
+  <meta property="og:title" content="Edremit Şehirler Arası Nakliyat | Okur Nakliyat">
+  <meta property="og:description" content="Edremit ve Balıkesir çıkışlı ya da varışlı şehirler arası nakliyat. İstanbul, İzmir, Ankara, Bursa, Antalya ve Türkiye'nin tüm şehirleri için güzergâh planlaması.">
+  <meta property="og:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:alt" content="Okur Nakliyat — Eşyalarınızı değil, güveninizi taşıyoruz.">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Edremit Şehirler Arası Nakliyat | Okur Nakliyat">
+  <meta name="twitter:description" content="Edremit ve Balıkesir çıkışlı ya da varışlı şehirler arası nakliyat. İstanbul, İzmir, Ankara, Bursa, Antalya ve Türkiye'nin tüm şehirleri için güzergâh planlaması.">
+  <meta name="twitter:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg">
+
+  <link rel="icon" href="/assets/images/logo/favicon.svg?v=18" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!--
+    Google Fonts stil sayfası render'ı bloklamaz. Blokladığında, servis
+    yavaşlarsa veya erişilemezse sayfa tamamen boş kalıyordu (ölçüldü: 13 sn).
+    media="print" ile indirilir, yüklenince "all" yapılır; yazı tipi gelene
+    kadar --font-body / --font-heading yedekleri (Segoe UI, system-ui)
+    kullanılır.
+  -->
+  <link rel="preload" as="style"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+  <link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+  <noscript>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+  </noscript>
+
+  <link rel="preload" href="/assets/images/hero/okur-nakliyat-hero-background.webp?v=18"
+        as="image" type="image/webp" fetchpriority="high">
+
+  <!--
+    ÖNEMLİ: .htaccess her .css/.js/.webp/.svg/.jpg dosyasına
+    `max-age=31536000, immutable` veriyor. `immutable`, tarayıcıya "bu URL'i
+    bir daha doğrulama" demek; dosyanın içeriği değişse bile aynı URL eski
+    sürümü göstermeye devam eder.
+
+    Bu yüzden **önbelleklenen her varlık** — stil, betik ve görseller —
+    aynı `?v=` numarasını taşır. Herhangi biri değiştiğinde numara artırılır;
+    tek yerden bakıldığı için unutulması zorlaşır.
+
+    Bu kural bir kez ihlal edildi: hizmet bölgesi haritası yeniden çizildi
+    ama dosya adı ve URL'i aynı kaldığı için ziyaretçilerde eski harita
+    görünmeye devam etti.
+  -->
+  <link rel="stylesheet" href="/assets/css/reset.css?v=18">
+  <link rel="stylesheet" href="/assets/css/variables.css?v=18">
+  <link rel="stylesheet" href="/assets/css/components.css?v=18">
+  <link rel="stylesheet" href="/assets/css/style.css?v=18">
+
+  <script defer src="/assets/js/main.js?v=18"></script>
+
+  <noscript>
+    <style>
+      .mobile-menu-toggle { display: none !important; }
+      .desktop-nav { display: block !important; width: 100%; }
+      .nav-list { flex-wrap: wrap; gap: 0.5rem 1rem; }
+      .header-inner { flex-wrap: wrap; height: auto; padding-block: 0.75rem; }
+      .reveal { opacity: 1 !important; transform: none !important; }
+    </style>
+  </noscript>
+
+  <!--
+    Yapısal veri tek bir @graph içinde toplanır; düğümler @id ile birbirine
+    bağlanır. İşletme düğümü (#isletme) yalnızca ana sayfada tam yazılır;
+    diğer sayfalar ona @id ile bağlanır — aynı varlığı iki kez tanımlamak
+    Google'ı bölünmüş kimlikle bırakır.
+
+    Uydurma alan yok: adres, çalışma saati, koordinat ve puan bilgisi
+    doğrulanamadığı için hiç yazılmadı — eksik alan, yanlış alandan iyidir
+    (yanlış NAP yerel sıralamayı doğrudan düşürür).
+
+    Bu blok tools/sayfa.py tarafından üretilir; elle düzenlenmez.
+  -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://okurnakliyatedremit.com/sehirler-arasi-nakliyat/#sayfa",
+        "url": "https://okurnakliyatedremit.com/sehirler-arasi-nakliyat/",
+        "name": "Edremit Şehirler Arası Nakliyat | Okur Nakliyat",
+        "description": "Edremit ve Balıkesir çıkışlı ya da varışlı şehirler arası nakliyat. İstanbul, İzmir, Ankara, Bursa, Antalya ve Türkiye'nin tüm şehirleri için güzergâh planlaması.",
+        "inLanguage": "tr-TR",
+        "isPartOf": {
+          "@id": "https://okurnakliyatedremit.com/#site"
+        },
+        "about": {
+          "@id": "https://okurnakliyatedremit.com/#isletme"
+        },
+        "primaryImageOfPage": "https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg",
+        "breadcrumb": {
+          "@id": "https://okurnakliyatedremit.com/sehirler-arasi-nakliyat/#kirinti"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Ana Sayfa",
+            "item": "https://okurnakliyatedremit.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Şehirler Arası Nakliyat"
+          }
+        ],
+        "@id": "https://okurnakliyatedremit.com/sehirler-arasi-nakliyat/#kirinti"
+      },
+      {
+        "@type": "Service",
+        "@id": "https://okurnakliyatedremit.com/sehirler-arasi-nakliyat/#hizmet",
+        "name": "Şehirler Arası Nakliyat",
+        "serviceType": "Şehirler arası nakliyat",
+        "description": "Edremit ve Balıkesir çıkışlı ya da varışlı şehirler arası nakliyat. İstanbul, İzmir, Ankara, Bursa, Antalya ve Türkiye'nin tüm şehirleri için güzergâh planlaması.",
+        "provider": {
+          "@id": "https://okurnakliyatedremit.com/#isletme"
+        },
+        "areaServed": {
+          "@type": "Country",
+          "name": "Türkiye"
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">İçeriğe geç</a>
+
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      <a class="brand" href="/#anasayfa" aria-label="Okur Nakliyat ana sayfa">
+        <span class="brand-mark" aria-hidden="true">
+          <svg class="brand-glyph" viewBox="0 0 568 278" aria-hidden="true" focusable="false">
+            <g class="brand-ring">
+              <circle cx="133" cy="133" r="99.5" fill="none" stroke="#F5C400" stroke-width="62"/>
+            </g>
+            <g class="brand-truck" fill="currentColor">
+              <path d="M366 0h74v231h21v25h-91l-85-84v86h-84.5A139.2 139.2 0 0 0 250.9 49L259 52l19 16 88 82Z"/>
+              <path fill-rule="evenodd" d="M450 77l78 1 28 65 11 20v62h-32l-13-14a40.3 40.3 0 0 0-52 6l-5 7h-16ZM475 95h42l26 60h-69Z"/>
+              <circle cx="499.5" cy="244.8" r="23.55" fill="none" stroke="currentColor" stroke-width="18.9"/>
+              <path d="M539 232h27v24h-27Z"/>
+            </g>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">OKUR</span>
+          <span class="brand-sub">NAKLİYAT</span>
+        </span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Ana menü">
+        <ul class="nav-list">
+          <li><a class="nav-link" href="/#anasayfa">Ana Sayfa</a></li>
+          <li><a class="nav-link" href="/#hizmetler">Hizmetler</a></li>
+          <li><a class="nav-link" href="/#hakkimizda">Hakkımızda</a></li>
+          <li><a class="nav-link" href="/#surec">Nasıl Çalışıyoruz?</a></li>
+          <li><a class="nav-link" href="/#sss">Sık Sorulanlar</a></li>
+          <li><a class="nav-link" href="/#iletisim">İletişim</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <a class="header-phone" href="tel:+905372265043" aria-label="Okur Nakliyat telefon numarası">
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M17.4 20A13.4 13.4 0 0 1 4 6.6 2.6 2.6 0 0 1 6.6 4h2A1.6 1.6 0 0 1 10.2 5.4l.5 2.9a1.6 1.6 0 0 1-.8 1.7l-1.1.6a11.4 11.4 0 0 0 4.6 4.6l.6-1.1a1.6 1.6 0 0 1 1.7-.8l2.9.5a1.6 1.6 0 0 1 1.4 1.6v2A2.6 2.6 0 0 1 17.4 20Z"/></svg>
+          <span>0537 226 50 43</span>
+        </a>
+
+        <a class="btn btn-primary btn-sm" href="/#teklif">Ücretsiz Teklif Al</a>
+
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button"
+                aria-label="Menüyü aç" aria-expanded="false" aria-controls="mobileMenu">
+          <span class="menu-icon" aria-hidden="true">
+            <span></span>
+            <span></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-menu-overlay" id="mobileMenuOverlay" hidden></div>
+
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true"
+       aria-labelledby="mobileMenuTitle" hidden>
+    <h2 class="visually-hidden" id="mobileMenuTitle">Site menüsü</h2>
+
+    <div class="mobile-menu-header">
+      <span class="brand" aria-hidden="true">
+        <span class="brand-mark">
+          <svg class="brand-glyph" viewBox="0 0 568 278" aria-hidden="true" focusable="false">
+            <g class="brand-ring">
+              <circle cx="133" cy="133" r="99.5" fill="none" stroke="#F5C400" stroke-width="62"/>
+            </g>
+            <g class="brand-truck" fill="currentColor">
+              <path d="M366 0h74v231h21v25h-91l-85-84v86h-84.5A139.2 139.2 0 0 0 250.9 49L259 52l19 16 88 82Z"/>
+              <path fill-rule="evenodd" d="M450 77l78 1 28 65 11 20v62h-32l-13-14a40.3 40.3 0 0 0-52 6l-5 7h-16ZM475 95h42l26 60h-69Z"/>
+              <circle cx="499.5" cy="244.8" r="23.55" fill="none" stroke="currentColor" stroke-width="18.9"/>
+              <path d="M539 232h27v24h-27Z"/>
+            </g>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">OKUR</span>
+          <span class="brand-sub">NAKLİYAT</span>
+        </span>
+      </span>
+
+      <button class="btn-icon" id="mobileMenuClose" type="button" aria-label="Menüyü kapat">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M17.5 6.5 6.5 17.5"/><path d="M6.5 6.5l11 11"/></svg>
+      </button>
+    </div>
+
+    <nav aria-label="Mobil menü">
+      <ul class="mobile-nav-list">
+        <li><a class="mobile-nav-link" href="/#anasayfa">Ana Sayfa</a></li>
+        <li><a class="mobile-nav-link" href="/#hizmetler">Hizmetler</a></li>
+        <li><a class="mobile-nav-link" href="/#hakkimizda">Hakkımızda</a></li>
+        <li><a class="mobile-nav-link" href="/#surec">Nasıl Çalışıyoruz?</a></li>
+        <li><a class="mobile-nav-link" href="/#sss">Sık Sorulanlar</a></li>
+        <li><a class="mobile-nav-link" href="/#iletisim">İletişim</a></li>
+      </ul>
+    </nav>
+
+    <div class="mobile-menu-footer">
+      <a class="mobile-menu-phone" href="tel:+905372265043">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M17.4 20A13.4 13.4 0 0 1 4 6.6 2.6 2.6 0 0 1 6.6 4h2A1.6 1.6 0 0 1 10.2 5.4l.5 2.9a1.6 1.6 0 0 1-.8 1.7l-1.1.6a11.4 11.4 0 0 0 4.6 4.6l.6-1.1a1.6 1.6 0 0 1 1.7-.8l2.9.5a1.6 1.6 0 0 1 1.4 1.6v2A2.6 2.6 0 0 1 17.4 20Z"/></svg>
+        <span>0537 226 50 43</span>
+      </a>
+
+      <a class="btn btn-secondary"
+         href="https://wa.me/905372265043?text=Merhaba%20Okur%20Nakliyat%2C%20ta%C5%9F%C4%B1mac%C4%B1l%C4%B1k%20hizmetiniz%20hakk%C4%B1nda%20%C3%BCcretsiz%20fiyat%20teklifi%20almak%20istiyorum."
+         target="_blank" rel="noopener">
+        WhatsApp'tan Yaz
+      </a>
+
+      <a class="btn btn-primary" href="/#teklif">Ücretsiz Teklif Al</a>
+      <p class="mobile-menu-note">Edremit'ten Türkiye'nin her noktasına planlı ve özenli taşımacılık.</p>
+    </div>
+  </div>
+
+<main id="main">
+
+    <section class="section section-dark hizmet-hero" aria-labelledby="hizmetBaslik">
+      <div class="container">
+        <nav class="kirinti" aria-label="Site yolu">
+          <a href="/">Ana Sayfa</a>
+          <span aria-hidden="true">›</span>
+          <span aria-current="page">Şehirler Arası Nakliyat</span>
+        </nav>
+
+        <h1 class="section-title section-title-on-dark" id="hizmetBaslik">
+          Edremit'ten
+          <span>Türkiye'nin her şehrine</span>
+            planlı taşıma.
+        </h1>
+
+        <p class="hizmet-giris">Şehirler arası taşımada belirleyici olan şey mesafe değil, planlama. Aracın ne zaman yola çıkacağı, güzergâhta kaç durak olacağı ve teslimatın hangi gün yapılacağı baştan netleşmezse eşya günlerce yolda kalabiliyor. Biz her taşımanın çıkış ve varış tarihini önceden konuşup yazılı hâle getiriyoruz.</p>
+
+        <div class="hizmet-eylem">
+          <a class="btn btn-primary" href="/#teklif">Ücretsiz Teklif Al</a>
+          <a class="btn btn-secondary" href="tel:+905372265043">0537 226 50 43</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-light" aria-labelledby="surecBaslik">
+      <div class="container">
+        <h2 class="section-title" id="surecBaslik">Nasıl <span>ilerliyoruz?</span></h2>
+        <ol class="hizmet-adimlar">
+          <li class="hizmet-adim">
+            <h3>Güzergâh planı</h3>
+            <p>Çıkış ve varış adresi, eşya miktarı ve tercih edilen tarih üzerinden güzergâh çıkarılıyor.</p>
+          </li>
+          <li class="hizmet-adim">
+            <h3>Koruma ve yükleme</h3>
+            <p>Uzun yolda eşya daha çok sarsılır. Mobilya köşeleri ve beyaz eşya, kısa mesafeye göre daha kapsamlı korunuyor.</p>
+          </li>
+          <li class="hizmet-adim">
+            <h3>Yolculuk</h3>
+            <p>Araç yola çıktıktan sonra hangi aşamada olduğu bilgisini doğrudan paylaşıyoruz.</p>
+          </li>
+          <li class="hizmet-adim">
+            <h3>Teslim ve kurulum</h3>
+            <p>Varış adresinde eşyalar yerleştiriliyor, sökülen mobilyalar kuruluyor.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section section-neutral" aria-labelledby="bilgiBaslik">
+      <div class="container hizmet-bilgi">
+        <h2 class="section-title" id="bilgiBaslik">Sık gidilen güzergâhlar</h2>
+        <ul class="hizmet-liste">
+            <li>Edremit – İstanbul</li>
+            <li>Edremit – İzmir</li>
+            <li>Edremit – Ankara</li>
+            <li>Edremit – Bursa</li>
+            <li>Edremit – Antalya</li>
+            <li>Balıkesir çıkışlı ya da varışlı diğer tüm şehirler.</li>
+        </ul>
+        <p class="hizmet-kapanis">Listede olmayan bir şehir için de planlama yapıyoruz; Türkiye'nin 81 iline taşıma düzenliyoruz. Varış şehrini ve yaklaşık tarihi yazarsanız uygunluk bilgisiyle dönüş yaparız.</p>
+      </div>
+    </section>
+
+    <section class="section section-light" aria-labelledby="ilgiliBaslik">
+      <div class="container">
+        <h2 class="section-title" id="ilgiliBaslik">İlgili <span>hizmetler</span></h2>
+        <ul class="hizmet-ilgili">
+            <li><a href="/evden-eve-nakliyat/">Evden Eve Nakliyat</a></li>
+            <li><a href="/parca-esya-tasima/">Parça Eşya Taşıma</a></li>
+            <li><a href="/paketleme-hizmeti/">Paketleme ve Koruma</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="cta-band" id="iletisim" aria-labelledby="ctaTitle">
+      <div class="container cta-inner">
+        <div>
+          <h2 id="ctaTitle">Bir telefon kadar yakınız.</h2>
+        </div>
+        <div class="cta-actions">
+          <a class="btn cta-call-button" href="tel:+905372265043">0537 226 50 43</a>
+          <a class="btn cta-whatsapp-button"
+             href="https://wa.me/905372265043?text=Merhaba%20Okur%20Nakliyat%2C%20ta%C5%9F%C4%B1ma%20hizmeti%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum."
+             target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand-column">
+        <a class="brand" href="/#anasayfa" aria-label="Okur Nakliyat ana sayfaya dön">
+          <span class="brand-mark" aria-hidden="true">
+            <svg class="brand-glyph" viewBox="0 0 568 278" aria-hidden="true" focusable="false">
+            <g class="brand-ring">
+              <circle cx="133" cy="133" r="99.5" fill="none" stroke="#F5C400" stroke-width="62"/>
+            </g>
+            <g class="brand-truck" fill="currentColor">
+              <path d="M366 0h74v231h21v25h-91l-85-84v86h-84.5A139.2 139.2 0 0 0 250.9 49L259 52l19 16 88 82Z"/>
+              <path fill-rule="evenodd" d="M450 77l78 1 28 65 11 20v62h-32l-13-14a40.3 40.3 0 0 0-52 6l-5 7h-16ZM475 95h42l26 60h-69Z"/>
+              <circle cx="499.5" cy="244.8" r="23.55" fill="none" stroke="currentColor" stroke-width="18.9"/>
+              <path d="M539 232h27v24h-27Z"/>
+            </g>
+          </svg>
+          </span>
+          <span class="brand-text">
+            <span class="brand-name">OKUR</span>
+            <span class="brand-sub">NAKLİYAT</span>
+          </span>
+        </a>
+        <p>Edremit, Balıkesir ve Türkiye genelinde planlı, özenli ve doğrudan iletişime dayalı taşımacılık.</p>
+      </div>
+
+      <div class="footer-column">
+        <h3>Hızlı Menü</h3>
+        <a href="/#hizmetler">Hizmetler</a>
+        <a href="/#hakkimizda">Hakkımızda</a>
+        <a href="/#surec">Nasıl Çalışıyoruz?</a>
+        <a href="/#sss">Sık Sorulanlar</a>
+      </div>
+
+      <div class="footer-column">
+        <h3>Hizmetler</h3>
+        <a href="/evden-eve-nakliyat/">Evden Eve Nakliyat</a>
+        <a href="/sehirler-arasi-nakliyat/">Şehirler Arası Nakliyat</a>
+        <a href="/ofis-tasima/">Ofis ve İş Yeri Taşıma</a>
+        <a href="/parca-esya-tasima/">Parça Eşya Taşıma</a>
+        <a href="/paketleme-hizmeti/">Paketleme ve Koruma</a>
+        <a href="/kurulum-montaj/">Kurulum ve Montaj</a>
+      </div>
+
+      <div class="footer-column">
+        <h3>İletişim</h3>
+        <a href="tel:+905372265043">0537 226 50 43</a>
+        <a href="https://wa.me/905372265043" target="_blank" rel="noopener">WhatsApp Mesajı</a>
+        <span>Edremit / Balıkesir</span>
+        <span>Türkiye geneli hizmet</span>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>© <span id="currentYear">2026</span> Okur Nakliyat. Tüm hakları saklıdır.</p>
+      <a href="/#anasayfa">Yukarı çık <span aria-hidden="true">↑</span></a>
+    </div>
+  </footer>
+
+  <div class="mobile-contact-bar" aria-label="Hızlı iletişim">
+    <a href="tel:+905372265043">
+      <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M17.4 20A13.4 13.4 0 0 1 4 6.6 2.6 2.6 0 0 1 6.6 4h2A1.6 1.6 0 0 1 10.2 5.4l.5 2.9a1.6 1.6 0 0 1-.8 1.7l-1.1.6a11.4 11.4 0 0 0 4.6 4.6l.6-1.1a1.6 1.6 0 0 1 1.7-.8l2.9.5a1.6 1.6 0 0 1 1.4 1.6v2A2.6 2.6 0 0 1 17.4 20Z"/></svg>
+      Ara
+    </a>
+    <a href="https://wa.me/905372265043" target="_blank" rel="noopener">
+      <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3.4 20.15 4.7 16.35A8.6 8.6 0 1 1 8 19.55l-4.6.6Z"/><path d="M9 8.75c.4 3 2.8 5.4 5.8 5.8"/></svg>
+      WhatsApp
+    </a>
+  </div>
+</body>
