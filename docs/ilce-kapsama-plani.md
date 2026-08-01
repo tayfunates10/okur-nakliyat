@@ -9,16 +9,25 @@ Kullanıcı kararıyla iki ekleme yapıldı:
    **Edremit eşya taşıma**, **Edremit şehirler arası**, **Edremit ofis
    taşıma**. Her biri kendi sayfasında `<title>`, `<h1>` ve gövde metninde
    olmak üzere üç kez, ana sayfada iki-üç kez geçiyor.
-2. **Balıkesir'in yirmi ilçesinin tamamı** adıyla yazıldı: Altıeylül,
-   Ayvalık, Balya, Bandırma, Bigadiç, Burhaniye, Dursunbey, Edremit, Erdek,
-   Gömeç, Gönen, Havran, İvrindi, Karesi, Kepsut, Manyas, Marmara,
-   Savaştepe, Sındırgı, Susurluk. "Komşu ilçeler" gibi toplu ifadeler
+2. Kapsama, **Edremit Körfezi ve Edremit'ten Balıkesir merkeze uzanan
+   hat** ile sınırlandırıldı. "Komşu ilçeler" gibi toplu ifadeler
    kaldırıldı — arayan kişi kendi ilçesinin adını görmeli.
 
-   İki düzeltme: "Balıkesir merkez" diye tek bir ilçe yok, merkez
-   **Altıeylül** ve **Karesi** olarak ikiye ayrılmış. Ayrıca Zeytinli,
-   Akçay, Güre ve Altınoluk ilçe değil, Edremit'e bağlı yerleşimler; yerel
-   arama açısından önemli oldukları için ayrı grup hâlinde listeleniyorlar.
+   | Grup | Yerler |
+   | --- | --- |
+   | Edremit Körfezi | Edremit, Zeytinli, Akçay, Güre, Altınoluk, Burhaniye, Gömeç, Ayvalık |
+   | Balıkesir merkeze uzanan hat | Havran, İvrindi, Savaştepe, Altıeylül, Karesi |
+
+   Önce Balıkesir'in yirmi ilçesinin tamamı yazılmıştı; hattın dışında
+   kalan on ilçe (Balya, Bandırma, Bigadiç, Dursunbey, Erdek, Gönen,
+   Kepsut, Manyas, Marmara, Sındırgı, Susurluk) kullanıcı kararıyla
+   çıkarıldı. Kapsamadığın bir yeri listelemek, eksik listelemekten kötü.
+
+   İki coğrafya düzeltmesi: "Balıkesir merkez" diye tek bir ilçe yok,
+   merkez **Altıeylül** ve **Karesi** olarak ikiye ayrılmış. Ayrıca
+   Zeytinli, Akçay, Güre ve Altınoluk ilçe değil, Edremit'e bağlı
+   yerleşimler; yerel arama açısından önemli oldukları için ayrı grup
+   hâlinde listeleniyorlar.
 
 Sorun: Akçay, Altınoluk, Burhaniye gibi ilçe adları sitede neredeyse hiç
 geçmiyor. "altınoluk nakliyat" arayan biri için Google'ın eşleştireceği
