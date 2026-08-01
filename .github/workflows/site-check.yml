@@ -43,13 +43,6 @@ jobs:
           echo | openssl s_client -servername "$SITE" -connect "$SITE:443" 2>/dev/null \
             | openssl x509 -noout -subject -issuer -dates
 
-          echo
-          echo "=== HTTP -> HTTPS ==="
-          code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 25 "http://$SITE/")
-          location=$(curl -sS -I --max-time 25 "http://$SITE/" | tr -d '\r' | awk -F': ' 'tolower($1)=="location"{print $2}')
-          echo "http=$code redirect=$location"
-          test "$code" = "301"
-          test "$location" = "https://$SITE/"
 
       - name: Kritik dosyalar
         run: |
@@ -179,6 +172,28 @@ jobs:
             exit 1
           fi
           echo "OK    yedi başlık da benzersiz"
+
+      - name: HTTP -> HTTPS yönlendirmesi
+        # Bu kontrol bilerek sona alındı. Aralıklı olarak 301 yerine 200
+        # dönüyor (1 Ağustos'ta iki kez görüldü, aralarında bir kez de 301
+        # döndü). İlk adımda olduğu için tek başına tüm denetimi kör
+        # bırakıyor, sayfaların yayında olup olmadığı hiç ölçülemiyordu.
+        run: |
+          set -e
+
+          code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 25 "http://$SITE/")
+          location=$(curl -sS -I --max-time 25 "http://$SITE/" | tr -d '\r' | awk -F': ' 'tolower($1)=="location"{print $2}')
+          echo "http=$code redirect=$location"
+
+          if [ "$code" != "301" ]; then
+            echo "UYARI: http:// isteği 301 yerine $code döndü."
+            echo ".htaccess'teki RewriteRule değişmedi; sunucu tarafında"
+            echo "aralıklı bir sorun var. Aynı gün içinde hem 301 hem 200"
+            echo "gözlendi."
+          fi
+
+          test "$code" = "301"
+          test "$location" = "https://$SITE/"
 
       - name: Özel 404 davranışı
         run: |
