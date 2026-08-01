@@ -149,8 +149,39 @@ def css_surumlerini_dogrula() -> list[str]:
     return sorunlar
 
 
+def kaynak_surumlerini_dogrula() -> list[str]:
+    """Şablon ve sayfa kaynaklarında sabit ?v= yazılmamalı; {{v}} kullanılmalı.
+
+    Sabit yazılan sürüm, ONBELLEK_SURUMU'nü etkisiz bırakıyor: sabit
+    artırılıyor ama HTML eski sürümü istemeye devam ediyor. Yayındaki dosya
+    yenilense bile ziyaretçi `immutable` önbellek yüzünden bir yıl boyunca
+    eskisini görüyor.
+
+    Tam olarak bu yaşandı: bölüm 16'daki tasarım değişikliği sunucuya
+    yüklendi ama sayfalar hâlâ style.css?v=19 istiyordu.
+    """
+    sorunlar = []
+    for kok in (SABLON, SAYFALAR):
+        for yol in sorted(kok.glob("*.html")):
+            metin = yol.read_text(encoding="utf-8")
+            for eslesme in re.finditer(r"\?v=(\d+)", metin):
+                satir = metin[: eslesme.start()].count("\n") + 1
+                sorunlar.append(
+                    f"{yol.relative_to(KOK)}:{satir}: "
+                    f"?v={eslesme.group(1)} sabit yazılmış — {{{{v}}}} olmalı"
+                )
+    return sorunlar
+
+
 def main() -> int:
     kontrol = "--kontrol" in sys.argv
+
+    kaynak_sorunlari = kaynak_surumlerini_dogrula()
+    if kaynak_sorunlari:
+        print("KAYNAKTA SABİT VARLIK SÜRÜMÜ:")
+        for s in kaynak_sorunlari:
+            print("  ", s)
+        return 1
 
     css_sorunlari = css_surumlerini_dogrula()
     if css_sorunlari:
