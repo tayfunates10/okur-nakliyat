@@ -8,7 +8,24 @@
 # Varsayılan belge ve özel hata sayfası
 # --------------------------------------------------------------------------
 DirectoryIndex index.html
-ErrorDocument 404 /404.html
+
+# GEÇİCİ ÖLÇÜM -- kaldırılacak.
+#
+# Ölçülen durum: yayındaki .htaccess güncel (X-Okur-Htaccess işareti yayında
+# görünüyor) ve Apache bu dosyayı okuyup Header satırlarını 404 yanıtına bile
+# uyguluyor. Buna rağmen `ErrorDocument 404 /404.html` sonuç vermiyor:
+# olmayan bir URL 13 baytlık çıplak "404 Not Found" ve charset=iso-8859-1
+# ile dönüyor. /404.html doğrudan istendiğinde 200 ve doğru içerikle geliyor.
+#
+# Geriye iki ihtimal kaldı ve metin biçimli bir ErrorDocument bunları ayırır:
+#   Bu metin görünürse -> ErrorDocument okunuyor, engellenen yalnızca
+#                         dosyaya yapılan iç alt-istek.
+#   "404 Not Found" sürerse -> ErrorDocument tümüyle geçersiz kılınıyor
+#                         (sunucu seviyesinde veya bir güvenlik modülünce).
+#
+# Ziyaretçi şu an zaten çıplak "404 Not Found" görüyor; bu metin onu
+# kötüleştirmiyor. Ölçüm alınır alınmaz /404.html'e dönülecek.
+ErrorDocument 404 "Sayfa bulunamadi. okurnakliyatedremit.com"
 
 # --------------------------------------------------------------------------
 # Karakter kodlaması ve MIME türleri
@@ -91,7 +108,7 @@ AddDefaultCharset UTF-8
   # Gerekçe: 404 yanıtı .htaccess'in Header satırlarını taşıyor ama
   # ErrorDocument satırını uygulamıyor. Bu işaret, "dosya eski" ile
   # "Apache ErrorDocument'ı yok sayıyor" ihtimallerini birbirinden ayırır.
-  Header always set X-Okur-Htaccess "1"
+  Header always set X-Okur-Htaccess "2"
 
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
