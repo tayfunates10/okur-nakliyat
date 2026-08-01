@@ -43,13 +43,6 @@ jobs:
           echo | openssl s_client -servername "$SITE" -connect "$SITE:443" 2>/dev/null \
             | openssl x509 -noout -subject -issuer -dates
 
-          echo
-          echo "=== HTTP -> HTTPS ==="
-          code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 25 "http://$SITE/")
-          location=$(curl -sS -I --max-time 25 "http://$SITE/" | tr -d '\r' | awk -F': ' 'tolower($1)=="location"{print $2}')
-          echo "http=$code redirect=$location"
-          test "$code" = "301"
-          test "$location" = "https://$SITE/"
 
       - name: Kritik dosyalar
         run: |
@@ -65,17 +58,17 @@ jobs:
                       "/robots.txt" \
                       "/sitemap.xml" \
                       "/404.html" \
-                      "/assets/css/reset.css?v=18" \
-                      "/assets/css/variables.css?v=18" \
-                      "/assets/css/components.css?v=18" \
-                      "/assets/css/style.css?v=18" \
-                      "/assets/js/main.js?v=18" \
-                      "/assets/images/hero/okur-nakliyat-hero-background.webp?v=18" \
-                      "/assets/images/hero/okur-nakliyat-hero-arac.webp?v=18" \
-                      "/assets/images/about/okur-nakliyat-hakkimizda.webp?v=18" \
-                      "/assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp?v=18" \
+                      "/assets/css/reset.css?v=19" \
+                      "/assets/css/variables.css?v=19" \
+                      "/assets/css/components.css?v=19" \
+                      "/assets/css/style.css?v=19" \
+                      "/assets/js/main.js?v=19" \
+                      "/assets/images/hero/okur-nakliyat-hero-background.webp?v=19" \
+                      "/assets/images/hero/okur-nakliyat-hero-arac.webp?v=19" \
+                      "/assets/images/about/okur-nakliyat-hakkimizda.webp?v=19" \
+                      "/assets/images/coverage/okur-nakliyat-hizmet-bolgesi-1300.webp?v=19" \
                       "/assets/images/og/okur-nakliyat-og.jpg" \
-                      "/assets/images/logo/favicon.svg?v=18"; do
+                      "/assets/images/logo/favicon.svg?v=19"; do
             code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 20 -L "https://$SITE$path")
             printf "%-64s %s\n" "$path" "$code"
             test "$code" = "200"
@@ -92,7 +85,7 @@ jobs:
 
           echo
           echo "=== style.css ==="
-          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=18")
+          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=19")
           echo "$css_headers" | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)"
           echo "$css_headers" | grep -qi "max-age=31536000"
 
@@ -179,6 +172,28 @@ jobs:
             exit 1
           fi
           echo "OK    yedi başlık da benzersiz"
+
+      - name: HTTP -> HTTPS yönlendirmesi
+        # Bu kontrol bilerek sona alındı. Aralıklı olarak 301 yerine 200
+        # dönüyor (1 Ağustos'ta iki kez görüldü, aralarında bir kez de 301
+        # döndü). İlk adımda olduğu için tek başına tüm denetimi kör
+        # bırakıyor, sayfaların yayında olup olmadığı hiç ölçülemiyordu.
+        run: |
+          set -e
+
+          code=$(curl -sS -o /dev/null -w "%{http_code}" --max-time 25 "http://$SITE/")
+          location=$(curl -sS -I --max-time 25 "http://$SITE/" | tr -d '\r' | awk -F': ' 'tolower($1)=="location"{print $2}')
+          echo "http=$code redirect=$location"
+
+          if [ "$code" != "301" ]; then
+            echo "UYARI: http:// isteği 301 yerine $code döndü."
+            echo ".htaccess'teki RewriteRule değişmedi; sunucu tarafında"
+            echo "aralıklı bir sorun var. Aynı gün içinde hem 301 hem 200"
+            echo "gözlendi."
+          fi
+
+          test "$code" = "301"
+          test "$location" = "https://$SITE/"
 
       - name: Özel 404 davranışı
         run: |
