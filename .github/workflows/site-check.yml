@@ -78,21 +78,6 @@ jobs:
             test "$code" = "200"
           done
 
-      - name: Yanıt başlıkları
-        run: |
-          set -e
-
-          echo "=== index.html ==="
-          headers=$(curl -sS -I -L --max-time 20 "https://$SITE/")
-          echo "$headers" | grep -iE "^(HTTP/|content-type|cache-control|x-content-type-options|referrer-policy|x-frame-options|permissions-policy)"
-          echo "$headers" | grep -qi "cache-control: no-cache"
-
-          echo
-          echo "=== style.css ==="
-          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=19")
-          echo "$css_headers" | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)"
-          echo "$css_headers" | grep -qi "max-age=31536000"
-
       - name: Sayfa içerik bütünlüğü
         run: |
           set -e
@@ -180,6 +165,58 @@ jobs:
             exit 1
           fi
           echo "OK    on bir başlık da benzersiz"
+
+      - name: Yanıt başlıkları
+        # Yönlendirme kontrolü gibi bu da sona alındı: 1 Ağustos'ta ana sayfa
+        # .htaccess'ten gelen dört güvenlik başlığının hiçbirini taşımadan
+        # döndü ve arkasındaki dört adımı da körleştirdi. Sunucu tarafındaki
+        # tutarsızlık, içerik denetimini durdurmamalı.
+        run: |
+          set -e
+
+          echo "=== index.html ==="
+          headers=$(curl -sS -I -L --max-time 20 "https://$SITE/" | tr -d '\r')
+          echo "$headers" | grep -iE "^(HTTP/|content-type|cache-control|x-content-type-options|referrer-policy|x-frame-options|permissions-policy)"
+
+          echo
+          # cache-control virgülle ayrılmış bir direktif listesi olabilir
+          # ("private, no-cache, no-store, ..."). Düz metin araması bu biçimde
+          # yanlış yere alarm veriyordu; direktifi tek tek arıyoruz.
+          if echo "$headers" | grep -qiE '^cache-control:.*(^|[ ,])no-cache([ ,]|$)'; then
+            echo "OK    cache-control no-cache taşıyor"
+          else
+            echo "EKSIK cache-control no-cache taşımıyor"
+            exit 1
+          fi
+
+          echo
+          # Güvenlik başlıkları .htaccess'ten geliyor. Kaybolmaları, yanıtın
+          # bizim yapılandırmamızı görmeyen başka bir katmandan geldiğine
+          # işaret eder -- bu bulguyu cache-control hatasının arkasına
+          # saklamak yerine ayrıca raporluyoruz.
+          eksik=""
+          for h in x-content-type-options referrer-policy x-frame-options permissions-policy; do
+            if echo "$headers" | grep -qiE "^$h:"; then
+              printf "OK    %s\n" "$h"
+            else
+              printf "EKSIK %s\n" "$h"
+              eksik="$eksik $h"
+            fi
+          done
+          if [ -n "$eksik" ]; then
+            echo
+            echo "UYARI: .htaccess'ten gelmesi gereken başlıklar yok:$eksik"
+            echo "Yanıt büyük olasılıkla .htaccess'i uygulamayan bir ara"
+            echo "katmandan geldi. Aynı belirti http-> https yönlendirmesinde"
+            echo "de görülüyor."
+            exit 1
+          fi
+
+          echo
+          echo "=== style.css ==="
+          css_headers=$(curl -sS -I -L --compressed --max-time 20 "https://$SITE/assets/css/style.css?v=19" | tr -d '\r')
+          echo "$css_headers" | grep -iE "^(HTTP/|content-type|cache-control|content-encoding)"
+          echo "$css_headers" | grep -qi "max-age=31536000"
 
       - name: HTTP -> HTTPS yönlendirmesi
         # Bu kontrol bilerek sona alındı. Aralıklı olarak 301 yerine 200
