@@ -1,0 +1,111 @@
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      <a class="brand" href="{{KOK}}#anasayfa" aria-label="Okur Nakliyat ana sayfa">
+        <span class="brand-mark" aria-hidden="true">
+          <svg class="brand-glyph" viewBox="0 0 568 278" aria-hidden="true" focusable="false">
+            <g class="brand-ring">
+              <circle cx="133" cy="133" r="99.5" fill="none" stroke="#F5C400" stroke-width="62"/>
+            </g>
+            <g class="brand-truck" fill="currentColor">
+              <path d="M366 0h74v231h21v25h-91l-85-84v86h-84.5A139.2 139.2 0 0 0 250.9 49L259 52l19 16 88 82Z"/>
+              <path fill-rule="evenodd" d="M450 77l78 1 28 65 11 20v62h-32l-13-14a40.3 40.3 0 0 0-52 6l-5 7h-16ZM475 95h42l26 60h-69Z"/>
+              <circle cx="499.5" cy="244.8" r="23.55" fill="none" stroke="currentColor" stroke-width="18.9"/>
+              <path d="M539 232h27v24h-27Z"/>
+            </g>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">OKUR</span>
+          <span class="brand-sub">NAKLİYAT</span>
+        </span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Ana menü">
+        <ul class="nav-list">
+          <li><a class="nav-link" href="{{KOK}}#anasayfa" aria-current="page">Ana Sayfa</a></li>
+          <li><a class="nav-link" href="{{KOK}}#hizmetler">Hizmetler</a></li>
+          <li><a class="nav-link" href="{{KOK}}#hakkimizda">Hakkımızda</a></li>
+          <li><a class="nav-link" href="{{KOK}}#surec">Nasıl Çalışıyoruz?</a></li>
+          <li><a class="nav-link" href="{{KOK}}#sss">Sık Sorulanlar</a></li>
+          <li><a class="nav-link" href="{{KOK}}#iletisim">İletişim</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <a class="header-phone" href="tel:+905372265043" aria-label="Okur Nakliyat telefon numarası">
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M17.4 20A13.4 13.4 0 0 1 4 6.6 2.6 2.6 0 0 1 6.6 4h2A1.6 1.6 0 0 1 10.2 5.4l.5 2.9a1.6 1.6 0 0 1-.8 1.7l-1.1.6a11.4 11.4 0 0 0 4.6 4.6l.6-1.1a1.6 1.6 0 0 1 1.7-.8l2.9.5a1.6 1.6 0 0 1 1.4 1.6v2A2.6 2.6 0 0 1 17.4 20Z"/></svg>
+          <span>0537 226 50 43</span>
+        </a>
+
+        <a class="btn btn-primary btn-sm" href="{{KOK}}#teklif">Ücretsiz Teklif Al</a>
+
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button"
+                aria-label="Menüyü aç" aria-expanded="false" aria-controls="mobileMenu">
+          <span class="menu-icon" aria-hidden="true">
+            <span></span>
+            <span></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-menu-overlay" id="mobileMenuOverlay" hidden></div>
+
+  <div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true"
+       aria-labelledby="mobileMenuTitle" hidden>
+    <h2 class="visually-hidden" id="mobileMenuTitle">Site menüsü</h2>
+
+    <div class="mobile-menu-header">
+      <span class="brand" aria-hidden="true">
+        <span class="brand-mark">
+          <svg class="brand-glyph" viewBox="0 0 568 278" aria-hidden="true" focusable="false">
+            <g class="brand-ring">
+              <circle cx="133" cy="133" r="99.5" fill="none" stroke="#F5C400" stroke-width="62"/>
+            </g>
+            <g class="brand-truck" fill="currentColor">
+              <path d="M366 0h74v231h21v25h-91l-85-84v86h-84.5A139.2 139.2 0 0 0 250.9 49L259 52l19 16 88 82Z"/>
+              <path fill-rule="evenodd" d="M450 77l78 1 28 65 11 20v62h-32l-13-14a40.3 40.3 0 0 0-52 6l-5 7h-16ZM475 95h42l26 60h-69Z"/>
+              <circle cx="499.5" cy="244.8" r="23.55" fill="none" stroke="currentColor" stroke-width="18.9"/>
+              <path d="M539 232h27v24h-27Z"/>
+            </g>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">OKUR</span>
+          <span class="brand-sub">NAKLİYAT</span>
+        </span>
+      </span>
+
+      <button class="btn-icon" id="mobileMenuClose" type="button" aria-label="Menüyü kapat">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M17.5 6.5 6.5 17.5"/><path d="M6.5 6.5l11 11"/></svg>
+      </button>
+    </div>
+
+    <nav aria-label="Mobil menü">
+      <ul class="mobile-nav-list">
+        <li><a class="mobile-nav-link" href="{{KOK}}#anasayfa" aria-current="page">Ana Sayfa</a></li>
+        <li><a class="mobile-nav-link" href="{{KOK}}#hizmetler">Hizmetler</a></li>
+        <li><a class="mobile-nav-link" href="{{KOK}}#hakkimizda">Hakkımızda</a></li>
+        <li><a class="mobile-nav-link" href="{{KOK}}#surec">Nasıl Çalışıyoruz?</a></li>
+        <li><a class="mobile-nav-link" href="{{KOK}}#sss">Sık Sorulanlar</a></li>
+        <li><a class="mobile-nav-link" href="{{KOK}}#iletisim">İletişim</a></li>
+      </ul>
+    </nav>
+
+    <div class="mobile-menu-footer">
+      <a class="mobile-menu-phone" href="tel:+905372265043">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M17.4 20A13.4 13.4 0 0 1 4 6.6 2.6 2.6 0 0 1 6.6 4h2A1.6 1.6 0 0 1 10.2 5.4l.5 2.9a1.6 1.6 0 0 1-.8 1.7l-1.1.6a11.4 11.4 0 0 0 4.6 4.6l.6-1.1a1.6 1.6 0 0 1 1.7-.8l2.9.5a1.6 1.6 0 0 1 1.4 1.6v2A2.6 2.6 0 0 1 17.4 20Z"/></svg>
+        <span>0537 226 50 43</span>
+      </a>
+
+      <a class="btn btn-secondary"
+         href="https://wa.me/905372265043?text=Merhaba%20Okur%20Nakliyat%2C%20ta%C5%9F%C4%B1mac%C4%B1l%C4%B1k%20hizmetiniz%20hakk%C4%B1nda%20%C3%BCcretsiz%20fiyat%20teklifi%20almak%20istiyorum."
+         target="_blank" rel="noopener">
+        WhatsApp'tan Yaz
+      </a>
+
+      <a class="btn btn-primary" href="{{KOK}}#teklif">Ücretsiz Teklif Al</a>
+      <p class="mobile-menu-note">Edremit'ten Türkiye'nin her noktasına planlı ve özenli taşımacılık.</p>
+    </div>
+  </div>

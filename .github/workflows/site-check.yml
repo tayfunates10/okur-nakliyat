@@ -15,6 +15,16 @@ jobs:
       SITE: okurnakliyatedremit.com
 
     steps:
+      - name: Depoyu al
+        uses: actions/checkout@v4
+
+      - name: Üretilen sayfalar güncel mi
+        # sablon/ veya sayfalar/ değişip `tools/sayfa.py` çalıştırılmazsa
+        # depodaki HTML şablonun gerisinde kalır ve yayına eski hâli çıkar.
+        run: |
+          python3 -m pip install --quiet --upgrade pip >/dev/null
+          python3 tools/sayfa.py --kontrol
+
       - name: DNS, SSL ve yönlendirme
         run: |
           set -e
