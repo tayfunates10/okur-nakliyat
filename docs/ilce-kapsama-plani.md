@@ -1,7 +1,18 @@
-# İlçe kapsama planı — onay bekliyor
+# İlçe kapsama planı — A–E ve G uygulandı
 
-Bu bir **plan**, henüz uygulanmadı. Maddeleri ekleyip çıkarın; onaydan sonra
-uygulamaya başlanacak.
+Aşamalar A, B, C, D, E ve G uygulandı. **F (ayrı bölge sayfaları) hâlâ
+beklemede** — gerekçesi aşağıda.
+
+Kullanıcı kararıyla iki ekleme yapıldı:
+
+1. Hedef ifadeler şu dört biçimde kullanılıyor: **Edremit evden eve**,
+   **Edremit eşya taşıma**, **Edremit şehirler arası**, **Edremit ofis
+   taşıma**. Her biri kendi sayfasında `<title>`, `<h1>` ve gövde metninde
+   olmak üzere üç kez, ana sayfada iki-üç kez geçiyor.
+2. Balıkesir'in iç kesimindeki **İvrindi, Savaştepe, Susurluk** ve
+   **Balıkesir merkez** eklendi. Bunlar Edremit Körfezi'nde değil, o yüzden
+   körfez listesine karıştırılmadı; ayrı grup olarak yazıldı. Coğrafyayı
+   yanlış göstermek yerel aramada güvenilirliği doğrudan düşürür.
 
 Sorun: Akçay, Altınoluk, Burhaniye gibi ilçe adları sitede neredeyse hiç
 geçmiyor. "altınoluk nakliyat" arayan biri için Google'ın eşleştireceği
