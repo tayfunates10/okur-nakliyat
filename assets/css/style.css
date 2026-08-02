@@ -503,7 +503,7 @@ body.is-menu-open {
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=25");
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=26");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -622,12 +622,13 @@ body.is-menu-open {
   width: min(780px, 126%);
   max-width: none;
   height: auto;
+  /* Konumu main.js kaydırmaya göre yazar: kamyon sağdan sola, küçükten
+     büyüyerek gelir ve bilgi kutularıyla aynı ilerlemeyi paylaşır. JS
+     çalışmazsa ya da hareket azaltma açıksa bu değer son konumdur. */
   transform: translateX(-50%);
   transform-origin: 68% 70%;
   filter: drop-shadow(0 34px 44px rgba(0, 0, 0, 0.34));
-  /* 1.4sn'lik tek bir yol: kutular 820ms'de belirmeye başladığında kamyon
-     yolun büyük kısmını almış oluyor, ikisi birlikte yerine oturuyor. */
-  animation: heroVisualEnter 1.4s var(--ease-out-soft) 0.15s both;
+  animation: heroVisualBelir 700ms var(--ease-out-soft) 150ms both;
 }
 
 .hero-visual-glow {
@@ -2183,26 +2184,11 @@ body.is-menu-open {
   }
 }
 
-/* Kamyon sağdan girer ve yaklaşırken büyür: uzaktan yola çıkıp ekrana
-   giriyormuş hissi. Ölçek merkezi tekerleklerin oturduğu noktada (%50 %92);
-   büyürken görsel yoldan kopmuyor, aynı zeminde kalıyor. Yatay kayma
-   translateX(-50%) taban dönüşümünün üzerine biniyor, o yüzden başlangıçta
-   -50% + %62. Tek bir animasyon; ilk ve son konum aynı zamanlamayı
-   paylaşıyor, arada sıçrama yok. */
-@keyframes heroVisualEnter {
-  from {
-    opacity: 0;
-    transform: translate(-28%, -13%) scale(0.34);
-  }
-
-  14% {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0) scale(1);
-  }
+/* Yalnızca belirme. Kamyonun konumu kaydırmaya bağlı ve main.js
+   tarafından yazılıyor; animasyon transform'a dokunursa ikisi çakışır. */
+@keyframes heroVisualBelir {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes heroCardEnter {
@@ -3099,39 +3085,17 @@ body.is-menu-open {
   mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
 }
 
-/* Üstteki hizmet şeridi sayfanın en tepesinde sabit durur. Header
-   `position: fixed` olduğu için şerit akışta bırakılınca header onu
-   örtüyordu (ölçüldü: ikisi de top=0); şerit de sabitlenip header bir
-   şerit boyu aşağı itiliyor. */
+/* Üstteki hizmet şeridi akışta, sayfanın en başında durur ve sayfayla
+   birlikte yukarı kayar. Header `position: fixed` olduğu için şeridi
+   örtmemesi gerekiyor: main.js header'ın `top` değerini şeridin ekranda
+   kalan yüksekliği kadar aşağıda tutuyor, şerit çıkınca 0'a iniyor. */
 .site-serit-ust {
-  position: fixed;
-  inset: 0 0 auto;
-  z-index: calc(var(--z-header) + 1);
   height: var(--serit-yuksekligi);
 }
 
 /* Alttaki bölge şeridi hero'nun son öğesi; akışta, bölümün alt kenarında. */
 .site-serit-alt {
   height: var(--serit-yuksekligi);
-}
-
-/* Şerit yalnızca ana sayfada var. Kardeş seçici kullanıldığı için şeridi
-   olmayan sayfalarda header ve hero olduğu gibi kalıyor. */
-.site-serit + .site-header {
-  top: var(--serit-yuksekligi);
-}
-
-.site-serit ~ main .hero {
-  padding-top: calc(
-    var(--header-height) + var(--serit-yuksekligi) + env(safe-area-inset-top, 0px)
-  );
-}
-
-body:has(.site-serit) {
-  scroll-padding-top: calc(
-    var(--header-height-scrolled) + var(--serit-yuksekligi) + var(--space-md) +
-    env(safe-area-inset-top, 0px)
-  );
 }
 
 .site-serit-satir {
@@ -3507,4 +3471,15 @@ body:has(.site-serit) {
   .hero-visual {
     grid-column: 6 / -1;
   }
+}
+
+/* --- Galeri: "Tümünü gör" bağlantısı ------------------------------------ */
+.galeri-tumu {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-lg);
+}
+
+.galeri-tumu .btn {
+  gap: 0.5rem;
 }

@@ -1,0 +1,47 @@
+    <!-- Ana sayfadaki galeri önizlemesi. Fotoğraflar galeri-kaynak/liste.json
+         içinden geliyor; en son eklenen en başta. Tamamı /galeri/ sayfasında. -->
+    <section class="section section-light" id="galeri" aria-labelledby="galleryTitle">
+      <div class="container">
+        <div class="section-heading reveal">
+          <div class="section-heading-main">
+            <h2 class="section-title" id="galleryTitle">
+              Taşıdığımız evlerden
+              <span>kareler.</span>
+            </h2>
+          </div>
+          <p class="section-intro">
+            Edremit ve çevresinde tamamladığımız taşımalardan fotoğraflar. Paketlemeden
+            yerleştirmeye kadar süreci nasıl yürüttüğümüzü buradan görebilirsiniz.
+          </p>
+        </div>
+
+{{GALERI_ONIZLEME}}
+
+        <p class="galeri-tumu">
+          <a class="btn btn-secondary btn-on-light" href="/galeri/">
+            Tümünü gör
+            <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 12h15"/><path d="m13 6 6 6-6 6"/></svg>
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <dialog class="gallery-lightbox" id="galleryLightbox" aria-label="Galeri görüntüleyici">
+      <figure class="gallery-lightbox-figure">
+        <img class="gallery-lightbox-image" id="galleryLightboxImage" alt="">
+        <figcaption class="gallery-lightbox-bar">
+          <p class="gallery-lightbox-caption" id="galleryLightboxCaption"></p>
+          <p class="gallery-lightbox-counter" id="galleryLightboxCounter"></p>
+        </figcaption>
+      </figure>
+
+      <button class="gallery-lightbox-button gallery-lightbox-close" type="button" aria-label="Kapat">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+      <button class="gallery-lightbox-button gallery-lightbox-prev" type="button" aria-label="Önceki fotoğraf">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M14.5 5 7.5 12l7 7"/></svg>
+      </button>
+      <button class="gallery-lightbox-button gallery-lightbox-next" type="button" aria-label="Sonraki fotoğraf">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m9.5 5 7 7-7 7"/></svg>
+      </button>
+    </dialog>

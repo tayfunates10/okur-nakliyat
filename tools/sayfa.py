@@ -32,9 +32,14 @@ from pathlib import Path
 KOK = Path(__file__).resolve().parent.parent
 SABLON = KOK / "sablon"
 SAYFALAR = KOK / "sayfalar"
+GALERI_LISTE = KOK / "galeri-kaynak" / "liste.json"
+GALERI_GORSEL = KOK / "assets" / "images" / "gallery"
 SITE = "https://okurnakliyatedremit.com"
 
-ONBELLEK_SURUMU = "25"  # ?v= — bkz. docs/ekran-denetimi.md
+ONBELLEK_SURUMU = "26"  # ?v= — bkz. docs/ekran-denetimi.md
+
+# Ana sayfada gösterilecek fotoğraf sayısı; kalanı /galeri/ sayfasında.
+GALERI_ONIZLEME_ADEDI = 6
 
 ISLETME = f"{SITE}/#isletme"
 
@@ -98,7 +103,67 @@ def sema_uret(veri: dict, kanonik: str) -> str:
     return '  <script type="application/ld+json">\n' + govde + "\n  </script>"
 
 
-def uret(veri: dict, govde: str, sablonlar: dict) -> tuple[Path, str]:
+def galeri_oku() -> list[dict]:
+    """galeri-kaynak/liste.json — galerinin tek kaynağı.
+
+    Sona eklenen fotoğraf sitede en başta görünsün diye numaraya göre
+    büyükten küçüğe sıralanır. Karşılığı olan WebP üretilmemiş kayıtlar
+    sessizce atlanmaz; hata verilir. Sessiz atlama, listeye eklenip
+    fotoğrafı unutulan kaydın fark edilmemesine yol açar.
+    """
+    if not GALERI_LISTE.exists():
+        return []
+
+    veri = json.loads(GALERI_LISTE.read_text(encoding="utf-8"))
+    fotolar = veri.get("fotograflar") or []
+    if not fotolar:
+        return []
+
+    eksik = []
+    for f in fotolar:
+        no = int(f["no"])
+        if not (GALERI_GORSEL / f"okur-nakliyat-galeri-{no:02d}-900.webp").exists():
+            eksik.append(no)
+    if eksik:
+        raise SystemExit(
+            "galeri-kaynak/liste.json içinde karşılığı olmayan numara(lar): "
+            + ", ".join(str(n) for n in eksik)
+            + f"\n{GALERI_GORSEL.relative_to(KOK)} altında ilgili WebP yok. "
+            "Ham fotoğrafı galeri-kaynak/ içine koyup `python3 tools/cerceve.py` çalıştırın."
+        )
+
+    return sorted(fotolar, key=lambda f: int(f["no"]), reverse=True)
+
+
+def galeri_izgara(fotolar: list[dict], girinti: str = "        ") -> str:
+    """Fotoğraf listesinden .gallery-grid işaretlemesi üretir."""
+    if not fotolar:
+        return ""
+    parcalar = [f'{girinti}<ul class="gallery-grid">']
+    for f in fotolar:
+        no = int(f["no"])
+        aciklama = f["aciklama"].strip()
+        alt = (f.get("alt") or aciklama).strip()
+        taban = f"/assets/images/gallery/okur-nakliyat-galeri-{no:02d}"
+        parcalar.append(f"""{girinti}  <li class="gallery-item">
+{girinti}    <button class="gallery-trigger" type="button"
+{girinti}            data-full="{taban}-1400.webp?v={{{{v}}}}"
+{girinti}            data-caption="{aciklama}">
+{girinti}      <img class="gallery-image"
+{girinti}           src="{taban}-900.webp?v={{{{v}}}}"
+{girinti}           srcset="{taban}-600.webp?v={{{{v}}}} 600w,
+{girinti}                   {taban}-900.webp?v={{{{v}}}} 900w"
+{girinti}           sizes="(max-width: 720px) 100vw, 320px"
+{girinti}           width="900" height="675" loading="lazy" decoding="async"
+{girinti}           alt="{alt}">
+{girinti}      <span class="gallery-caption">{aciklama}</span>
+{girinti}    </button>
+{girinti}  </li>""")
+    parcalar.append(f"{girinti}</ul>")
+    return "\n".join(parcalar)
+
+
+def uret(veri: dict, govde: str, sablonlar: dict, fotolar: list[dict]) -> tuple[Path, str]:
     slug = veri["slug"].strip("/")
     kanonik = f"{SITE}/{slug}/" if slug else f"{SITE}/"
     # Ana sayfada bölüm çapaları aynı sayfada; alt sayfalarda köke gitmeli.
@@ -119,6 +184,14 @@ def uret(veri: dict, govde: str, sablonlar: dict) -> tuple[Path, str]:
         ("{{ICERIK}}", govde.strip("\n")),
     ):
         html = html.replace(anahtar, deger)
+
+    # Galeri işaretlemesi listeden üretilir; HTML'de elle fotoğraf durmaz.
+    # Fotoğraf yoksa bölüm hiç basılmaz -- boş bir galeri yayınlanmaz.
+    bolum = sablonlar["galeri-bolumu"] if fotolar else ""
+    html = html.replace("{{GALERI_BOLUMU}}", bolum)
+    html = html.replace("{{GALERI_ONIZLEME}}",
+                        galeri_izgara(fotolar[:GALERI_ONIZLEME_ADEDI]))
+    html = html.replace("{{GALERI_TAM}}", galeri_izgara(fotolar))
 
     html = html.replace("{{KOK}}", kok)
     # "Ana Sayfa" bağlantısı yalnızca ana sayfada aktif işaretlenir. Şablonda
@@ -194,18 +267,28 @@ def main() -> int:
 
     sablonlar = {
         ad: (SABLON / f"{ad}.html").read_text(encoding="utf-8").rstrip("\n")
-        for ad in ("taban", "header", "footer", "serit")
+        for ad in ("taban", "header", "footer", "serit", "galeri-bolumu")
     }
+
+    fotolar = galeri_oku()
 
     dosyalar = sorted(SAYFALAR.glob("*.html"))
     if not dosyalar:
         print(f"sayfa bulunamadı ({SAYFALAR})")
         return 1
 
+    # Fotoğraf yokken galeri sayfası üretilmez: boş bir sayfa yayınlamak
+    # hem ziyaretçi hem arama motoru için değersiz. Ana sayfadaki bölüm de
+    # {{GALERI_ONIZLEME}} boş kaldığı için kendiliğinden görünmez olur.
+    if not fotolar:
+        dosyalar = [d for d in dosyalar if d.stem != "galeri"]
+        print("galeri-kaynak/liste.json boş — /galeri/ sayfası üretilmedi.")
+        print("Fotoğraf eklendiğinde sitemap.xml'e /galeri/ satırı da eklenmeli.")
+
     fark = []
     for yol in dosyalar:
         veri, govde = sayfa_oku(yol)
-        cikti, html = uret(veri, govde, sablonlar)
+        cikti, html = uret(veri, govde, sablonlar, fotolar)
 
         if kontrol:
             mevcut = cikti.read_text(encoding="utf-8") if cikti.exists() else ""

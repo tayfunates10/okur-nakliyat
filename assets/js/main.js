@@ -28,8 +28,31 @@
     var threshold = 24;
     var ticking = false;
 
+    /* Kayan şerit sayfanın en başında, akışta duruyor ve sayfayla birlikte
+       yukarı kayıyor. Header ise sabit; hiçbir şey yapılmazsa top=0'da
+       durup şeridi baştan örter. Header, şeridin ekranda kalan yüksekliği
+       kadar aşağıda tutuluyor; şerit tamamen çıkınca 0'a iniyor.
+       Şerit yoksa (alt sayfalar) hiç dokunulmuyor. */
+    var serit = document.querySelector(".site-serit-ust");
+    var seritYuksekligi = serit ? serit.getBoundingClientRect().height : 0;
+    var oncekiUst = -1;
+
     function updateHeaderState() {
       header.classList.toggle("is-scrolled", window.scrollY > threshold);
+
+      if (seritYuksekligi) {
+        var kalan = Math.max(0, seritYuksekligi - window.scrollY);
+        /* Yalnızca değer değiştiğinde yazılır. `top`, header sabit
+           konumlu olduğu için yerleşimi tetikliyor ve header kaydırınca
+           `backdrop-filter: blur(16px)` kazanıyor: her karede yazmak
+           bulanıklığı her karede yeniden hesaplatıyordu. Şerit yalnızca
+           ilk 26px'te görünür, sonrasında değer 0'da sabit kalır. */
+        if (kalan !== oncekiUst) {
+          oncekiUst = kalan;
+          header.style.top = kalan + "px";
+        }
+      }
+
       ticking = false;
     }
 
@@ -40,6 +63,10 @@
     }
 
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", function () {
+      if (serit) seritYuksekligi = serit.getBoundingClientRect().height;
+      onScroll();
+    });
     updateHeaderState();
   }
 
@@ -508,6 +535,12 @@
     var w = 0;
     var h = 0;
 
+    /* Kamyon da aynı ilerlemeyi kullanır: kutularla eş zamanlı olarak
+       sağdan sola gelir ve küçükten büyür. Başlangıç değerleri görselin
+       kendi genişliğine oranla verildi; taban konum translateX(-50%). */
+    var kamyon = visual.querySelector(".hero-visual-image");
+    var KAMYON_BASLANGIC = { x: -28, y: -13, olcek: 0.34 };
+
     function olcuAl() {
       w = visual.clientWidth;
       h = visual.clientHeight;
@@ -549,6 +582,25 @@
            yazılıyordu; özel özellik değişimi kutunun alt ağacında stil yeniden
            hesabı tetiklediği için kaydırma tökezliyordu (ölçüldü). */
         card.style.transform = "translate3d(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px,0)";
+      }
+
+      if (kamyon) {
+        /* Kutular iki aşamalı ilerliyor; kamyon tek eğriyle bütün yolu
+           alıyor. İkisi de aynı `ilerleme` değerinden beslendiği için
+           kaydırma boyunca eş zamanlı hareket ediyorlar. */
+        var tk = yumusat(ilerleme);
+        var kx = KAMYON_BASLANGIC.x + (-50 - KAMYON_BASLANGIC.x) * tk;
+        var ky = KAMYON_BASLANGIC.y + (0 - KAMYON_BASLANGIC.y) * tk;
+        var ko = KAMYON_BASLANGIC.olcek + (1 - KAMYON_BASLANGIC.olcek) * tk;
+        /* Ölçek basamaklandırılıyor. Kaydırma taşıma (translate) bileşik
+           iş parçacığında bedava, ama ölçek her değiştiğinde tarayıcı
+           780px'lik görseli yeniden rasterlemek zorunda: her karede
+           değişince kaydırma tökezliyordu (ölçüldü: düşen kare 4 -> 32).
+           %4'lük basamaklarla yeniden rasterleme sayısı ~17'ye iniyor;
+           taşıma sürekli olduğu için hareket yine akıcı görünüyor. */
+        ko = Math.round(ko * 25) / 25;
+        kamyon.style.transform =
+          "translate(" + kx.toFixed(2) + "%," + ky.toFixed(2) + "%) scale(" + ko.toFixed(2) + ")";
       }
     }
 
