@@ -57,20 +57,24 @@ def verify_contents(remote: dict[str, bytes], expected: dict[str, bytes]) -> Non
             )
 
     index = remote["index.html"].decode("utf-8")
-    css = remote["assets/css/footer-icons.css"].decode("utf-8")
+    css = remote["assets/css/footer-contact.css"].decode("utf-8")
 
     checks = {
-        "footer ikon CSS bağlantısı": bool(
-            re.search(r'/assets/css/footer-icons\.css\?v=\d+', index)
+        "footer iletişim CSS bağlantısı": bool(
+            re.search(r'/assets/css/footer-contact\.css\?v=\d+', index)
         ),
         "telefon SVG yolu": "M22 16.92v3" in index,
         "konum SVG yolu": "M20 10c0 5-8 12" in index,
-        "rozet seçicisi": ".footer-column .footer-bilgi-ikon" in css,
-        "44px sabit flex": "flex: 0 0 44px;" in css,
-        "44px genişlik": "width: 44px;" in css,
-        "44px yükseklik": "height: 44px;" in css,
+        "iletişim kolonu": ".footer-column-iletisim" in css,
+        "42px ikon kolonu": "grid-template-columns: 42px minmax(0, 1fr);" in css,
+        "42px rozet genişliği": "width: 42px;" in css,
+        "42px rozet yüksekliği": "height: 42px;" in css,
         "tam daire": "border-radius: 50%;" in css,
-        "kare oran": "aspect-ratio: 1 / 1;" in css,
+        "iki eşit aksiyon sütunu": (
+            "grid-template-columns: repeat(2, minmax(0, 1fr));" in css
+        ),
+        "48px footer düğmesi": "min-height: 48px;" in css,
+        "60px mobil çubuk": "min-height: 60px;" in css,
     }
     missing = [name for name, ok in checks.items() if not ok]
     if missing:
@@ -88,8 +92,8 @@ def main() -> int:
     host, port = server_address(os.environ["FTP_SERVER"])
     expected = {
         "index.html": (DIST / "index.html").read_bytes(),
-        "assets/css/footer-icons.css": (
-            DIST / "assets/css/footer-icons.css"
+        "assets/css/footer-contact.css": (
+            DIST / "assets/css/footer-contact.css"
         ).read_bytes(),
     }
 
@@ -114,8 +118,8 @@ def main() -> int:
             remote = {path: download(ftp, path) for path in expected}
             verify_contents(remote, expected)
             print(
-                "Sunucudaki index.html ve footer-icons.css yerel yayın "
-                "paketiyle birebir; 44×44 daire kuralları doğrulandı."
+                "Sunucudaki index.html ve footer-contact.css yerel yayın "
+                "paketiyle birebir; iletişim ölçekleri doğrulandı."
             )
             return 0
         except Exception as exc:
