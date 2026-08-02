@@ -1,0 +1,106 @@
+name: Kurumsal SEO özellik dalını hazırla
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kurumsal-seo-dali-hazirla
+  cancel-in-progress: false
+
+jobs:
+  hazirla:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Özellik dalını al
+        uses: actions/checkout@v4
+        with:
+          ref: feat/kurumsal-seo-sayfalari
+          fetch-depth: 0
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Dal workflow'ündeki üretim betiğini çıkar ve çalıştır
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('.github/workflows/kurumsal-seo-sayfalari.yml')
+          text = path.read_text(encoding='utf-8')
+          start = "          python3 - <<'PY'\n"
+          end = "\n          PY\n\n      - name: Tüm statik HTML sayfalarını üret"
+          if text.count(start) != 1 or text.count(end) != 1:
+              raise SystemExit('Özellik dalı workflow üretim bloğu bulunamadı')
+          body = text.split(start, 1)[1].split(end, 1)[0]
+          lines = []
+          for line in body.splitlines():
+              lines.append(line[10:] if line.startswith('          ') else line)
+          Path('/tmp/kurumsal-seo-uret.py').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+          PY
+          python3 /tmp/kurumsal-seo-uret.py
+
+      - name: Statik sayfaları üret ve doğrula
+        run: |
+          set -euo pipefail
+          python3 tools/sayfa.py
+          python3 tools/sayfa.py --kontrol
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          slugs = ('hakkimizda', 'iletisim', 'hizmet-bolgeleri')
+          root = ET.parse('sitemap.xml').getroot()
+          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          urls = [n.text for n in root.findall('sm:url/sm:loc', ns)]
+          assert len(urls) == 16, f'sitemap URL sayısı: {len(urls)}'
+
+          for slug in slugs:
+              url = f'https://okurnakliyatedremit.com/{slug}/'
+              assert url in urls, f'sitemap eksik: {url}'
+              html = Path(f'{slug}/index.html').read_text(encoding='utf-8')
+              assert f'<link rel="canonical" href="{url}">' in html
+              assert '<meta name="robots" content="index, follow, max-image-preview:large">' in html
+              assert 'Türkiye geneli asansörlü taşıma' not in html
+
+          for path in [Path('index.html'), *Path('.').glob('*/index.html')]:
+              html = path.read_text(encoding='utf-8')
+              for href in ('/hakkimizda/', '/hizmet-bolgeleri/', '/iletisim/'):
+                  assert href in html, f'{path}: {href} bağlantısı yok'
+
+          print('16 sayfa, sitemap, canonical, robots ve kurumsal iç bağlantılar doğrulandı.')
+          PY
+
+      - name: Özellik dalına commit ve push yap
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -- \
+            sablon/header.html \
+            sablon/footer.html \
+            sablon/taban.html \
+            sayfalar/anasayfa.html \
+            sayfalar/hakkimizda.html \
+            sayfalar/iletisim.html \
+            sayfalar/hizmet-bolgeleri.html \
+            sitemap.xml \
+            index.html
+
+          while IFS= read -r sayfa; do
+            git add -- "$sayfa"
+          done < <(python3 tools/sayfa.py --liste)
+
+          git rm -- .github/workflows/kurumsal-seo-sayfalari.yml
+          git diff --cached --check
+          git status --short
+          git commit -m "Hakkımızda, iletişim ve hizmet bölgeleri sayfalarını ekle"
+          git push origin HEAD:feat/kurumsal-seo-sayfalari
