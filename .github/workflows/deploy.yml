@@ -26,28 +26,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Ortak mobil stil sorunlarını düzelt
+      - name: Düzelt, üret, doğrula ve özellik dalına yaz
         run: |
-          set -euo pipefail
-          python3 - <<'PY'
+          set +e
+          mkdir -p docs
+          {
+            python3 - <<'PY'
           from pathlib import Path
-          import re
 
           style = Path('assets/css/style.css')
           text = style.read_text(encoding='utf-8')
 
-          pattern = re.compile(
-              r'(?m)^  main \{\n'
-              r'    padding-bottom: calc\(4\.75rem \+ env\(safe-area-inset-bottom, 0px\)\);\n'
-              r'  \}$'
-          )
-          replacement = '''  main {
-            /* Sabit çubuk güvenliği footer'ın alt padding'inde korunur. */
-            padding-bottom: 0;
-          }'''
-          text, count = pattern.subn(replacement, text, count=1)
-          if count != 1:
-              raise SystemExit(f'mobil main alt boşluğu {count} kez değiştirildi; 1 olmalı')
+          old_line = '    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));'
+          new_line = '    padding-bottom: 0;'
+          if text.count(old_line) != 1:
+              raise SystemExit(f'mobil main alt boşluğu satırı {text.count(old_line)} kez bulundu; 1 olmalı')
+          text = text.replace(old_line, new_line, 1)
 
           sentinel = '18. Koyu CTA okunurluluğu ve mobil footer birleşimi'
           if sentinel in text:
@@ -112,23 +106,16 @@ jobs:
 
           generator = Path('tools/sayfa.py')
           gtext = generator.read_text(encoding='utf-8')
-          gtext, count = re.subn(
-              r'ONBELLEK_SURUMU = "33"',
-              'ONBELLEK_SURUMU = "34"',
-              gtext,
-              count=1,
-          )
-          if count != 1:
-              raise SystemExit(f'önbellek sürümü {count} kez değiştirildi; 1 olmalı')
-          generator.write_text(gtext, encoding='utf-8')
+          old_version = 'ONBELLEK_SURUMU = "33"'
+          if gtext.count(old_version) != 1:
+              raise SystemExit(f'önbellek sürümü {gtext.count(old_version)} kez bulundu; 1 olmalı')
+          generator.write_text(gtext.replace(old_version, 'ONBELLEK_SURUMU = "34"', 1), encoding='utf-8')
           PY
 
-      - name: On altı statik sayfayı üret ve doğrula
-        run: |
-          set -euo pipefail
-          python3 tools/sayfa.py
-          python3 tools/sayfa.py --kontrol
-          python3 - <<'PY'
+            python3 tools/sayfa.py
+            python3 tools/sayfa.py --kontrol
+
+            python3 - <<'PY'
           from pathlib import Path
           import subprocess
 
@@ -141,7 +128,7 @@ jobs:
           pages = [line.strip() for line in subprocess.check_output(
               ['python3', 'tools/sayfa.py', '--liste'], text=True
           ).splitlines() if line.strip()]
-          assert len(pages) == 16, len(pages)
+          assert len(pages) == 16, f'sayfa sayısı: {len(pages)}'
           for page in pages:
               html = Path(page).read_text(encoding='utf-8')
               assert '/assets/css/style.css?v=34' in html, page
@@ -152,19 +139,27 @@ jobs:
           assert "WhatsApp'tan Yazın" in hakkimizda
           print('16 sayfada mobil boşluk, CTA okunurluluğu ve v34 doğrulandı.')
           PY
+          } > /tmp/mobil-cta-uretim.log 2>&1
 
-      - name: Özellik dalına commit ve push yap
-        run: |
-          set -euo pipefail
+          code=$?
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          if [ "$code" -ne 0 ]; then
+            cp /tmp/mobil-cta-uretim.log docs/mobil-cta-footer-uretim-hatasi.txt
+            git add -- docs/mobil-cta-footer-uretim-hatasi.txt
+            git commit -m "Mobil CTA üretim hatasını kaydet" || true
+            git push origin HEAD:fix/mobil-cta-footer-bosluk || true
+            cat /tmp/mobil-cta-uretim.log
+            exit "$code"
+          fi
+
+          rm -f docs/mobil-cta-footer-uretim-hatasi.txt
           git add -- assets/css/style.css tools/sayfa.py
           while IFS= read -r sayfa; do
             git add -- "$sayfa"
           done < <(python3 tools/sayfa.py --liste)
-
-          git rm -- .github/workflows/mobil-cta-footer-duzelt.yml docs/mobil-cta-footer-tetikle.md
+          git add -u -- docs/mobil-cta-footer-uretim-hatasi.txt
           git diff --cached --check
           git status --short
           git commit -m "Mobil CTA okunurluluğunu ve footer boşluğunu düzelt"
