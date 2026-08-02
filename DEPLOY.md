@@ -49,6 +49,11 @@ assets/
 
 Depo belgeleri ve GitHub yapılandırmaları sunucuya gönderilmez.
 
+## Yeniden dağıtım kaydı
+
+- 2 Ağustos 2026: Footer iletişim ikonlarının üretim sunucusuna yeniden
+  yüklenmesi için normal `main` → **Yayına al (FTP)** süreci tetiklendi.
+
 ## GitHub Actions secret'ları
 
 Repo → **Settings → Secrets and variables → Actions**
