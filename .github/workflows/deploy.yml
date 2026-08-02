@@ -36,19 +36,19 @@ jobs:
         # README.md, DEPLOY.md, .cpanel.yml, sablon/, sayfalar/, tools/,
         # galeri-kaynak/ ve .github/ yüklenmez.
         run: |
+          set -euo pipefail
           mkdir -p dist
-          cp index.html dist/
           cp 404.html dist/
-          # Üretilen alt sayfalar: her biri kendi klasöründe index.html
-          for dizin in $(python3 -c "
-          import json, re, pathlib
-          for p in sorted(pathlib.Path('sayfalar').glob('*.html')):
-              m = re.match(r'\\s*<!--json\\s*(\\{.*?\\})\\s*-->', p.read_text(encoding='utf-8'), re.S)
-              slug = json.loads(m.group(1))['slug'].strip('/')
-              if slug: print(slug)
-          "); do
-            mkdir -p "dist/$dizin"
-            cp "$dizin/index.html" "dist/$dizin/"
+          # Kopyalanacak sayfaları üretecinin kendisi söyler. Slug listesinden
+          # türetiliyordu; galeri sayfası fotoğraf yokken hiç üretilmediği için
+          # `cp` düşüyor ve dağıtım FTP adımına gelmeden ölüyordu.
+          python3 tools/sayfa.py --liste | while read -r sayfa; do
+            if [ ! -f "$sayfa" ]; then
+              echo "üretilmesi gereken dosya yok: $sayfa" >&2
+              exit 1
+            fi
+            mkdir -p "dist/$(dirname "$sayfa")"
+            cp "$sayfa" "dist/$sayfa"
           done
           cp robots.txt dist/
           cp sitemap.xml dist/
