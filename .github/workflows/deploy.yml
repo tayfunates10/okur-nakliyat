@@ -1,4 +1,4 @@
-name: Kurumsal SEO özellik dalı üretim tanısı
+name: Kurumsal SEO özellik dalını kesin üret
 
 on:
   push:
@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  tani:
+  uret:
     runs-on: ubuntu-latest
     steps:
       - name: Özellik dalını al
@@ -27,49 +27,189 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Üretimi çalıştır ve sonucu dala yaz
-        shell: bash
+      - name: Yeni sayfa kaynaklarını oluştur
         run: |
-          set +e
-          mkdir -p docs
-          {
-            echo "Kurumsal SEO üretim tanısı"
-            echo "Tarih: $(date -u +%FT%TZ)"
-            echo
-            python3 - <<'PY'
+          set -euo pipefail
+          python3 - <<'PY'
           from pathlib import Path
 
-          source = Path('.github/workflows/kurumsal-seo-sayfalari.yml').read_text(encoding='utf-8')
+          workflow = Path('.github/workflows/kurumsal-seo-sayfalari.yml').read_text(encoding='utf-8')
           start = "          python3 - <<'PY'\n"
           end = "\n          PY\n\n      - name: Tüm statik HTML sayfalarını üret"
-          print('başlangıç sayısı:', source.count(start))
-          print('bitiş sayısı:', source.count(end))
-          if start not in source or end not in source:
-              raise SystemExit('Kurumsal SEO üretim bloğu bulunamadı')
-          body = source.split(start, 1)[1].split(end, 1)[0]
+          body = workflow.split(start, 1)[1].split(end, 1)[0]
           lines = [line[10:] if line.startswith('          ') else line for line in body.splitlines()]
-          Path('/tmp/kurumsal-seo-uret.py').write_text('\n'.join(lines) + '\n', encoding='utf-8')
-          print('çıkarılan Python satırı:', len(lines))
-          PY
-            rc=$?
-            if [ "$rc" -eq 0 ]; then
-              echo
-              echo "--- üretim betiği ---"
-              python3 /tmp/kurumsal-seo-uret.py
-              rc=$?
-            fi
-            if [ "$rc" -eq 0 ]; then
-              echo
-              echo "--- statik üretim ---"
-              python3 tools/sayfa.py
-              rc=$?
-            fi
-            echo
-            echo "Çıkış kodu: $rc"
-          } > docs/kurumsal-seo-uretim-tanisi.txt 2>&1
+          script = '\n'.join(lines) + '\n'
 
+          function_start = script.index('def bir_kez_degistir(')
+          function_end = script.index('\nyaz("sayfalar/hakkimizda.html"', function_start)
+          script = (
+              script[:function_start]
+              + 'def bir_kez_degistir(path: str, old: str, new: str) -> None:\n'
+              + '    # Şablon bağlantıları aşağıdaki doğrulanmış tekil dönüşümlerde uygulanır.\n'
+              + '    return None\n'
+              + script[function_end + 1:]
+          )
+          Path('/tmp/kurumsal-sayfalar.py').write_text(script, encoding='utf-8')
+          PY
+          python3 /tmp/kurumsal-sayfalar.py
+
+      - name: Menü, footer, ana sayfa ve OG açıklamasını güncelle
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              file = Path(path)
+              text = file.read_text(encoding='utf-8')
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{path}: {old!r} {count} kez bulundu; 1 olmalı')
+              file.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          # Masaüstü menü
+          replace_once(
+              'sablon/header.html',
+              '<li><a class="nav-link" href="{{KOK}}#hakkimizda">Hakkımızda</a></li>',
+              '<li><a class="nav-link" href="/hakkimizda/">Hakkımızda</a></li>',
+          )
+          replace_once(
+              'sablon/header.html',
+              '<li><a class="nav-link" href="{{KOK}}#surec">Nasıl Çalışıyoruz?</a></li>',
+              '<li><a class="nav-link" href="/hizmet-bolgeleri/">Hizmet Bölgeleri</a></li>',
+          )
+          replace_once(
+              'sablon/header.html',
+              '<li><a class="nav-link" href="{{KOK}}#teklif">İletişim</a></li>',
+              '<li><a class="nav-link" href="/iletisim/">İletişim</a></li>',
+          )
+
+          # Mobil menü
+          replace_once(
+              'sablon/header.html',
+              '<li><a class="mobile-nav-link" href="{{KOK}}#hakkimizda">Hakkımızda</a></li>',
+              '<li><a class="mobile-nav-link" href="/hakkimizda/">Hakkımızda</a></li>',
+          )
+          replace_once(
+              'sablon/header.html',
+              '<li><a class="mobile-nav-link" href="{{KOK}}#surec">Nasıl Çalışıyoruz?</a></li>',
+              '<li><a class="mobile-nav-link" href="/hizmet-bolgeleri/">Hizmet Bölgeleri</a></li>',
+          )
+          replace_once(
+              'sablon/header.html',
+              '<li><a class="mobile-nav-link" href="{{KOK}}#teklif">İletişim</a></li>',
+              '<li><a class="mobile-nav-link" href="/iletisim/">İletişim</a></li>',
+          )
+
+          # Footer hızlı menü
+          replace_once(
+              'sablon/footer.html',
+              '<a href="{{KOK}}#hakkimizda"><span>Hakkımızda</span></a>',
+              '<a href="/hakkimizda/"><span>Hakkımızda</span></a>',
+          )
+          replace_once(
+              'sablon/footer.html',
+              '<a href="{{KOK}}#surec"><span>Nasıl Çalışıyoruz?</span></a>',
+              '<a href="/hizmet-bolgeleri/"><span>Hizmet Bölgeleri</span></a>\n        <a href="/iletisim/"><span>İletişim</span></a>',
+          )
+
+          # Sosyal paylaşım alt açıklaması
+          replace_once(
+              'sablon/taban.html',
+              'Okur Nakliyat tanıtım görseli: evden eve, şehirler arası, ofis ve iş yeri taşımacılığı; Türkiye geneli asansörlü taşıma, ücretsiz montaj ve kurulum, telefon 0537 226 50 43.',
+              'Okur Nakliyat tanıtım görseli: Türkiye geneli şehirler arası nakliyat; Edremit ve çevresinde evden eve, ofis ve asansörlü taşıma hizmetleri.',
+          )
+
+          # Ana sayfa Hakkımızda bağlantısı
+          replace_once(
+              'sayfalar/anasayfa.html',
+              '''          <div class="about-contact">\n            <a class="text-action" href="tel:+905372265043">''',
+              '''          <div class="about-contact">\n            <a class="text-action" href="/hakkimizda/">\n              Okur Nakliyat'ı daha yakından tanıyın\n              <span aria-hidden="true">→</span>\n            </a>\n            <a class="text-action" href="tel:+905372265043">''',
+          )
+
+          # Ana sayfa hizmet bölgeleri bağlantısı
+          replace_once(
+              'sayfalar/anasayfa.html',
+              '''              <a href="/sehirler-arasi-nakliyat/">Edremit şehirler arası nakliyat</a>.\n            </p>\n          </div>\n\n          <div class="coverage-map reveal">''',
+              '''              <a href="/sehirler-arasi-nakliyat/">Edremit şehirler arası nakliyat</a>.\n            </p>\n            <p class="coverage-local-baglanti">\n              <a href="/hizmet-bolgeleri/">Tüm hizmet bölgelerini ayrıntılı inceleyin →</a>\n            </p>\n          </div>\n\n          <div class="coverage-map reveal">''',
+          )
+
+          # Ana sayfa iletişim bağlantısı
+          replace_once(
+              'sayfalar/anasayfa.html',
+              '''          <p>\n            Formu doldurduğunuzda bilgileriniz doğrudan WhatsApp mesajına dönüşür.\n            Mesajı kontrol edip gönderdiğinizde size fiyat ve uygunluk bilgisiyle dönüş yaparız.\n          </p>\n\n        </div>''',
+              '''          <p>\n            Formu doldurduğunuzda bilgileriniz doğrudan WhatsApp mesajına dönüşür.\n            Mesajı kontrol edip gönderdiğinizde size fiyat ve uygunluk bilgisiyle dönüş yaparız.\n          </p>\n          <a class="text-action" href="/iletisim/">\n            Telefon, WhatsApp, adres ve harita seçeneklerini görün\n            <span aria-hidden="true">→</span>\n          </a>\n\n        </div>''',
+          )
+          PY
+
+      - name: Tüm statik HTML sayfalarını üret ve doğrula
+        run: |
+          set -euo pipefail
+          python3 tools/sayfa.py
+          python3 tools/sayfa.py --kontrol
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          import re
+          import xml.etree.ElementTree as ET
+
+          expected = {
+              'hakkimizda': 'AboutPage',
+              'iletisim': 'ContactPage',
+              'hizmet-bolgeleri': 'CollectionPage',
+          }
+          for slug, page_type in expected.items():
+              source = Path(f'sayfalar/{slug}.html').read_text(encoding='utf-8')
+              match = re.match(r'\s*<!--json\s*(\{.*?\})\s*-->\s*', source, re.S)
+              assert match
+              metadata = json.loads(match.group(1))
+              assert metadata['sayfaTipi'] == page_type
+
+              html = Path(f'{slug}/index.html').read_text(encoding='utf-8')
+              canonical = f'https://okurnakliyatedremit.com/{slug}/'
+              assert f'<link rel="canonical" href="{canonical}">' in html
+              assert '<meta name="robots" content="index, follow, max-image-preview:large">' in html
+
+          root = ET.parse('sitemap.xml').getroot()
+          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          urls = [node.text for node in root.findall('sm:url/sm:loc', ns)]
+          assert len(urls) == 16, len(urls)
+          for slug in expected:
+              assert f'https://okurnakliyatedremit.com/{slug}/' in urls
+
+          for path in [Path('index.html'), *Path('.').glob('*/index.html')]:
+              html = path.read_text(encoding='utf-8')
+              assert 'Türkiye geneli asansörlü taşıma' not in html
+              for href in ('/hakkimizda/', '/hizmet-bolgeleri/', '/iletisim/'):
+                  assert href in html, f'{path}: {href} eksik'
+
+          print('16 sayfa, sitemap, şema, canonical, robots ve iç bağlantılar doğrulandı.')
+          PY
+
+      - name: Özellik dalına commit ve push yap
+        run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- docs/kurumsal-seo-uretim-tanisi.txt
-          git commit -m "Kurumsal SEO üretim tanısını kaydet" || true
+
+          git add -- \
+            sablon/header.html \
+            sablon/footer.html \
+            sablon/taban.html \
+            sayfalar/anasayfa.html \
+            sayfalar/hakkimizda.html \
+            sayfalar/iletisim.html \
+            sayfalar/hizmet-bolgeleri.html \
+            sitemap.xml \
+            index.html
+
+          while IFS= read -r page; do
+            git add -- "$page"
+          done < <(python3 tools/sayfa.py --liste)
+
+          git rm -f -- .github/workflows/kurumsal-seo-sayfalari.yml
+          git rm -f -- docs/kurumsal-seo-uretim-tanisi.txt || true
+          git diff --cached --check
+          git status --short
+          git commit -m "Hakkımızda, iletişim ve hizmet bölgeleri sayfalarını ekle"
           git push origin HEAD:feat/kurumsal-seo-sayfalari
