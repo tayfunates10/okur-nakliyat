@@ -62,6 +62,10 @@ def verify_contents(remote: dict[str, bytes], expected: dict[str, bytes]) -> Non
     map_css = remote["assets/css/footer-map.css"].decode("utf-8")
     favicon = remote["assets/images/logo/favicon-okur-dark.svg"].decode("utf-8")
 
+    social_pos = index.find('class="footer-sosyal"')
+    map_pos = index.find('class="footer-harita"')
+    first_menu_pos = index.find('class="footer-column footer-column-menu"')
+
     checks = {
         "kompakt footer iletişim CSS bağlantısı": bool(
             re.search(r'/assets/css/footer-contact-compact\.css\?v=\d+', index)
@@ -99,6 +103,9 @@ def verify_contents(remote: dict[str, bytes], expected: dict[str, bytes]) -> Non
         "42px footer düğmesi": "min-height: 42px;" in contact_css,
         "56px mobil çubuk": "min-height: 56px;" in contact_css,
         "footer harita bileşeni": 'class="footer-harita"' in index,
+        "harita logo ve WhatsApp bölümünün altında": (
+            0 <= social_pos < map_pos < first_menu_pos
+        ),
         "Google Harita iframe'i": (
             "https://www.google.com/maps?q=Okur%20Nakliyat" in index
             and "output=embed" in index
@@ -110,22 +117,21 @@ def verify_contents(remote: dict[str, bytes], expected: dict[str, bytes]) -> Non
         "eski adres tabanlı rota kaldırıldı": (
             "www.google.com/maps/dir/?api=1" not in index
         ),
-        "harita kartı konumlandırması": (
-            ".footer-column-iletisim .footer-harita" in map_css
-            and "position: relative;" in map_css
+        "harita logo sütununa bağlı": (
+            ".footer-brand-column .footer-harita" in map_css
+            and ".footer-column-iletisim .footer-harita" not in map_css
         ),
-        "harita tam genişlik": "width: 100%;" in map_css,
+        "harita kartı konumlandırması": "position: relative;" in map_css,
+        "harita masaüstü genişliği": "width: min(100%, 360px);" in map_css,
+        "harita tablet genişliği": "width: min(100%, 420px);" in map_css,
+        "harita dar ekranda tam genişlik": "width: 100%;" in map_css,
         "responsive harita yüksekliği": (
             "height: clamp(9rem, 11vw, 10rem);" in map_css
             and "height: clamp(9rem, 41vw, 11rem);" in map_css
         ),
         "harita mobil üst sınırı": "max-height: 176px;" in map_css,
         "harita tıklama katmanı": (
-            ".footer-column-iletisim .footer-harita-kapak" in map_css
-        ),
-        "harita sonrası adres ritmi": (
-            ".footer-column-iletisim .footer-harita + .footer-bilgi-adres"
-            in map_css
+            ".footer-brand-column .footer-harita-kapak" in map_css
         ),
     }
     missing = [name for name, ok in checks.items() if not ok]
@@ -176,9 +182,9 @@ def main() -> int:
             remote = {path: download(ftp, path) for path in expected}
             verify_contents(remote, expected)
             print(
-                "Sunucudaki index.html, kompakt footer stili, responsive Google "
-                "Harita önizlemesi ve siyah favicon yerel yayın paketiyle "
-                "birebir doğrulandı."
+                "Sunucudaki index.html, kompakt footer stili, logo bölümündeki "
+                "responsive Google Harita önizlemesi ve siyah favicon yerel "
+                "yayın paketiyle birebir doğrulandı."
             )
             return 0
         except Exception as exc:
