@@ -58,11 +58,21 @@ def verify_contents(remote: dict[str, bytes], expected: dict[str, bytes]) -> Non
 
     index = remote["index.html"].decode("utf-8")
     css = remote["assets/css/footer-contact.css"].decode("utf-8")
+    favicon = remote["assets/images/logo/favicon-okur.svg"].decode("utf-8")
 
     checks = {
         "footer iletişim CSS bağlantısı": bool(
             re.search(r'/assets/css/footer-contact\.css\?v=\d+', index)
         ),
+        "favicon bağlantısı": bool(
+            re.search(r'/assets/images/logo/favicon-okur\.svg\?v=\d+', index)
+        ),
+        "favicon sarı halka": (
+            'circle cx="133" cy="133" r="99.5"' in favicon
+            and 'stroke="#F5C400"' in favicon
+        ),
+        "favicon özgün kamyon yolu": "M366 0h74v231h21v25" in favicon,
+        "favicon yazısız": "<text" not in favicon and "OKUR" not in favicon,
         "telefon SVG yolu": "M22 16.92v3" in index,
         "konum SVG yolu": "M20 10c0 5-8 12" in index,
         "iletişim kolonu": ".footer-column-iletisim" in css,
@@ -95,6 +105,9 @@ def main() -> int:
         "assets/css/footer-contact.css": (
             DIST / "assets/css/footer-contact.css"
         ).read_bytes(),
+        "assets/images/logo/favicon-okur.svg": (
+            DIST / "assets/images/logo/favicon-okur.svg"
+        ).read_bytes(),
     }
 
     # GoDaddy paylaşımlı FTPS düğümü, güvenilir bir CA zinciri sunuyor ancak
@@ -118,8 +131,8 @@ def main() -> int:
             remote = {path: download(ftp, path) for path in expected}
             verify_contents(remote, expected)
             print(
-                "Sunucudaki index.html ve footer-contact.css yerel yayın "
-                "paketiyle birebir; iletişim ölçekleri doğrulandı."
+                "Sunucudaki index.html, footer-contact.css ve yazısız özgün "
+                "logo faviconu yerel yayın paketiyle birebir doğrulandı."
             )
             return 0
         except Exception as exc:
