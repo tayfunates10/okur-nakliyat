@@ -503,7 +503,7 @@ body.is-menu-open {
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=22");
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=24");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -541,9 +541,7 @@ body.is-menu-open {
   align-items: center;
   gap: var(--space-lg);
   min-height: calc(clamp(720px, 92vh, 980px) - var(--header-height));
-  /* Alt boşluk 72px'lik hizmet şeridini de kapsar; içerik uzadığında
-     şerit hero içeriğinin üzerine binmez. */
-  padding-block: clamp(3rem, 7vh, 6rem) calc(clamp(3rem, 7vh, 6rem) + 72px);
+  padding-block: clamp(3rem, 7vh, 6rem);
 }
 
 .hero-content {
@@ -2301,7 +2299,7 @@ body.is-menu-open {
     grid-template-columns: minmax(0, 1fr);
     min-height: auto;
     padding-top: clamp(4rem, 9vw, 6rem);
-    padding-bottom: 110px;
+    padding-bottom: clamp(2.5rem, 6vw, 4rem);
   }
 
   .hero-content {
@@ -2607,13 +2605,19 @@ body.is-menu-open {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-2xs);
-    min-height: 54px;
-    padding-inline: 0.35rem;
+    gap: 0.45rem;
+    min-height: 62px;
+    padding-inline: 0.3rem;
     font-family: var(--font-heading);
-    font-size: var(--fs-xs);
+    font-size: var(--fs-sm);
     font-weight: var(--weight-black);
     color: var(--color-black);
+  }
+
+  /* İkonlar 18px'ti; yazıyla birlikte biraz büyütüldü. */
+  .mobile-contact-bar .icon {
+    width: 22px;
+    height: 22px;
   }
 
   /* Ortadaki düğme kendi ince ayırıcılarıyla ayrılır; üç sütun yan yana
@@ -2632,11 +2636,8 @@ body.is-menu-open {
     padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
   }
 
-  /* Dolgu hero'nun kendisine verilince şeridin ALTINDA siyah bir boşluk
-     kalıyordu -- şerit hero'nun son öğesi. Dolgu içerik kutusuna taşındı;
-     şerit artık bölümün alt kenarına oturuyor. */
   .hero-inner {
-    padding-bottom: var(--space-lg);
+    padding-bottom: var(--space-md);
   }
 
   .site-footer {
@@ -2703,7 +2704,7 @@ body.is-menu-open {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     align-items: center;
     min-height: auto;
-    padding-block: 1.5rem calc(1.5rem + 72px);
+    padding-block: 1.5rem;
   }
 
   .hero-content {
@@ -3028,68 +3029,23 @@ body.is-menu-open {
   bottom: 14px;
 }
 
-/* --- Kamyon kasasındaki marka işareti ----------------------------------- */
-/* Katman, kamyon görseliyle birebir aynı yere ve boyuta oturur; böylece
-   içindeki yüzdeler görsele göre okunur ve her ekran boyutunda kasanın
-   üstünde kalır. Konumlandırma değerleri .hero-visual-image ile aynı. */
-.hero-kasa-logo {
-  position: absolute;
-  left: 50%;
-  bottom: 2%;
-  z-index: 2;
-  width: min(780px, 126%);
-  aspect-ratio: 1536 / 1024;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-/* Kasa görselde ölçüldü: x %53.5-%99.9, y %36.7-%67.7. Logo kasanın sol
-   yarısına ve dikey ortasına konur; sağ uç görselin kenarında kesiliyor. */
-.hero-kasa-logo .brand-glyph {
-  position: absolute;
-  /* Kasa yüzü görselde ölçüldü: x %66.1-97.3, sarı şeridin üstünde kalan
-     temiz alan y %36.7-61.8 (merkez %49.3).
-     Kasanın sağ yarısı kapsayıcı kırpmasının dışında kalıyor (görsel %126
-     genişlikte ve sağa taşıyor); görünen aralık kabaca %10-90. Logo, kasa
-     ile görünen alanın kesişiminin ortasına konur: %66.1-90 -> merkez %78. */
-  top: 43.8%;
-  left: 70.5%;
-  display: block;
-  width: 15%;
-  height: auto;
-  /* Kasa beyaz: beyaz logo görünmüyordu. Kamyon parçası koyu çizilir,
-     halka zaten sarı. */
-  color: var(--color-black);
-  opacity: 0;
-  transform: perspective(760px) rotateY(-7deg) skewY(0.9deg) translateY(6px) scale(0.94);
-  transform-origin: 50% 50%;
-  filter: drop-shadow(0 1px 2px rgba(11, 11, 11, 0.18));
-  animation: kasaLogoBelir 900ms var(--ease-out-soft) 700ms forwards;
-}
-
-@keyframes kasaLogoBelir {
-  to {
-    opacity: 0.96;
-    transform: perspective(760px) rotateY(-7deg) skewY(0.9deg) translateY(0) scale(1);
-  }
-}
+/* Kamyonun kasasındaki marka işareti eskiden CSS ile üstüne bindiriliyordu.
+   Yeni hero görselinde logo doğrudan kasanın üzerine basılı geldiği için o
+   katman kaldırıldı; kalsaydı logo iki kez görünürdü. */
 
 /* --- Hero bilgi kutuları -----------------------------------------------
    Altı kutu kamyonun çevresine dağınık yerleşir; sayfa kaydırıldıkça sol
    kenarda düzenli bir listeye geçerler. Konumlar data-dagi / data-liste
    ile veriliyor, aradaki geçişi main.js hesaplıyor. */
 .floating-card {
-  /* --kx / --ky: JS'in verdiği piksel kayması. */
-  --kx: 0px;
-  --ky: 0px;
-
   /* Konumlandırma eskiden .floating-card-location / -service sınıflarındaydı;
      altı kutuya geçince temel sınıfa alındı. left/top değerlerini JS,
-     markup'taki data-dagi'den yazıyor. */
+     markup'taki data-dagi'den yazıyor; kaydırma kaymasını da JS doğrudan
+     transform olarak yazar. */
   position: absolute;
   max-width: min(58%, 300px);
   opacity: 0;
-  transform: translate3d(var(--kx), var(--ky), 0);
+  transform: translate3d(0, 0, 0);
   animation: kartBelir 620ms var(--ease-out-soft) forwards;
   will-change: transform;
 }
@@ -3106,43 +3062,68 @@ body.is-menu-open {
   to   { opacity: 1; }
 }
 
-/* --- İki satırlı sonsuz kayan hizmet şeridi ----------------------------- */
-.hero-serit {
-  position: relative;
-  z-index: 1;
+/* --- İki satırlı sonsuz kayan şerit -------------------------------------
+   Sayfanın en üstünde, header'ın üzerinde sabit durur. Satırlar arasındaki
+   ince çizgi kaldırıldı; şeridi yalnızca üst ve alt sarı çizgi sınırlıyor.
+
+   Header `position: fixed` olduğu için şerit akışta bırakılınca header onu
+   örtüyordu (ölçüldü: ikisi de top=0). Şerit de sabitlenip header bir şerit
+   boyu aşağı itiliyor. Yükseklik değişkenden geliyor; içerikten hesaplanan
+   46.8px yerine sabit 47px, böylece aşağıdaki hesaplar birebir tutuyor. */
+.site-serit {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: calc(var(--z-header) + 1);
   display: grid;
-  /* Satırlar arasındaki ince sarı çizgi. */
-  gap: 1px;
-  padding: 1px 0;
+  height: var(--serit-yuksekligi);
   overflow: hidden;
-  background: var(--color-yellow);
-  border-top: 1px solid var(--border-on-dark);
-  border-bottom: 1px solid var(--border-on-dark);
+  background: var(--color-black);
+  border-top: 2px solid var(--color-yellow);
+  border-bottom: 2px solid var(--color-yellow);
   /* Kenarlarda yumuşak kesim; yazılar duvara çarpmış gibi bitmesin. */
   mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
 }
 
-.hero-serit-satir {
+/* Şerit yalnızca ana sayfada var. Kardeş seçici kullanıldığı için şeridi
+   olmayan sayfalarda header ve hero olduğu gibi kalıyor. */
+.site-serit + .site-header {
+  top: var(--serit-yuksekligi);
+}
+
+.site-serit ~ main .hero {
+  padding-top: calc(
+    var(--header-height) + var(--serit-yuksekligi) + env(safe-area-inset-top, 0px)
+  );
+}
+
+body:has(.site-serit) {
+  scroll-padding-top: calc(
+    var(--header-height-scrolled) + var(--serit-yuksekligi) + var(--space-md) +
+    env(safe-area-inset-top, 0px)
+  );
+}
+
+.site-serit-satir {
   display: flex;
   width: max-content;
   background: var(--color-black);
   animation: seritKay 34s linear infinite;
 }
 
-.hero-serit-ters {
+.site-serit-ters {
   animation-direction: reverse;
   animation-duration: 41s;
 }
 
-.hero-serit-konum .icon {
+.site-serit-konum .icon {
   color: var(--color-yellow);
 }
 
-.hero-serit:hover .hero-serit-satir {
+.site-serit:hover .site-serit-satir {
   animation-play-state: paused;
 }
 
-.hero-serit-liste {
+.site-serit-liste {
   display: flex;
   flex: none;
   gap: clamp(1.75rem, 4vw, 3.25rem);
@@ -3155,7 +3136,7 @@ body.is-menu-open {
   list-style: none;
 }
 
-.hero-serit-liste li {
+.site-serit-liste li {
   display: inline-flex;
   gap: 0.55rem;
   align-items: center;
@@ -3168,7 +3149,7 @@ body.is-menu-open {
   white-space: nowrap;
 }
 
-.hero-serit-liste .icon {
+.site-serit-liste .icon {
   flex: none;
   color: var(--color-yellow);
 }
@@ -3326,23 +3307,25 @@ body.is-menu-open {
 }
 
 /* --- Sabit çubuk ikonlarında sürekli, göz yormayan hareket --------------
-   Her ikon farklı gecikmeyle ve uzun aralıkla oynar: hareket sürekli ama
-   üçü aynı anda kıpırdamadığı için dikkat dağıtmıyor. */
+   Üç ikon da 4.5sn'lik aynı periyottaydı ve gecikmeleri 0 / 1.5 / 3sn'ydi:
+   soldan sağa hep aynı sırada oynuyorlardı. Periyotlar artık birbirinin
+   katı değil (5.3 / 7.1 / 6.1sn); ortak kat çok uzağa düştüğü için sıra
+   sürekli kayıyor ve hareket rastgele görünüyor. */
 .mcb-ikon {
   display: inline-flex;
   transform-origin: 50% 70%;
 }
 
 .mobile-contact-bar a:nth-child(1) .mcb-ikon {
-  animation: ikonSalla 4.5s ease-in-out infinite;
+  animation: ikonSalla 5.3s ease-in-out 0.4s infinite;
 }
 
 .mobile-contact-bar a:nth-child(2) .mcb-ikon {
-  animation: ikonZipla 4.5s ease-in-out 1.5s infinite;
+  animation: ikonZipla 7.1s ease-in-out 2.9s infinite;
 }
 
 .mobile-contact-bar a:nth-child(3) .mcb-ikon {
-  animation: ikonNabiz 4.5s ease-in-out 3s infinite;
+  animation: ikonNabiz 6.1s ease-in-out 1.3s infinite;
 }
 
 /* Telefon: kısa bir çalma titremesi, sonra uzun sessizlik. */
@@ -3373,10 +3356,9 @@ body.is-menu-open {
 
 @media (prefers-reduced-motion: reduce) {
   .mcb-ikon,
-  .hero-serit-satir,
+  .site-serit-satir,
   .cta-parlama,
-  .floating-card,
-  .hero-kasa-logo .brand-glyph {
+  .floating-card {
     animation: none;
   }
 
@@ -3385,10 +3367,21 @@ body.is-menu-open {
     opacity: 1;
     transform: none;
   }
+}
 
-  .hero-kasa-logo .brand-glyph {
-    opacity: 0.96;
-    transform: none;
+/* --- Dokunmatik cihazlarda hero dekoru sabit -----------------------------
+   .hero-background sürekli scale(1.01) -> scale(1.035) yapıyor ve
+   .hero-visual-glow 18px bulanıklıkla nabız atıyor. İkisi de tam ekran
+   katman; ölçekleme her karede yeniden rasterleme gerektiriyor. Kaydırma
+   sırasında düşen kare sayısı bu ikisi yüzünden 12'ydi, kapatınca 7'ye
+   indi (Chromium, 6x yavaşlatılmış CPU, 390x844).
+
+   Telefonda kaydırma neredeyse hep hareket hâlinde; 20 saniyelik yavaş
+   kayma zaten fark edilmiyor. Fare kullanılan cihazlarda efekt duruyor. */
+@media (hover: none) {
+  .hero-background,
+  .hero-visual-glow {
+    animation: none;
   }
 }
 
@@ -3457,5 +3450,21 @@ body.is-menu-open {
   .floating-card-icon {
     width: 30px;
     height: 30px;
+  }
+}
+
+/* --- 1024-1279 arasında hero görseline daha çok yer -----------------------
+   Bu bantta iki sütunlu düzen başlıyor ama görsel sütunu dar kalıyordu:
+   1024px'de görsel 389px, bilgi kutuları 187-226px. Kutular hem yan yana
+   sığmıyor hem de metin sarınca uzayıp alt sıradakine değiyordu -- ölçüldü:
+   1024'te 3, 1100'de 2, 1180'de 1 çakışma. Görsele bir sütun daha verilince
+   genişlik 557-705px'e çıkıyor ve bantta çakışma kalmıyor. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .hero-content {
+    grid-column: 1 / span 5;
+  }
+
+  .hero-visual {
+    grid-column: 6 / -1;
   }
 }

@@ -34,7 +34,7 @@ SABLON = KOK / "sablon"
 SAYFALAR = KOK / "sayfalar"
 SITE = "https://okurnakliyatedremit.com"
 
-ONBELLEK_SURUMU = "22"  # ?v= — bkz. docs/ekran-denetimi.md
+ONBELLEK_SURUMU = "24"  # ?v= — bkz. docs/ekran-denetimi.md
 
 ISLETME = f"{SITE}/#isletme"
 
@@ -112,6 +112,8 @@ def uret(veri: dict, govde: str, sablonlar: dict) -> tuple[Path, str]:
         ("{{ACIKLAMA}}", veri["aciklama"]),
         ("{{KANONIK}}", kanonik),
         ("{{SEMA}}", sema_uret(veri, kanonik)),
+        # Kayan şerit yalnızca isteyen sayfada basılır; header'ın üstünde durur.
+        ("{{SERIT}}", sablonlar["serit"] if veri.get("serit") else ""),
         ("{{HEADER}}", sablonlar["header"]),
         ("{{FOOTER}}", sablonlar["footer"]),
         ("{{ICERIK}}", govde.strip("\n")),
@@ -192,7 +194,7 @@ def main() -> int:
 
     sablonlar = {
         ad: (SABLON / f"{ad}.html").read_text(encoding="utf-8").rstrip("\n")
-        for ad in ("taban", "header", "footer")
+        for ad in ("taban", "header", "footer", "serit")
     }
 
     dosyalar = sorted(SAYFALAR.glob("*.html"))
