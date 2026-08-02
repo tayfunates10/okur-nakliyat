@@ -36,7 +36,7 @@ GALERI_LISTE = KOK / "galeri-kaynak" / "liste.json"
 GALERI_GORSEL = KOK / "assets" / "images" / "gallery"
 SITE = "https://okurnakliyatedremit.com"
 
-ONBELLEK_SURUMU = "27"  # ?v= — bkz. docs/ekran-denetimi.md
+ONBELLEK_SURUMU = "28"  # ?v= — bkz. docs/ekran-denetimi.md
 
 # Ana sayfada gösterilecek fotoğraf sayısı; kalanı /galeri/ sayfasında.
 GALERI_ONIZLEME_ADEDI = 6
@@ -84,7 +84,7 @@ def sema_uret(veri: dict, kanonik: str) -> str:
         "inLanguage": "tr-TR",
         "isPartOf": {"@id": f"{SITE}/#site"},
         "about": {"@id": ISLETME},
-        "primaryImageOfPage": f"{SITE}/assets/images/og/okur-nakliyat-og.jpg",
+        "primaryImageOfPage": f"{SITE}/assets/images/og/okur-nakliyat-og.jpg?v={ONBELLEK_SURUMU}",
     }
 
     ekmek = kirinti(veri)
