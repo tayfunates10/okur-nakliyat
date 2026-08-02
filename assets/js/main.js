@@ -506,6 +506,12 @@
      markup'ta data-dagi / data-liste ile "x,y" yüzdesi olarak duruyor;
      burada yalnızca aradaki oran hesaplanıp piksel kayması veriliyor.
      Böylece konumlar CSS/markup tarafında kalıyor. */
+  /* Hero bilgi kutuları dağınık duruyor ve öyle kalıyor. Konumları
+     markup'taki data-dagi içinde "x,y" yüzdesi olarak yazılı.
+
+     Bir dönem kaydırmayla sol kenarda tek sütuna diziliyorlardı; bu
+     davranış istenmediği için kaldırıldı. Masaüstünde kutular yalnızca
+     fare hareketiyle (initializeHeroParallax) kıpırdıyor. */
   function initializeHeroCards() {
     var visual = document.getElementById("heroVisual");
     if (!visual) return;
@@ -513,131 +519,110 @@
     var cards = [].slice.call(visual.querySelectorAll(".floating-card[data-dagi]"));
     if (!cards.length) return;
 
-    function parsePair(value) {
-      var parts = String(value || "").split(",");
-      return { x: parseFloat(parts[0]) || 0, y: parseFloat(parts[1]) || 0 };
-    }
-
     cards.forEach(function (card) {
-      var dagi = parsePair(card.getAttribute("data-dagi"));
-      card.style.left = dagi.x + "%";
-      card.style.top = dagi.y + "%";
-      card._dagi = dagi;
-      card._liste = parsePair(card.getAttribute("data-liste"));
+      var parts = String(card.getAttribute("data-dagi") || "").split(",");
+      card.style.left = (parseFloat(parts[0]) || 0) + "%";
+      card.style.top = (parseFloat(parts[1]) || 0) + "%";
     });
+  }
 
-    // Hareketi azaltma tercihi: kutular dağınık ve sabit kalır.
-    if (prefersReducedMotion()) return;
+  /* Kamyonun sağdan sola, küçükten büyüyerek gelişi.
 
-    var ticking = false;
-    var gorunur = true;
-    var oncekiT = -1;
-    var w = 0;
-    var h = 0;
+     Masaüstünde (>=1080px) sayfa açılışında, CSS animasyonuyla oluyor;
+     burada hiçbir şey yazılmıyor. Daha küçük ekranlarda kamyon hero'nun
+     altında kaldığı için açılışta görünmüyordu, bu yüzden kaydırmaya
+     bağlanıyor: görselin merkezi ekran ortasının biraz üstüne geldiğinde
+     başlıyor, "Asansörlü taşıma" kutusu header'ın hemen altına oturduğunda
+     tamamlanıyor. */
+  function initializeHeroTruck() {
+    var visual = document.getElementById("heroVisual");
+    if (!visual) return;
 
-    /* Kamyon da aynı ilerlemeyi kullanır: kutularla eş zamanlı olarak
-       sağdan sola gelir ve küçükten büyür. Başlangıç değerleri görselin
-       kendi genişliğine oranla verildi; taban konum translateX(-50%). */
     var kamyon = visual.querySelector(".hero-visual-image");
-    var KAMYON_BASLANGIC = { x: -28, y: -13, olcek: 0.34 };
+    if (!kamyon || prefersReducedMotion()) return;
 
-    function olcuAl() {
-      w = visual.clientWidth;
-      h = visual.clientHeight;
-    }
+    var ilkKart = visual.querySelector(".floating-card");
+    var header = document.getElementById("siteHeader");
+    var masaustu = window.matchMedia("(min-width: 1080px)");
 
-    function update() {
-      ticking = false;
-
-      /* Geçişin biteceği kaydırma mesafesi her karede yeniden hesaplanır.
-         Bir kez hesaplanıp saklandığında yazı tipi geç yüklendiği için
-         yerleşim kayıyor ve değer bayatlıyordu: sıralanma kamyon ekranı
-         terk ederken tamamlanıyordu (ölçüldü). `kaydirma + rect.top` sabit
-         olduğu için değer kaydırma boyunca zaten değişmiyor. */
-      var rect = visual.getBoundingClientRect();
-      var kaydirma = window.pageYOffset;
-      // Kamyon ekranın ortasına geldiğinde sıralanma bitmiş olsun.
-      var ortala = kaydirma + rect.top + rect.height / 2 - window.innerHeight / 2;
-      /* Alt sınır: masaüstünde kamyon zaten ekranda olduğu için "ortala"
-         sıfıra yakın çıkıyor ve kutular hiç dağınık görünmüyordu. Üst sınır:
-         mobilde hero çok uzunsa geçiş kamyondan sonraya sarkmasın. */
-      var bitis = Math.max(260, Math.min(ortala, 760));
-
-      var ilerleme = Math.min(1, Math.max(0, kaydirma / bitis));
-      if (Math.abs(ilerleme - oncekiT) < 0.002) return;
-      oncekiT = ilerleme;
-
-      /* Geçiş iki aşamalı: önce dikey, sonra yatay. Aynı anda hareket
-         ettiklerinde sağdaki kutular sol sütunun üzerinden geçiyor ve yol
-         boyunca üst üste biniyorlardı. Dikey konum önce oturunca her kutu
-         kendi satırında kalıyor; yatay kayma artık çakışma üretmiyor. */
-      var ty = yumusat(Math.min(1, ilerleme / 0.5));
-      var tx = yumusat(Math.max(0, (ilerleme - 0.5) / 0.5));
-
-      for (var i = 0; i < cards.length; i++) {
-        var card = cards[i];
-        var dx = ((card._liste.x - card._dagi.x) / 100) * w * tx;
-        var dy = ((card._liste.y - card._dagi.y) / 100) * h * ty;
-        /* Tek bir transform yazılıyor. Önce iki ayrı özel özellik (--kx/--ky)
-           yazılıyordu; özel özellik değişimi kutunun alt ağacında stil yeniden
-           hesabı tetiklediği için kaydırma tökezliyordu (ölçüldü). */
-        card.style.transform = "translate3d(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px,0)";
-      }
-
-      if (kamyon) {
-        /* Kutular iki aşamalı ilerliyor; kamyon tek eğriyle bütün yolu
-           alıyor. İkisi de aynı `ilerleme` değerinden beslendiği için
-           kaydırma boyunca eş zamanlı hareket ediyorlar. */
-        var tk = yumusat(ilerleme);
-        var kx = KAMYON_BASLANGIC.x + (-50 - KAMYON_BASLANGIC.x) * tk;
-        var ky = KAMYON_BASLANGIC.y + (0 - KAMYON_BASLANGIC.y) * tk;
-        var ko = KAMYON_BASLANGIC.olcek + (1 - KAMYON_BASLANGIC.olcek) * tk;
-        /* Ölçek basamaklandırılıyor. Kaydırma taşıma (translate) bileşik
-           iş parçacığında bedava, ama ölçek her değiştiğinde tarayıcı
-           780px'lik görseli yeniden rasterlemek zorunda: her karede
-           değişince kaydırma tökezliyordu (ölçüldü: düşen kare 4 -> 32).
-           Basamak %2'de tutuluyor: %4'e çıkarmak ölçüldü, düşen kare
-           sayısını değiştirmedi (medyan 36'ya karşı 36) ama hareketi
-           kabalaştırıyordu. */
-        ko = Math.round(ko * 50) / 50;
-        kamyon.style.transform =
-          "translate(" + kx.toFixed(2) + "%," + ky.toFixed(2) + "%) scale(" + ko.toFixed(2) + ")";
-      }
-    }
+    var BASLANGIC = { x: -28, y: -13, olcek: 0.34 };
+    var ticking = false;
+    var oncekiT = -1;
 
     function yumusat(t) {
       return t * t * (3 - 2 * t);
     }
 
+    function yaz(t) {
+      var kx = BASLANGIC.x + (-50 - BASLANGIC.x) * t;
+      var ky = BASLANGIC.y + (0 - BASLANGIC.y) * t;
+      /* Ölçek %2'lik basamaklara yuvarlanıyor: 780px'lik görselin ölçeği
+         her karede değişince tarayıcı onu yeniden rasterliyor ve kaydırma
+         tökezliyor (ölçüldü). */
+      var ko = Math.round((BASLANGIC.olcek + (1 - BASLANGIC.olcek) * t) * 50) / 50;
+      kamyon.style.transform =
+        "translate(" + kx.toFixed(2) + "%," + ky.toFixed(2) + "%) scale(" + ko.toFixed(2) + ")";
+    }
+
+    function update() {
+      ticking = false;
+      if (masaustu.matches) return;
+
+      var kaydirma = window.pageYOffset;
+      var rect = visual.getBoundingClientRect();
+
+      // Görselin merkezi ekran yüksekliğinin %42'sine geldiğinde başlar:
+      // tam ortanın biraz üstü.
+      var basla = kaydirma + rect.top + rect.height / 2 - window.innerHeight * 0.42;
+
+      // İlk kutu ("Asansörlü taşıma") header'ın altına oturunca biter.
+      var kartUst = kaydirma + (ilkKart ? ilkKart.getBoundingClientRect().top : rect.top);
+      var basYuksekligi = header ? header.getBoundingClientRect().height : 68;
+      var bitis = kartUst - basYuksekligi;
+
+      // Çok kısa bir yol sıçrama gibi görünür; en az 200px'lik pay bırakılır.
+      if (bitis - basla < 200) basla = bitis - 200;
+
+      var ilerleme = Math.min(1, Math.max(0, (kaydirma - basla) / (bitis - basla)));
+      if (Math.abs(ilerleme - oncekiT) < 0.004) return;
+      oncekiT = ilerleme;
+      yaz(yumusat(ilerleme));
+    }
+
     function onScroll() {
-      if (ticking || !gorunur) return;
+      if (ticking) return;
       ticking = true;
       window.requestAnimationFrame(update);
     }
 
-    function onResize() {
-      olcuAl();
-      oncekiT = -1;
-      onScroll();
-    }
-
-    /* Hero ekrandan çıktığında kaydırma işi tamamen durur; sayfanın geri
-       kalanında bu kod hiç çalışmaz. */
-    if (typeof IntersectionObserver === "function") {
-      new IntersectionObserver(function (girisler) {
-        gorunur = girisler[0].isIntersecting;
-        if (gorunur) onScroll();
-      }, { rootMargin: "120px" }).observe(visual);
+    function kipDegisti() {
+      if (masaustu.matches) {
+        // Masaüstünde konumu CSS animasyonu belirler; satır içi değer silinir.
+        kamyon.style.transform = "";
+        oncekiT = -1;
+      } else {
+        oncekiT = -1;
+        update();
+      }
     }
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onResize);
-    /* Ölçü DOMContentLoaded'da alınınca yazı tipi ve görseller yerleşmeden
-       önce okunuyor ve "bitis" olduğundan uzun çıkıyordu: sıralanma kamyon
-       ekranı terk ederken tamamlanıyordu. Yerleşim oturunca tekrar ölçülür. */
-    window.addEventListener("load", onResize);
-    olcuAl();
-    update();
+    window.addEventListener("resize", function () {
+      oncekiT = -1;
+      onScroll();
+    });
+    window.addEventListener("load", function () {
+      oncekiT = -1;
+      onScroll();
+    });
+
+    if (typeof masaustu.addEventListener === "function") {
+      masaustu.addEventListener("change", kipDegisti);
+    } else if (typeof masaustu.addListener === "function") {
+      masaustu.addListener(kipDegisti);
+    }
+
+    kipDegisti();
   }
 
   function initializeCurrentYear() {
@@ -652,6 +637,7 @@
     initializeActiveNavigation();
     initializeHeroParallax();
     initializeHeroCards();
+    initializeHeroTruck();
     initializeRevealAnimations();
     initializeFaq();
     initializeGallery();
