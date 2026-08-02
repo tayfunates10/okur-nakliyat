@@ -134,7 +134,7 @@ jobs:
         run: |
           set -euo pipefail
           html_url="https://okurnakliyatedremit.com/?deploy=${GITHUB_SHA}"
-          css_ref="$(grep -oE '/assets/css/footer-icons\.css\?v=[0-9]+' dist/index.html | head -n 1)"
+          css_ref="$(grep -oE '/assets/css/footer-contact\.css\?v=[0-9]+' dist/index.html | head -n 1)"
 
           html="$(curl --fail --silent --show-error --location \
             --connect-timeout 15 --max-time 30 \
@@ -147,8 +147,9 @@ jobs:
           if grep -Fq 'M22 16.92v3' <<<"$html" && \
              grep -Fq 'M20 10c0 5-8 12' <<<"$html" && \
              grep -Fq "$css_ref" <<<"$html" && \
-             grep -Fq 'flex: 0 0 44px;' <<<"$css"; then
-            echo "Genel HTTP uç noktasında yeni footer HTML ve CSS doğrulandı."
+             grep -Fq 'grid-template-columns: 42px minmax(0, 1fr);' <<<"$css" && \
+             grep -Fq 'grid-template-columns: repeat(2, minmax(0, 1fr));' <<<"$css"; then
+            echo "Genel HTTP uç noktasında yeni footer iletişim HTML ve CSS'i doğrulandı."
             exit 0
           fi
 
