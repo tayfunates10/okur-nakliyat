@@ -27,6 +27,7 @@
   <meta name="twitter:title" content="{{BASLIK}}">
   <meta name="twitter:description" content="{{ACIKLAMA}}">
   <meta name="twitter:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg?v={{v}}">
+  <meta name="twitter:image:alt" content="Okur Nakliyat hizmetleri ve iletişim bilgilerini gösteren tanıtım görseli.">
 
   <link rel="icon" href="/assets/images/logo/favicon-okur.svg?v={{v}}" type="image/svg+xml" sizes="any">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,9 +48,6 @@
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
   </noscript>
-
-  <link rel="preload" href="/assets/images/hero/okur-nakliyat-hero-background.webp?v={{v}}"
-        as="image" type="image/webp" fetchpriority="high">
 
   <!--
     ÖNEMLİ: .htaccess her .css/.js/.webp/.svg/.jpg dosyasına
@@ -72,6 +70,7 @@
   <link rel="stylesheet" href="/assets/css/footer-contact-compact.css?v={{v}}">
 
   <script defer src="/assets/js/main.js?v={{v}}"></script>
+  <script defer src="/assets/js/marquee.js?v={{v}}"></script>
 
   <noscript>
     <style>
@@ -89,9 +88,9 @@
     diğer sayfalar ona @id ile bağlanır — aynı varlığı iki kez tanımlamak
     Google'ı bölünmüş kimlikle bırakır.
 
-    Uydurma alan yok: adres, çalışma saati, koordinat ve puan bilgisi
-    doğrulanamadığı için hiç yazılmadı — eksik alan, yanlış alandan iyidir
-    (yanlış NAP yerel sıralamayı doğrudan düşürür).
+    İşletme şemasında yalnızca sitede görünür ve işletme tarafından verilen
+    bilgiler kullanılır. Doğrulanmamış puan, koordinat veya çalışma saati
+    eklenmez; eksik alan yanlış bilgiden daha güvenlidir.
 
     Bu blok tools/sayfa.py tarafından üretilir; elle düzenlenmez.
   -->

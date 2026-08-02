@@ -17,7 +17,7 @@
   <meta property="og:url" content="https://okurnakliyatedremit.com/sehirler-arasi-nakliyat/">
   <meta property="og:title" content="Edremit Şehirler Arası Nakliyat | Okur Nakliyat">
   <meta property="og:description" content="Edremit ve Balıkesir çıkışlı ya da varışlı şehirler arası nakliyat. İstanbul, İzmir, Ankara, Bursa, Antalya ve Türkiye'nin tüm şehirleri için güzergâh planlaması.">
-  <meta property="og:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg?v=32">
+  <meta property="og:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg?v=33">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:type" content="image/jpeg">
@@ -26,9 +26,10 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Edremit Şehirler Arası Nakliyat | Okur Nakliyat">
   <meta name="twitter:description" content="Edremit ve Balıkesir çıkışlı ya da varışlı şehirler arası nakliyat. İstanbul, İzmir, Ankara, Bursa, Antalya ve Türkiye'nin tüm şehirleri için güzergâh planlaması.">
-  <meta name="twitter:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg?v=32">
+  <meta name="twitter:image" content="https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg?v=33">
+  <meta name="twitter:image:alt" content="Okur Nakliyat hizmetleri ve iletişim bilgilerini gösteren tanıtım görseli.">
 
-  <link rel="icon" href="/assets/images/logo/favicon.svg?v=32" type="image/svg+xml">
+  <link rel="icon" href="/assets/images/logo/favicon-okur.svg?v=33" type="image/svg+xml" sizes="any">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
@@ -48,9 +49,6 @@
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
   </noscript>
 
-  <link rel="preload" href="/assets/images/hero/okur-nakliyat-hero-background.webp?v=32"
-        as="image" type="image/webp" fetchpriority="high">
-
   <!--
     ÖNEMLİ: .htaccess her .css/.js/.webp/.svg/.jpg dosyasına
     `max-age=31536000, immutable` veriyor. `immutable`, tarayıcıya "bu URL'i
@@ -65,12 +63,14 @@
     ama dosya adı ve URL'i aynı kaldığı için ziyaretçilerde eski harita
     görünmeye devam etti.
   -->
-  <link rel="stylesheet" href="/assets/css/reset.css?v=32">
-  <link rel="stylesheet" href="/assets/css/variables.css?v=32">
-  <link rel="stylesheet" href="/assets/css/components.css?v=32">
-  <link rel="stylesheet" href="/assets/css/style.css?v=32">
+  <link rel="stylesheet" href="/assets/css/reset.css?v=33">
+  <link rel="stylesheet" href="/assets/css/variables.css?v=33">
+  <link rel="stylesheet" href="/assets/css/components.css?v=33">
+  <link rel="stylesheet" href="/assets/css/style.css?v=33">
+  <link rel="stylesheet" href="/assets/css/footer-contact-compact.css?v=33">
 
-  <script defer src="/assets/js/main.js?v=32"></script>
+  <script defer src="/assets/js/main.js?v=33"></script>
+  <script defer src="/assets/js/marquee.js?v=33"></script>
 
   <noscript>
     <style>
@@ -88,9 +88,9 @@
     diğer sayfalar ona @id ile bağlanır — aynı varlığı iki kez tanımlamak
     Google'ı bölünmüş kimlikle bırakır.
 
-    Uydurma alan yok: adres, çalışma saati, koordinat ve puan bilgisi
-    doğrulanamadığı için hiç yazılmadı — eksik alan, yanlış alandan iyidir
-    (yanlış NAP yerel sıralamayı doğrudan düşürür).
+    İşletme şemasında yalnızca sitede görünür ve işletme tarafından verilen
+    bilgiler kullanılır. Doğrulanmamış puan, koordinat veya çalışma saati
+    eklenmez; eksik alan yanlış bilgiden daha güvenlidir.
 
     Bu blok tools/sayfa.py tarafından üretilir; elle düzenlenmez.
   -->
@@ -111,7 +111,7 @@
         "about": {
           "@id": "https://okurnakliyatedremit.com/#isletme"
         },
-        "primaryImageOfPage": "https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg?v=32",
+        "primaryImageOfPage": "https://okurnakliyatedremit.com/assets/images/og/okur-nakliyat-og.jpg?v=33",
         "breadcrumb": {
           "@id": "https://okurnakliyatedremit.com/sehirler-arasi-nakliyat/#kirinti"
         }
@@ -156,22 +156,12 @@
   <a class="skip-link" href="#main">İçeriğe geç</a>
 
   <!-- Hizmet şeridi: sayfanın en üstünde, header'ın üzerinde durur.
-       İçerik iki kez basılır -- ilk kopya ekranı terk ederken ikincisi
-       yerine geçer, dönüşte boşluk oluşmaz. İkinci kopya aria-hidden;
-       ekran okuyucu listeyi iki kez okumasın. Hizmet verilen yerler
+       İkinci görsel kopya assets/js/marquee.js tarafından çalışma anında
+       aria-hidden olarak oluşturulur; kaynak HTML'de hizmetler tekrar etmez. Hizmet verilen yerler
        şeridi hero'nun sonunda; bkz. sayfalar/anasayfa.html. -->
   <div class="site-serit site-serit-ust" aria-label="Hizmetler" role="group">
     <div class="site-serit-satir">
       <ul class="site-serit-liste">
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3.8 10.3 12 3.6l8.2 6.7"/><path d="M5.6 11.8v8.6h12.8v-8.6"/><path d="M9.9 20.4v-5.3h4.2v5.3"/></svg>Evden Eve Nakliyat</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 16.5V7.5h11v9"/><path d="M14 10.5h4l3 4v2h-7"/><circle cx="7" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>Şehirler Arası Taşıma</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 21V4.5h10V21"/><path d="M14 10h6v11"/><path d="M2.5 21h19"/><path d="M7 8h4M7 12h4M7 16h4M17 14h1M17 17.5h1"/></svg>Ofis ve İş Yeri Taşıma</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 21V6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5V21"/><path d="M3 21h18"/><path d="M12 7v10"/><path d="m9.2 10.2 2.8-2.8 2.8 2.8"/></svg>Asansörlü Taşıma</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5Z"/><path d="M4 8.5 12 13l8-4.5M12 13v7"/></svg>Parça Eşya Taşıma</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3.5 7.5h17v13h-17Z"/><path d="M3.5 12h17"/><path d="M9.5 7.5V4h5v3.5"/></svg>Paketleme ve Koruma</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20.1 6.9 17.5 9.5l-2.4-.6-.6-2.4L17.1 3.9a5 5 0 0 0-6.2 6.2l-6.6 6.6a2.2 2.2 0 0 0 3.1 3.1l6.6-6.6A5 5 0 0 0 20.1 6.9Z"/></svg>Ücretsiz Kurulum ve Montaj</li>
-      </ul>
-      <ul class="site-serit-liste" aria-hidden="true">
         <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3.8 10.3 12 3.6l8.2 6.7"/><path d="M5.6 11.8v8.6h12.8v-8.6"/><path d="M9.9 20.4v-5.3h4.2v5.3"/></svg>Evden Eve Nakliyat</li>
         <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 16.5V7.5h11v9"/><path d="M14 10.5h4l3 4v2h-7"/><circle cx="7" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></svg>Şehirler Arası Taşıma</li>
         <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 21V4.5h10V21"/><path d="M14 10h6v11"/><path d="M2.5 21h19"/><path d="M7 8h4M7 12h4M7 16h4M17 14h1M17 17.5h1"/></svg>Ofis ve İş Yeri Taşıma</li>
@@ -334,25 +324,6 @@
         <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Gömeç</li>
         <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Ayvalık</li>
         <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Havran</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>İvrindi</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Savaştepe</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Altıeylül</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Karesi</li>
-      </ul>
-      <ul class="site-serit-liste" aria-hidden="true">
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Edremit</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Zeytinli</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Akçay</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Güre</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Altınoluk</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Burhaniye</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Gömeç</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Ayvalık</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Havran</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>İvrindi</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Savaştepe</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Altıeylül</li>
-        <li><svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>Karesi</li>
       </ul>
     </div>
   </div>
@@ -405,7 +376,7 @@
             <li><strong>Edremit merkez</strong> — güzergâhın başlangıç noktası; çıkış saati buna göre belirleniyor.</li>
             <li><strong>Zeytinli, Akçay, Güre, Altınoluk</strong> — sahil şeridi üzerindeki bu yerleşimlerden alınan yükler, aracın körfezden ayrılmadan önceki güzergâhına ekleniyor.</li>
             <li><strong>Burhaniye, Gömeç, Ayvalık</strong> — körfezin güney kıyısı; güneye uzanan çıkışlarda güzergâh üzerinde kalıyor.</li>
-            <li><strong>Havran, İvrindi, Savaştepe, Altıeylül ve Karesi</strong> — Edremit'ten Balıkesir merkeze uzanan hat; kuzey ve doğu güzergâhlarında çıkış ya da varış noktası olabiliyor.</li>
+            <li><strong>Havran ve Balıkesir çevresi</strong> — uygunluk; adres, eşya miktarı ve planlanan tarihe göre ayrıca değerlendirilir.</li>
           </ul>
       </div>
     </section>
@@ -453,13 +424,6 @@
               <svg class="icon icon-whatsapp" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M17.47 14.38c-.3-.15-1.75-.86-2.02-.96-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.6-.92-2.2-.24-.58-.49-.5-.67-.5h-.57c-.2 0-.52.07-.79.37-.27.3-1.03 1.01-1.03 2.46s1.06 2.85 1.2 3.05c.15.2 2.08 3.18 5.04 4.46.7.3 1.25.48 1.68.62.7.22 1.35.19 1.86.11.57-.08 1.75-.71 1.99-1.4.25-.7.25-1.29.18-1.42-.08-.13-.27-.2-.57-.35Z"/><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm0 1.67c2.2 0 4.28.86 5.84 2.42a8.2 8.2 0 0 1 2.42 5.83c0 4.54-3.7 8.24-8.25 8.24a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.25 8.24-8.25Z"/></svg>
             </a>
           </li>
-          <!-- Hesap adresi henüz verilmedi; bağlantı Instagram'ın kendisine
-               gidiyor. Adres gelince buradaki href profile çevrilmeli. -->
-          <li>
-            <a href="https://www.instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
-              <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5"/><circle cx="12" cy="12" r="4.1"/><circle cx="17.1" cy="6.9" r="1.15" fill="currentColor" stroke="none"/></svg>
-            </a>
-          </li>
         </ul>
       </div>
 
@@ -480,20 +444,26 @@
         <a href="/parca-esya-tasima/"><span>Parça Eşya Taşıma</span></a>
         <a href="/paketleme-hizmeti/"><span>Paketleme ve Koruma</span></a>
         <a href="/kurulum-montaj/"><span>Kurulum ve Montaj</span></a>
-        <a href="/evden-eve-nakliyat/"><span>Asansörlü Taşıma</span></a>
+        <a href="/asansorlu-nakliyat/"><span>Asansörlü Taşıma</span></a>
       </div>
 
       <div class="footer-column footer-column-iletisim">
         <h3>İletişim</h3>
 
         <p class="footer-bilgi">
-          <span class="footer-bilgi-ikon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M17.4 20A13.4 13.4 0 0 1 4 6.6 2.6 2.6 0 0 1 6.6 4h2A1.6 1.6 0 0 1 10.2 5.4l.5 2.9a1.6 1.6 0 0 1-.8 1.7l-1.1.6a11.4 11.4 0 0 0 4.6 4.6l.6-1.1a1.6 1.6 0 0 1 1.7-.8l2.9.5a1.6 1.6 0 0 1 1.4 1.6v2A2.6 2.6 0 0 1 17.4 20Z"/></svg></span>
+          <span class="footer-bilgi-ikon" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L8 9.73a16 16 0 0 0 6 6l1.27-1.28a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92Z"/>
+            </svg>
+          </span>
           <a class="footer-bilgi-metin" href="tel:+905372265043">0537 226 50 43</a>
         </p>
 
         <div class="footer-eylem">
           <a class="btn btn-primary btn-sm" href="tel:+905372265043">
-            <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M17.4 20A13.4 13.4 0 0 1 4 6.6 2.6 2.6 0 0 1 6.6 4h2A1.6 1.6 0 0 1 10.2 5.4l.5 2.9a1.6 1.6 0 0 1-.8 1.7l-1.1.6a11.4 11.4 0 0 0 4.6 4.6l.6-1.1a1.6 1.6 0 0 1 1.7-.8l2.9.5a1.6 1.6 0 0 1 1.4 1.6v2A2.6 2.6 0 0 1 17.4 20Z"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L8 9.73a16 16 0 0 0 6 6l1.27-1.28a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92Z"/>
+            </svg>
             Ara
           </a>
           <a class="btn btn-secondary btn-sm" href="https://wa.me/905372265043" target="_blank" rel="noopener">
@@ -503,7 +473,12 @@
         </div>
 
         <div class="footer-bilgi footer-bilgi-adres">
-          <span class="footer-bilgi-ikon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg></span>
+          <span class="footer-bilgi-ikon" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </span>
           <address class="footer-adres">
             ATATÜRK MAH. KALKIM CAD, 15 İÇ KAPI TOKİ SİTESİ<br>
             NO: 4 Y1 NO: 112, 10300 Edremit / Balıkesir
@@ -512,7 +487,10 @@
 
         <div class="footer-eylem">
           <a class="btn btn-secondary btn-sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=ATAT%C3%9CRK%20MAH.%20KALKIM%20CAD%2C%2015%20%C4%B0%C3%87%20KAPI%20TOK%C4%B0%20S%C4%B0TES%C4%B0%20NO%3A%204%20Y1%20NO%3A%20112%2C%2010300%20Edremit%2FBal%C4%B1kesir" target="_blank" rel="noopener">
-            <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 20.55c3.9-4 6.5-7.2 6.5-10.6a6.5 6.5 0 1 0-13 0c0 3.4 2.6 6.6 6.5 10.6Z"/><circle cx="12" cy="9.75" r="2.5"/></svg>
+            <svg class="icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
             Yol tarifi al
           </a>
         </div>
