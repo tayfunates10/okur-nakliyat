@@ -1,0 +1,241 @@
+name: SEO site geneli son QA
+
+on:
+  push:
+    branches:
+      - seo/guvenli-site-iyilestirmeleri
+
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: QA durumunu başlat
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY' > /tmp/qa-status.json
+          import json, os
+          print(json.dumps({
+              "state": "pending",
+              "context": "qa/seo-site",
+              "description": "Site geneli bağlantı ve responsive testleri çalışıyor",
+              "target_url": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}",
+          }))
+          PY
+          curl --fail --silent --show-error --location -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            --data-binary @/tmp/qa-status.json
+
+      - name: Depoyu al
+        uses: actions/checkout@v4
+
+      - name: Node.js kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Playwright ve Chromium kur
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: İç bağlantı, asset ve HTML yapısını doğrula
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urlsplit, unquote
+          import re
+
+          root = Path('.').resolve()
+          html_files = [Path('index.html'), *sorted(Path('.').glob('*/index.html'))]
+          errors = []
+
+          class Parser(HTMLParser):
+              def __init__(self, file):
+                  super().__init__()
+                  self.file = file
+                  self.ids = set()
+                  self.h1 = 0
+              def handle_starttag(self, tag, attrs):
+                  data = dict(attrs)
+                  if tag == 'h1':
+                      self.h1 += 1
+                  if data.get('id'):
+                      if data['id'] in self.ids:
+                          errors.append(f'{self.file}: yinelenen id #{data["id"]}')
+                      self.ids.add(data['id'])
+                  for key in ('href', 'src'):
+                      url = data.get(key)
+                      if not url or url.startswith(('#', 'tel:', 'mailto:', 'javascript:', 'data:')):
+                          continue
+                      parts = urlsplit(url)
+                      if parts.scheme or parts.netloc:
+                          continue
+                      path = unquote(parts.path)
+                      if not path.startswith('/'):
+                          target = (self.file.parent / path).resolve()
+                      else:
+                          target = root / path.lstrip('/')
+                      if path.endswith('/'):
+                          target = target / 'index.html'
+                      if path == '/':
+                          target = root / 'index.html'
+                      if not target.exists():
+                          errors.append(f'{self.file}: kırık {key} {url}')
+
+          for file in html_files:
+              text = file.read_text(encoding='utf-8')
+              parser = Parser(file)
+              parser.feed(text)
+              if parser.h1 != 1:
+                  errors.append(f'{file}: H1 sayısı {parser.h1}')
+              if not re.search(r'<meta name="description" content="[^"\n]+">', text):
+                  errors.append(f'{file}: meta description eksik')
+              if not re.search(r'<link rel="canonical" href="https://okurnakliyatedremit\.com/', text):
+                  errors.append(f'{file}: canonical eksik')
+
+          if errors:
+              raise SystemExit('\n'.join(errors))
+          print(f'{len(html_files)} HTML dosyasında bağlantı, asset, H1, ID ve meta kontrolleri geçti.')
+          PY
+
+      - name: Yerel sunucuyu başlat
+        run: |
+          python3 -m http.server 8099 >/tmp/server.log 2>&1 &
+          echo $! > /tmp/server.pid
+          for i in {1..20}; do
+            curl --fail --silent http://127.0.0.1:8099/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/server.log
+          exit 1
+
+      - name: Tüm sayfalarda responsive ve tarayıcı QA
+        run: |
+          node <<'JS'
+          const { chromium } = require('playwright');
+
+          const pages = [
+            '/', '/asansorlu-nakliyat/', '/evden-eve-nakliyat/',
+            '/sehirler-arasi-nakliyat/', '/ofis-tasima/',
+            '/parca-esya-tasima/', '/paketleme-hizmeti/',
+            '/kurulum-montaj/', '/nakliyat-fiyatlari/',
+            '/sikca-sorulan-sorular/', '/galeri/',
+            '/kvkk-aydinlatma-metni/', '/gizlilik-politikasi/'
+          ];
+          const viewports = [
+            { width: 320, height: 568 },
+            { width: 390, height: 844 },
+            { width: 768, height: 1024 },
+            { width: 844, height: 390 },
+            { width: 1366, height: 768 },
+            { width: 1920, height: 1080 }
+          ];
+
+          (async () => {
+            const browser = await chromium.launch({ headless: true });
+            const failures = [];
+
+            for (const path of pages) {
+              for (const viewport of viewports) {
+                const page = await browser.newPage({ viewport });
+                const label = `${path} ${viewport.width}x${viewport.height}`;
+                const consoleErrors = [];
+                const requestErrors = [];
+
+                page.on('console', msg => {
+                  if (msg.type() === 'error') consoleErrors.push(msg.text());
+                });
+                page.on('pageerror', err => consoleErrors.push(err.message));
+                page.on('requestfailed', req => {
+                  const url = req.url();
+                  if (url.startsWith('http://127.0.0.1:8099/')) {
+                    requestErrors.push(`${url}: ${req.failure()?.errorText || 'failed'}`);
+                  }
+                });
+
+                const response = await page.goto(`http://127.0.0.1:8099${path}`, {
+                  waitUntil: 'networkidle', timeout: 30000
+                });
+                if (!response || response.status() !== 200) {
+                  failures.push(`${label}: HTTP ${response?.status() || 'yanıt yok'}`);
+                }
+                await page.waitForTimeout(350);
+
+                const result = await page.evaluate(() => {
+                  const ids = [...document.querySelectorAll('[id]')].map(el => el.id);
+                  const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
+                  const brokenImages = [...document.images]
+                    .filter(img => img.complete && img.naturalWidth === 0)
+                    .map(img => img.currentSrc || img.src);
+                  const canonical = document.querySelector('link[rel="canonical"]')?.href || '';
+                  return {
+                    scrollWidth: document.documentElement.scrollWidth,
+                    clientWidth: document.documentElement.clientWidth,
+                    h1: document.querySelectorAll('h1').length,
+                    duplicateIds: [...new Set(duplicateIds)],
+                    brokenImages,
+                    canonical,
+                  };
+                });
+
+                if (result.scrollWidth > result.clientWidth + 1) {
+                  failures.push(`${label}: yatay taşma ${result.scrollWidth}/${result.clientWidth}`);
+                }
+                if (result.h1 !== 1) failures.push(`${label}: H1 sayısı ${result.h1}`);
+                if (result.duplicateIds.length) failures.push(`${label}: yinelenen ID ${result.duplicateIds.join(',')}`);
+                if (result.brokenImages.length) failures.push(`${label}: kırık görsel ${result.brokenImages.join(',')}`);
+                if (!result.canonical.startsWith('https://okurnakliyatedremit.com/')) {
+                  failures.push(`${label}: canonical hatalı ${result.canonical}`);
+                }
+                if (consoleErrors.length) failures.push(`${label}: console ${consoleErrors.join(' | ')}`);
+                if (requestErrors.length) failures.push(`${label}: istek ${requestErrors.join(' | ')}`);
+                await page.close();
+              }
+            }
+
+            await browser.close();
+            if (failures.length) {
+              console.error(failures.join('\n'));
+              process.exit(1);
+            }
+            console.log(`${pages.length} sayfa × ${viewports.length} görünüm = ${pages.length * viewports.length} tarayıcı testi geçti.`);
+          })().catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
+          JS
+
+      - name: QA sonucunu kaydet
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          python3 - <<'PY' > /tmp/qa-status-final.json
+          import json, os
+          success = os.environ['JOB_STATUS'] == 'success'
+          print(json.dumps({
+              "state": "success" if success else "failure",
+              "context": "qa/seo-site",
+              "description": "13 sayfa bağlantı ve responsive QA testleri başarılı" if success else "Site geneli QA testinde düzeltilecek hata var",
+              "target_url": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}",
+          }))
+          PY
+          curl --fail --silent --show-error --location -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            --data-binary @/tmp/qa-status-final.json
