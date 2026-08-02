@@ -57,24 +57,39 @@ def verify_contents(remote: dict[str, bytes], expected: dict[str, bytes]) -> Non
             )
 
     index = remote["index.html"].decode("utf-8")
-    css = remote["assets/css/footer-contact.css"].decode("utf-8")
+    css = remote["assets/css/footer-contact-compact.css"].decode("utf-8")
+    favicon = remote["assets/images/logo/favicon-okur.svg"].decode("utf-8")
 
     checks = {
-        "footer iletişim CSS bağlantısı": bool(
-            re.search(r'/assets/css/footer-contact\.css\?v=\d+', index)
+        "kompakt footer iletişim CSS bağlantısı": bool(
+            re.search(r'/assets/css/footer-contact-compact\.css\?v=\d+', index)
         ),
+        "favicon bağlantısı": bool(
+            re.search(r'/assets/images/logo/favicon-okur\.svg\?v=\d+', index)
+        ),
+        "favicon sarı halka": (
+            'circle cx="133" cy="133" r="99.5"' in favicon
+            and 'stroke="#F5C400"' in favicon
+        ),
+        "favicon özgün kamyon yolu": "M366 0h74v231h21v25" in favicon,
+        "favicon yazısız": "<text" not in favicon and "OKUR" not in favicon,
         "telefon SVG yolu": "M22 16.92v3" in index,
         "konum SVG yolu": "M20 10c0 5-8 12" in index,
         "iletişim kolonu": ".footer-column-iletisim" in css,
-        "42px ikon kolonu": "grid-template-columns: 42px minmax(0, 1fr);" in css,
-        "42px rozet genişliği": "width: 42px;" in css,
-        "42px rozet yüksekliği": "height: 42px;" in css,
+        "34px masaüstü ikon kolonu": (
+            "grid-template-columns: 34px minmax(0, 1fr);" in css
+        ),
+        "32px mobil ikon kolonu": (
+            "grid-template-columns: 32px minmax(0, 1fr);" in css
+        ),
+        "34px rozet genişliği": "width: 34px;" in css,
+        "34px rozet yüksekliği": "height: 34px;" in css,
         "tam daire": "border-radius: 50%;" in css,
         "iki eşit aksiyon sütunu": (
             "grid-template-columns: repeat(2, minmax(0, 1fr));" in css
         ),
-        "48px footer düğmesi": "min-height: 48px;" in css,
-        "60px mobil çubuk": "min-height: 60px;" in css,
+        "42px footer düğmesi": "min-height: 42px;" in css,
+        "56px mobil çubuk": "min-height: 56px;" in css,
     }
     missing = [name for name, ok in checks.items() if not ok]
     if missing:
@@ -92,8 +107,11 @@ def main() -> int:
     host, port = server_address(os.environ["FTP_SERVER"])
     expected = {
         "index.html": (DIST / "index.html").read_bytes(),
-        "assets/css/footer-contact.css": (
-            DIST / "assets/css/footer-contact.css"
+        "assets/css/footer-contact-compact.css": (
+            DIST / "assets/css/footer-contact-compact.css"
+        ).read_bytes(),
+        "assets/images/logo/favicon-okur.svg": (
+            DIST / "assets/images/logo/favicon-okur.svg"
         ).read_bytes(),
     }
 
@@ -118,8 +136,9 @@ def main() -> int:
             remote = {path: download(ftp, path) for path in expected}
             verify_contents(remote, expected)
             print(
-                "Sunucudaki index.html ve footer-contact.css yerel yayın "
-                "paketiyle birebir; iletişim ölçekleri doğrulandı."
+                "Sunucudaki index.html, kompakt footer iletişim stili ve "
+                "yazısız özgün logo faviconu yerel yayın paketiyle birebir "
+                "doğrulandı."
             )
             return 0
         except Exception as exc:
