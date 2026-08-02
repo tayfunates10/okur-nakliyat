@@ -503,7 +503,7 @@ body.is-menu-open {
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=24");
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=25");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -623,8 +623,11 @@ body.is-menu-open {
   max-width: none;
   height: auto;
   transform: translateX(-50%);
+  transform-origin: 68% 70%;
   filter: drop-shadow(0 34px 44px rgba(0, 0, 0, 0.34));
-  animation: heroVisualEnter 1s var(--ease-out-soft) 0.2s both;
+  /* 1.4sn'lik tek bir yol: kutular 820ms'de belirmeye başladığında kamyon
+     yolun büyük kısmını almış oluyor, ikisi birlikte yerine oturuyor. */
+  animation: heroVisualEnter 1.4s var(--ease-out-soft) 0.15s both;
 }
 
 .hero-visual-glow {
@@ -752,10 +755,6 @@ body.is-menu-open {
   box-shadow: var(--shadow-md);
 }
 
-.service-card-featured p {
-  color: var(--text-on-dark-muted);
-}
-
 .service-card-top {
   display: flex;
   align-items: flex-start;
@@ -800,6 +799,14 @@ body.is-menu-open {
   margin: var(--space-sm) 0 var(--space-lg);
   font-size: var(--fs-sm);
   color: var(--text-on-light-muted);
+}
+
+/* Bu kural `.service-card p`den SONRA gelmeli. Yukarıda, `.service-card-featured`
+   bloğunun içindeydi; iki seçicinin özgüllüğü eşit olduğu için sonra gelen
+   kazanıyor ve koyu zeminli kart rgb(86,86,86) metinle kalıyordu -- #151515
+   üzerinde 2.4:1 kontrast, okunmuyordu. Şimdi 8.6:1. */
+.service-card-featured p {
+  color: var(--text-on-dark-muted);
 }
 
 .service-tag {
@@ -2176,10 +2183,20 @@ body.is-menu-open {
   }
 }
 
+/* Kamyon sağdan girer ve yaklaşırken büyür: uzaktan yola çıkıp ekrana
+   giriyormuş hissi. Ölçek merkezi tekerleklerin oturduğu noktada (%50 %92);
+   büyürken görsel yoldan kopmuyor, aynı zeminde kalıyor. Yatay kayma
+   translateX(-50%) taban dönüşümünün üzerine biniyor, o yüzden başlangıçta
+   -50% + %62. Tek bir animasyon; ilk ve son konum aynı zamanlamayı
+   paylaşıyor, arada sıçrama yok. */
 @keyframes heroVisualEnter {
   from {
     opacity: 0;
-    transform: translate(-50%, 32px) scale(0.96);
+    transform: translate(-28%, -13%) scale(0.34);
+  }
+
+  14% {
+    opacity: 1;
   }
 
   to {
@@ -3071,17 +3088,31 @@ body.is-menu-open {
    boyu aşağı itiliyor. Yükseklik değişkenden geliyor; içerikten hesaplanan
    46.8px yerine sabit 47px, böylece aşağıdaki hesaplar birebir tutuyor. */
 .site-serit {
-  position: fixed;
-  inset: 0 0 auto;
-  z-index: calc(var(--z-header) + 1);
+  position: relative;
+  z-index: 1;
   display: grid;
-  height: var(--serit-yuksekligi);
   overflow: hidden;
   background: var(--color-black);
   border-top: 2px solid var(--color-yellow);
   border-bottom: 2px solid var(--color-yellow);
   /* Kenarlarda yumuşak kesim; yazılar duvara çarpmış gibi bitmesin. */
   mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+/* Üstteki hizmet şeridi sayfanın en tepesinde sabit durur. Header
+   `position: fixed` olduğu için şerit akışta bırakılınca header onu
+   örtüyordu (ölçüldü: ikisi de top=0); şerit de sabitlenip header bir
+   şerit boyu aşağı itiliyor. */
+.site-serit-ust {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: calc(var(--z-header) + 1);
+  height: var(--serit-yuksekligi);
+}
+
+/* Alttaki bölge şeridi hero'nun son öğesi; akışta, bölümün alt kenarında. */
+.site-serit-alt {
+  height: var(--serit-yuksekligi);
 }
 
 /* Şerit yalnızca ana sayfada var. Kardeş seçici kullanıldığı için şeridi
@@ -3129,11 +3160,20 @@ body:has(.site-serit) {
   gap: clamp(1.75rem, 4vw, 3.25rem);
   align-items: center;
   margin: 0;
-  /* Sağ dolgu, öğe aralığıyla aynı: iki kopya birleştiğinde ritim bozulmaz. */
-  /* Sağ dolgu, öğe aralığıyla aynı: iki kopya birleştiğinde ritim bozulmaz.
-     Dikey dolgu artırıldı; satırlar çok bitişik duruyordu. */
-  padding: 1.15rem clamp(1.75rem, 4vw, 3.25rem) 1.15rem 0;
+  padding: 0;
   list-style: none;
+}
+
+/* Sağ dolgu öğe aralığıyla birebir aynı olmalı: liste iki kez basılıyor ve
+   döngü `translate3d(-50%)` ile dönüyor, yani her kopya toplam genişliğin
+   tam yarısı. Dolgu olmadan ikinci kopyanın ilk öğesi birincinin son
+   öğesine yapışıyordu -- ekran görüntüsünde "Kurulum ve Montaj" ile "Evden
+   Eve Nakliyat" arasında boşluk yoktu.
+
+   Özgüllük kasıtlı: reset.css'teki `ul[class] { padding: 0 }` (0,1,1) tek
+   sınıflı kuralı (0,1,0) eziyor. İki sınıf yazılınca (0,2,0) öne geçiyor. */
+.site-serit .site-serit-liste {
+  padding-right: clamp(1.75rem, 4vw, 3.25rem);
 }
 
 .site-serit-liste li {
