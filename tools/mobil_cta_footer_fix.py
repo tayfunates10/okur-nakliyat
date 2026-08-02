@@ -91,7 +91,7 @@ def main() -> int:
 }
 '''
 
-    STYLE.write_text(style.rstrip() + override + "\n", encoding="utf-8")
+    STYLE.write_text((style.rstrip() + override).rstrip() + "\n", encoding="utf-8")
 
     generator = GENERATOR.read_text(encoding="utf-8")
     generator = replace_once(
