@@ -16,6 +16,7 @@ DIST = Path("dist")
 REMOTE_ROOT = "public_html"
 MAX_ATTEMPTS = 3
 WAIT_SECONDS = 20
+MAPS_PROFILE_URL = "https://maps.app.goo.gl/RJbrWRR5zmvahEiu8"
 
 
 def server_address(raw_server: str) -> tuple[str, int]:
@@ -57,12 +58,20 @@ def verify_contents(remote: dict[str, bytes], expected: dict[str, bytes]) -> Non
             )
 
     index = remote["index.html"].decode("utf-8")
-    css = remote["assets/css/footer-contact-compact.css"].decode("utf-8")
+    contact_css = remote["assets/css/footer-contact-compact.css"].decode("utf-8")
+    map_css = remote["assets/css/footer-map.css"].decode("utf-8")
     favicon = remote["assets/images/logo/favicon-okur-dark.svg"].decode("utf-8")
+
+    social_pos = index.find('class="footer-sosyal"')
+    map_pos = index.find('class="footer-harita"')
+    first_menu_pos = index.find('class="footer-column footer-column-menu"')
 
     checks = {
         "kompakt footer iletişim CSS bağlantısı": bool(
             re.search(r'/assets/css/footer-contact-compact\.css\?v=\d+', index)
+        ),
+        "footer harita CSS bağlantısı": bool(
+            re.search(r'/assets/css/footer-map\.css\?v=\d+', index)
         ),
         "siyah zeminli favicon bağlantısı": bool(
             re.search(r'/assets/images/logo/favicon-okur-dark\.svg\?v=\d+', index)
@@ -81,21 +90,49 @@ def verify_contents(remote: dict[str, bytes], expected: dict[str, bytes]) -> Non
         "favicon yazısız": "<text" not in favicon and "OKUR" not in favicon,
         "telefon SVG yolu": "M22 16.92v3" in index,
         "konum SVG yolu": "M20 10c0 5-8 12" in index,
-        "iletişim kolonu": ".footer-column-iletisim" in css,
+        "iletişim kolonu": ".footer-column-iletisim" in contact_css,
         "34px masaüstü ikon kolonu": (
-            "grid-template-columns: 34px minmax(0, 1fr);" in css
+            "grid-template-columns: 34px minmax(0, 1fr);" in contact_css
         ),
         "32px mobil ikon kolonu": (
-            "grid-template-columns: 32px minmax(0, 1fr);" in css
+            "grid-template-columns: 32px minmax(0, 1fr);" in contact_css
         ),
-        "34px rozet genişliği": "width: 34px;" in css,
-        "34px rozet yüksekliği": "height: 34px;" in css,
-        "tam daire": "border-radius: 50%;" in css,
         "iki eşit aksiyon sütunu": (
-            "grid-template-columns: repeat(2, minmax(0, 1fr));" in css
+            "grid-template-columns: repeat(2, minmax(0, 1fr));" in contact_css
         ),
-        "42px footer düğmesi": "min-height: 42px;" in css,
-        "56px mobil çubuk": "min-height: 56px;" in css,
+        "42px footer düğmesi": "min-height: 42px;" in contact_css,
+        "56px mobil çubuk": "min-height: 56px;" in contact_css,
+        "footer harita bileşeni": 'class="footer-harita"' in index,
+        "harita logo ve WhatsApp bölümünün altında": (
+            0 <= social_pos < map_pos < first_menu_pos
+        ),
+        "Google Harita iframe'i": (
+            "https://www.google.com/maps?q=Okur%20Nakliyat" in index
+            and "output=embed" in index
+        ),
+        "harita erişilebilir başlığı": (
+            'title="Okur Nakliyat Google Harita konumu"' in index
+        ),
+        "işletme profili tüm yönlendirmelerde": index.count(MAPS_PROFILE_URL) >= 3,
+        "eski adres tabanlı rota kaldırıldı": (
+            "www.google.com/maps/dir/?api=1" not in index
+        ),
+        "harita logo sütununa bağlı": (
+            ".footer-brand-column .footer-harita" in map_css
+            and ".footer-column-iletisim .footer-harita" not in map_css
+        ),
+        "harita kartı konumlandırması": "position: relative;" in map_css,
+        "harita masaüstü genişliği": "width: min(100%, 360px);" in map_css,
+        "harita tablet genişliği": "width: min(100%, 420px);" in map_css,
+        "harita dar ekranda tam genişlik": "width: 100%;" in map_css,
+        "responsive harita yüksekliği": (
+            "height: clamp(9rem, 11vw, 10rem);" in map_css
+            and "height: clamp(9rem, 41vw, 11rem);" in map_css
+        ),
+        "harita mobil üst sınırı": "max-height: 176px;" in map_css,
+        "harita tıklama katmanı": (
+            ".footer-brand-column .footer-harita-kapak" in map_css
+        ),
     }
     missing = [name for name, ok in checks.items() if not ok]
     if missing:
@@ -115,6 +152,9 @@ def main() -> int:
         "index.html": (DIST / "index.html").read_bytes(),
         "assets/css/footer-contact-compact.css": (
             DIST / "assets/css/footer-contact-compact.css"
+        ).read_bytes(),
+        "assets/css/footer-map.css": (
+            DIST / "assets/css/footer-map.css"
         ).read_bytes(),
         "assets/images/logo/favicon-okur-dark.svg": (
             DIST / "assets/images/logo/favicon-okur-dark.svg"
@@ -142,9 +182,9 @@ def main() -> int:
             remote = {path: download(ftp, path) for path in expected}
             verify_contents(remote, expected)
             print(
-                "Sunucudaki index.html, kompakt footer iletişim stili ve "
-                "tam kare siyah zeminli favicon yerel yayın paketiyle birebir "
-                "doğrulandı."
+                "Sunucudaki index.html, kompakt footer stili, logo bölümündeki "
+                "responsive Google Harita önizlemesi ve siyah favicon yerel "
+                "yayın paketiyle birebir doğrulandı."
             )
             return 0
         except Exception as exc:
