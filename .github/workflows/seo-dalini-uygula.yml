@@ -1,0 +1,200 @@
+name: SEO dalını uygula ve doğrula
+
+on:
+  push:
+    branches:
+      - seo/guvenli-site-iyilestirmeleri
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seo-dali-uygulama
+  cancel-in-progress: false
+
+jobs:
+  uygula:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SEO dalını al
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Geçiş betiğini ana daldan al
+        run: |
+          git fetch origin main --depth=1
+          git show FETCH_HEAD:tools/seo-iyilestir.py > tools/.seo-iyilestir-tmp.py
+
+      - name: Kaynak SEO düzenlemelerini uygula
+        run: python3 tools/.seo-iyilestir-tmp.py
+
+      - name: Önbellek sürümünü ve bölge bandını eşitle
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          for css in Path('assets/css').glob('*.css'):
+              text = css.read_text(encoding='utf-8')
+              css.write_text(text.replace('?v=32', '?v=33'), encoding='utf-8')
+
+          path = Path('sablon/serit-alt.html')
+          text = path.read_text(encoding='utf-8')
+          for place in ('İvrindi', 'Savaştepe', 'Altıeylül', 'Karesi'):
+              text = re.sub(
+                  rf'\n\s*<li>[^\n]*>{re.escape(place)}</li>',
+                  '',
+                  text,
+                  count=1,
+              )
+          path.write_text(text.rstrip() + '\n', encoding='utf-8')
+          PY
+          rm -f tools/.seo-iyilestir-tmp.py
+
+      - name: Statik sayfaları üret
+        run: python3 tools/sayfa.py
+
+      - name: Üretim tutarlılığını doğrula
+        run: python3 tools/sayfa.py --kontrol
+
+      - name: JavaScript sözdizimini doğrula
+        run: |
+          node --check assets/js/main.js
+          node --check assets/js/marquee.js
+
+      - name: SEO, bağlantı ve spam kontrolleri
+        run: |
+          python3 - <<'PY'
+          import json
+          import re
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          root = Path('.')
+          meta_re = re.compile(r'\A\s*<!--json\s*(\{.*?\})\s*-->\s*', re.S)
+          sources = sorted((root / 'sayfalar').glob('*.html'))
+          generated = []
+          titles = set()
+          forbidden = (
+              'zarar riski ortadan kalkıyor',
+              'zarar görme riski ortadan kalkıyor',
+              'yol ne kadar uzun olursa olsun aynı şekilde çıkıyor',
+              'iş akışını durdurmadan',
+              'Ölçüm için ücret almıyoruz',
+              'Aynı gün dönüş',
+              'openingHoursSpecification',
+              'https://www.instagram.com',
+              'depolama ihtiyacı',
+          )
+
+          for source in sources:
+              match = meta_re.match(source.read_text(encoding='utf-8'))
+              assert match, f'Metadata yok: {source}'
+              data = json.loads(match.group(1))
+              slug = data['slug'].strip('/')
+              output = root / slug / 'index.html' if slug else root / 'index.html'
+              assert output.exists(), f'Üretilmemiş sayfa: {output}'
+              generated.append((slug, output))
+
+          for slug, output in generated:
+              html = output.read_text(encoding='utf-8')
+              assert len(re.findall(r'<h1\b', html, re.I)) == 1, f'H1 sayısı hatalı: {output}'
+              title_match = re.search(r'<title>(.*?)</title>', html, re.S | re.I)
+              assert title_match, f'Title yok: {output}'
+              title = re.sub(r'\s+', ' ', title_match.group(1)).strip()
+              assert title not in titles, f'Tekrarlanan title: {title}'
+              titles.add(title)
+
+              expected = f'https://okurnakliyatedremit.com/{slug}/' if slug else 'https://okurnakliyatedremit.com/'
+              canonical = re.search(r'<link rel="canonical" href="([^"]+)">', html)
+              assert canonical and canonical.group(1) == expected, f'Canonical hatalı: {output}'
+
+              for block in re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S):
+                  json.loads(block)
+              for phrase in forbidden:
+                  assert phrase not in html, f'Riskli ifade bulundu ({phrase}): {output}'
+
+          home = (root / 'index.html').read_text(encoding='utf-8')
+          assert 'Edremit <span class="hero-title-accent">nakliyat</span>' in home
+          assert 'href="/asansorlu-nakliyat/"' in home
+          assert '<option>Asansörlü nakliyat</option>' in home
+
+          asansor = (root / 'asansorlu-nakliyat/index.html').read_text(encoding='utf-8')
+          assert 'Edremit Asansörlü Nakliyat' in asansor
+          assert 'Her bina için uygun mu?' in asansor
+
+          for legal in ('kvkk-aydinlatma-metni', 'gizlilik-politikasi'):
+              html = (root / legal / 'index.html').read_text(encoding='utf-8')
+              assert 'site-serit-ust' not in html and 'site-serit-alt' not in html
+          for page in ('nakliyat-fiyatlari', 'sikca-sorulan-sorular', 'galeri'):
+              html = (root / page / 'index.html').read_text(encoding='utf-8')
+              assert 'site-serit-alt' not in html
+
+          tree = ET.parse(root / 'sitemap.xml')
+          ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          sitemap_urls = {node.text for node in tree.findall('.//s:loc', ns)}
+          for slug, _ in generated:
+              expected = f'https://okurnakliyatedremit.com/{slug}/' if slug else 'https://okurnakliyatedremit.com/'
+              assert expected in sitemap_urls, f'Sitemap eksik: {expected}'
+
+          robots = (root / 'robots.txt').read_text(encoding='utf-8')
+          assert 'Sitemap: https://okurnakliyatedremit.com/sitemap.xml' in robots
+          print(f'{len(generated)} sayfa SEO doğrulamasından geçti.')
+          PY
+
+      - name: Değişiklikleri SEO dalına işle
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -- \
+            assets/css/*.css \
+            assets/js/marquee.js \
+            sablon/taban.html \
+            sablon/serit.html \
+            sablon/serit-alt.html \
+            sablon/footer.html \
+            tools/sayfa.py \
+            sayfalar/anasayfa.html \
+            sayfalar/asansorlu-nakliyat.html \
+            sayfalar/evden-eve-nakliyat.html \
+            sayfalar/galeri.html \
+            sayfalar/gizlilik-politikasi.html \
+            sayfalar/kurulum-montaj.html \
+            sayfalar/kvkk-aydinlatma-metni.html \
+            sayfalar/nakliyat-fiyatlari.html \
+            sayfalar/ofis-tasima.html \
+            sayfalar/paketleme-hizmeti.html \
+            sayfalar/parca-esya-tasima.html \
+            sayfalar/sehirler-arasi-nakliyat.html \
+            sayfalar/sikca-sorulan-sorular.html \
+            sitemap.xml \
+            index.html \
+            asansorlu-nakliyat/index.html \
+            evden-eve-nakliyat/index.html \
+            galeri/index.html \
+            gizlilik-politikasi/index.html \
+            kurulum-montaj/index.html \
+            kvkk-aydinlatma-metni/index.html \
+            nakliyat-fiyatlari/index.html \
+            ofis-tasima/index.html \
+            paketleme-hizmeti/index.html \
+            parca-esya-tasima/index.html \
+            sehirler-arasi-nakliyat/index.html \
+            sikca-sorulan-sorular/index.html
+
+          if git diff --cached --quiet; then
+            echo "İşlenecek değişiklik yok."
+            exit 0
+          fi
+
+          git commit -m "Spam güvenli SEO ve asansörlü nakliyat sayfasını uygula"
+          git push origin HEAD:seo/guvenli-site-iyilestirmeleri
