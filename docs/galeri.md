@@ -3,6 +3,43 @@
 Bölüm kurulu ama **henüz yayında değil**: fotoğraf gelmeden boş bir galeri
 yayınlamanın anlamı yok. Kod tarafı hazır, eksik olan tek şey görseller.
 
+## Fotoğraf eklemek — tek yerden
+
+1. Ham fotoğrafı `galeri-kaynak/` klasörüne koyun, başına sıra numarası
+   verin: `07-yukleme.jpg`.
+2. `galeri-kaynak/liste.json` içindeki `fotograflar` dizisinin **sonuna**
+   bir satır ekleyin:
+
+       { "no": 7, "aciklama": "Edremit'te yükleme öncesi hazırlanan araç" }
+
+3. `main` dalına gönderin.
+
+Gerisi kendiliğinden olur: "Galeri çerçevesi" iş akışı fotoğrafa marka
+bandını basıp WebP'lere çevirir, `tools/sayfa.py` ana sayfadaki bölümü ve
+`/galeri/` sayfasını yeniden üretir, "Yayına al (FTP)" siteyi günceller.
+
+**Numarası büyük olan fotoğraf en başta görünür.** Yani sona eklediğiniz
+fotoğraf sitede ilk sırada çıkar.
+
+`aciklama` hem kartın altındaki yazı hem de görselin alt metni olur; boş
+bırakmayın. Farklı bir alt metin isterseniz kayda `"alt": "..."` ekleyin.
+
+Ana sayfada ilk **6** fotoğraf ve "Tümünü gör" bağlantısı görünür;
+tamamı `/galeri/` sayfasındadır. Sayı `tools/sayfa.py` içindeki
+`GALERI_ONIZLEME_ADEDI` ile değişir.
+
+Liste boşken ne ana sayfadaki bölüm ne de `/galeri/` sayfası üretilir —
+boş bir galeri yayına çıkmaz. İlk fotoğraflar eklendiğinde `sitemap.xml`
+dosyasına `/galeri/` satırını da eklemeyi unutmayın; `tools/sayfa.py`
+çalışırken bunu hatırlatıyor.
+
+Listeye numara ekleyip fotoğrafı koymayı unutursanız üretim hata verip
+durur; sessizce eksik yayınlanmaz.
+
+Alt bandı ChatGPT'ye yaptırmak isterseniz komutlar
+`docs/galeri-alt-bant-prompt.md` içinde. Depo bandı zaten kendisi
+bastığı için normalde gerekmez.
+
 - **Önizleme:** `docs/galeri-onizleme.html` — tarayıcıda açın. Sitenin gerçek
   CSS ve JS dosyalarını kullanır, yani gördüğünüz davranış birebir yayına
   çıkacak olan davranıştır. Oradaki fotoğraflar sitede zaten bulunan

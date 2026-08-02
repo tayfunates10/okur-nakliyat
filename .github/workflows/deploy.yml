@@ -58,7 +58,14 @@ jobs:
           echo "--- yüklenecek dosyalar ---"
           find dist -type f | sort
 
+      # `Timeout (control socket)` üç kez görüldü: bağlantı hiç kurulamıyor,
+      # tek bayt bile aktarılmıyor. Bir kez kendiliğinden geçti, bir kez
+      # arka arkaya iki denemede de düştü. Yükleme baştan idempotent
+      # olduğu için otomatik ikinci bir deneme yapılıyor; yine düşerse
+      # sorun sunucu tarafında demektir ve iş kırmızı biter.
       - name: FTP ile sunucuya yükle
+        id: ftp
+        continue-on-error: true
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
@@ -79,3 +86,26 @@ jobs:
           # Yalnızca değişen dosyalar yüklenir (durum dosyası sunucuda tutulur).
           state-name: .ftp-deploy-state.json
           dry-run: false
+          # Varsayılan 30sn. Sunucu yoğunken el sıkışma bu süreye sığmıyor
+          # olabilir; uzatmak yalnızca beklemeyi artırır, risk getirmez.
+          timeout: 60000
+
+      - name: İlk deneme düştüyse bekle
+        if: steps.ftp.outcome == 'failure'
+        run: |
+          echo "FTP ilk denemesi başarısız. 60 saniye bekleyip tekrar denenecek."
+          sleep 60
+
+      - name: FTP ile sunucuya yükle (ikinci deneme)
+        if: steps.ftp.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./dist/
+          server-dir: public_html/
+          state-name: .ftp-deploy-state.json
+          dry-run: false
+          timeout: 60000

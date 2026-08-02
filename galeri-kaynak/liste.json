@@ -1,0 +1,18 @@
+{
+  "_aciklama": [
+    "Galerideki fotoğrafların TEK listesi. Yeni fotoğraf eklemek için:",
+    "",
+    "1. Ham fotoğrafı bu klasöre koyun ve başına sıra numarası verin:",
+    "   07-yukleme.jpg  ->  numara 7",
+    "2. Aşağıdaki 'fotograflar' dizisinin SONUNA bir satır ekleyin.",
+    "3. main dalına gönderin. Çerçeve iş akışı WebP'leri üretir,",
+    "   tools/sayfa.py galeri bölümünü ve /galeri/ sayfasını yeniden yazar.",
+    "",
+    "Sıra: numarası büyük olan fotoğraf sitede EN BAŞTA görünür.",
+    "Yani sona eklediğiniz fotoğraf en başa geçer.",
+    "",
+    "'aciklama' hem fotoğrafın altındaki yazı hem de alt metni olur;",
+    "boş bırakmayın, arama motoru ve ekran okuyucu bunu kullanıyor."
+  ],
+  "fotograflar": []
+}

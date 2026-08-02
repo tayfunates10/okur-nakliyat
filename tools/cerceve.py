@@ -73,12 +73,24 @@ def kirp_oranla(im: Image.Image, en: int, boy: int) -> Image.Image:
 
 
 def cerceve_ciz(foto: Image.Image, genislik: int) -> Image.Image:
-    """Fotoğrafın altına marka şeridi ekler ve tamamını döndürür."""
+    """Fotoğrafın altına marka şeridi ekler ve tamamını döndürür.
+
+    `oran` ÇIKTININ tamamı içindir, yalnızca fotoğraf için değil. Şerit
+    fotoğrafın altına eklendiği için fotoğraf, şerit yüksekliği kadar kısa
+    kırpılır; toplam yine tam istenen orana oturur.
+
+    Önce fotoğraf 4:3 kırpılıyor, sonra altına şerit ekleniyordu: çıktı
+    1.117:1 oluyordu. Galeri kartı CSS'te 4:3 ve `object-fit: cover`
+    olduğu için şerit her karttan kırpılıyordu -- telefon numarası ve
+    marka adı görünmüyordu (ölçüldü).
+    """
     en_oran, boy_oran = AYAR["oran"]
-    foto_boy = round(genislik * boy_oran / en_oran)
-    foto = kirp_oranla(foto, genislik, foto_boy)
+    toplam_boy = round(genislik * boy_oran / en_oran)
 
     serit = round(genislik * 0.145)
+    foto_boy = toplam_boy - serit
+    foto = kirp_oranla(foto, genislik, foto_boy)
+
     cizgi = max(round(genislik * 0.0045), 2)
     bosluk = round(genislik * 0.033)
     ara = round(genislik * 0.025)  # sol ve sağ blok arasında bırakılacak en az boşluk

@@ -1,0 +1,88 @@
+<!--json
+{
+  "slug": "galeri",
+  "baslik": "Galeri | Okur Nakliyat Edremit",
+  "aciklama": "Okur Nakliyat'ın Edremit ve çevresinde tamamladığı taşımalardan fotoğraflar: paketleme, yükleme, asansörlü taşıma ve yeni adreste yerleştirme.",
+  "kirinti": [
+    [
+      "Galeri",
+      null
+    ]
+  ],
+  "sema": [
+    {
+      "@type": "ImageGallery",
+      "@id": "https://okurnakliyatedremit.com/galeri/#galeri",
+      "name": "Okur Nakliyat galerisi",
+      "description": "Edremit ve çevresinde tamamlanan taşımalardan fotoğraflar.",
+      "about": {
+        "@id": "https://okurnakliyatedremit.com/#isletme"
+      }
+    }
+  ]
+}
+-->
+<main id="main">
+
+    <section class="section section-dark hizmet-hero" aria-labelledby="galeriBaslik">
+      <div class="container">
+        <nav class="kirinti" aria-label="Site yolu">
+          <a href="/">Ana Sayfa</a>
+          <span aria-hidden="true">›</span>
+          <span aria-current="page">Galeri</span>
+        </nav>
+
+        <h1 class="section-title section-title-on-dark" id="galeriBaslik">
+          Taşıdığımız evlerden
+          <span>kareler.</span>
+        </h1>
+
+        <p class="hizmet-giris">Edremit ve çevresinde tamamladığımız taşımalardan fotoğraflar. Paketlemeden yükleme ve yerleştirmeye kadar işi nasıl yürüttüğümüzü buradan görebilirsiniz. En son eklenen fotoğraflar en başta.</p>
+
+        <div class="hizmet-eylem">
+          <a class="btn btn-primary" href="/#teklif">Ücretsiz Teklif Al</a>
+          <a class="btn btn-secondary" href="tel:+905372265043">0537 226 50 43</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-light" aria-labelledby="galeriIzgaraBaslik">
+      <div class="container">
+        <h2 class="section-title" id="galeriIzgaraBaslik">Tüm <span>fotoğraflar</span></h2>
+
+{{GALERI_TAM}}
+      </div>
+    </section>
+
+    <section class="section section-neutral" aria-labelledby="galeriIlgiliBaslik">
+      <div class="container">
+        <h2 class="section-title" id="galeriIlgiliBaslik">İlgili <span>hizmetler</span></h2>
+        <ul class="hizmet-ilgili">
+            <li><a href="/evden-eve-nakliyat/">Evden Eve Nakliyat</a></li>
+            <li><a href="/paketleme-hizmeti/">Paketleme ve Koruma</a></li>
+            <li><a href="/kurulum-montaj/">Kurulum ve Montaj</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <dialog class="gallery-lightbox" id="galleryLightbox" aria-label="Galeri görüntüleyici">
+      <figure class="gallery-lightbox-figure">
+        <img class="gallery-lightbox-image" id="galleryLightboxImage" alt="">
+        <figcaption class="gallery-lightbox-bar">
+          <p class="gallery-lightbox-caption" id="galleryLightboxCaption"></p>
+          <p class="gallery-lightbox-counter" id="galleryLightboxCounter"></p>
+        </figcaption>
+      </figure>
+
+      <button class="gallery-lightbox-button gallery-lightbox-close" type="button" aria-label="Kapat">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+      <button class="gallery-lightbox-button gallery-lightbox-prev" type="button" aria-label="Önceki fotoğraf">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M14.5 5 7.5 12l7 7"/></svg>
+      </button>
+      <button class="gallery-lightbox-button gallery-lightbox-next" type="button" aria-label="Sonraki fotoğraf">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m9.5 5 7 7-7 7"/></svg>
+      </button>
+    </dialog>
+
+  </main>

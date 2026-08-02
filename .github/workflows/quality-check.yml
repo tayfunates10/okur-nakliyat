@@ -93,9 +93,15 @@ jobs:
           missing_links = sorted(set(parser.hash_links) - ids)
           assert not missing_links, f"Eksik anchor hedefi: {missing_links}"
 
+          # "iletisim" listeden çıkarıldı: CTA bandı ana sayfadan kaldırıldı
+          # ve menüdeki İletişim bağlantısı "teklif" bölümüne yönlendirildi.
+          # Bağlantı hedeflerini yukarıdaki missing_links kontrolü zaten
+          # doğruluyor; burası yalnızca bölümlerin varlığına bakıyor.
+          # "galeri" burada aranmaz: fotoğraf eklenene kadar o bölüm hiç
+          # üretilmiyor (bkz. tools/sayfa.py, galeri_oku).
           required_ids = {
               "anasayfa", "hizmetler", "hakkimizda", "surec",
-              "sss", "teklif", "iletisim", "quoteForm"
+              "sss", "teklif", "quoteForm"
           }
           missing_ids = sorted(required_ids - ids)
           assert not missing_ids, f"Eksik zorunlu bölüm: {missing_ids}"
