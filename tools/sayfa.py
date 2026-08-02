@@ -36,7 +36,7 @@ GALERI_LISTE = KOK / "galeri-kaynak" / "liste.json"
 GALERI_GORSEL = KOK / "assets" / "images" / "gallery"
 SITE = "https://okurnakliyatedremit.com"
 
-ONBELLEK_SURUMU = "28"  # ?v= — bkz. docs/ekran-denetimi.md
+ONBELLEK_SURUMU = "29"  # ?v= — bkz. docs/ekran-denetimi.md
 
 # Ana sayfada gösterilecek fotoğraf sayısı; kalanı /galeri/ sayfasında.
 GALERI_ONIZLEME_ADEDI = 6
@@ -129,7 +129,7 @@ def galeri_oku() -> list[dict]:
             "galeri-kaynak/liste.json içinde karşılığı olmayan numara(lar): "
             + ", ".join(str(n) for n in eksik)
             + f"\n{GALERI_GORSEL.relative_to(KOK)} altında ilgili WebP yok. "
-            "Ham fotoğrafı galeri-kaynak/ içine koyup `python3 tools/cerceve.py` çalıştırın."
+            "Ham fotoğrafı galeri-kaynak/ içine koyup `python3 tools/galeri-goruntu.py` çalıştırın."
         )
 
     return sorted(fotolar, key=lambda f: int(f["no"]), reverse=True)

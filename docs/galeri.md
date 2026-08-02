@@ -14,7 +14,7 @@ yayınlamanın anlamı yok. Kod tarafı hazır, eksik olan tek şey görseller.
 
 3. `main` dalına gönderin.
 
-Gerisi kendiliğinden olur: "Galeri çerçevesi" iş akışı fotoğrafa marka
+Gerisi kendiliğinden olur: "Galeri görselleri" iş akışı fotoğrafa marka
 bandını basıp WebP'lere çevirir, `tools/sayfa.py` ana sayfadaki bölümü ve
 `/galeri/` sayfasını yeniden üretir, "Yayına al (FTP)" siteyi günceller.
 
@@ -36,9 +36,9 @@ dosyasına `/galeri/` satırını da eklemeyi unutmayın; `tools/sayfa.py`
 Listeye numara ekleyip fotoğrafı koymayı unutursanız üretim hata verip
 durur; sessizce eksik yayınlanmaz.
 
-Alt bandı ChatGPT'ye yaptırmak isterseniz komutlar
-`docs/galeri-alt-bant-prompt.md` içinde. Depo bandı zaten kendisi
-bastığı için normalde gerekmez.
+Fotoğrafın altına marka bandı (logo, telefon, adres) basan bir sürüm
+vardı; bant istenmediği için kaldırıldı. Araç artık yalnızca 4:3 kırpma,
+boyutlandırma ve WebP'ye çevirme yapıyor.
 
 - **Önizleme:** `docs/galeri-onizleme.html` — tarayıcıda açın. Sitenin gerçek
   CSS ve JS dosyalarını kullanır, yani gördüğünüz davranış birebir yayına
@@ -105,8 +105,8 @@ aramada işe yarıyor.
 Ham fotoğrafları `galeri-kaynak/` klasörüne koymanız yeterli. Kırpma,
 çerçeveleme, boyutlandırma ve WebP dönüşümü otomatik:
 
-    python3 tools/cerceve.py            # yerelde
-    # ya da: main dalına push edin, "Galeri çerçevesi" iş akışı çalıştırır
+    python3 tools/galeri-goruntu.py     # yerelde
+    # ya da: main dalına push edin, "Galeri görselleri" iş akışı çalıştırır
 
 Her fotoğraftan üç dosya üretilir:
 
@@ -118,26 +118,13 @@ Her fotoğraftan üç dosya üretilir:
 
 `galeri-kaynak/` yayın klasörüne kopyalanmaz; sunucuya yalnızca çıktılar gider.
 
-### Çerçeve nasıl görünüyor
+### Marka bandı kaldırıldı
 
-Fotoğrafın altında siyah şerit, üst kenarında marka sarısı çizgi. Solda marka
-işareti ve adı, sağda telefon (sarı) ile ikincil bilgi satırı (e-posta, adres,
-site).
-
-İçerik `tools/cerceve.json` dosyasından okunur; **boş bırakılan alan çerçeveye
-hiç yazılmaz**. E-posta alanı şu an boş — doldurulduğunda otomatik eklenir.
-
-Şerit ölçüleri çıktı genişliğine oranlanır, yani 600 px ile 1400 px çıktı
-birebir aynı düzendedir. Çerçeve her boyut için ayrıca çizilir; 1400'ü
-küçültmek yazıyı bulanıklaştırırdı.
-
-**Sığdırma:** ikincil satır sol bloğa çarpacak olursa önce puntosu düşürülür,
-yetmezse en az öncelikli bilgiden başlayarak (site → adres → e-posta) parça
-atılır. Uzun adres + uzun e-posta ile denendi; çakışma olmuyor.
-
-Yazı tipi olarak DejaVu Sans kullanılır. Sitenin Manrope'u yerel bir dosya
-değil; çerçeve metni çıktı dosyasına gömüldüğü için ağdan gelen bir yazı
-tipine bağlamak sonucu belirsiz yapardı.
+Fotoğrafın altına logo, telefon ve adres içeren siyah-sarı bir bant basan
+bir sürüm vardı (`tools/cerceve.py`). Bant istenmediği için kaldırıldı;
+araç `tools/galeri-goruntu.py` adıyla yalnızca 4:3 kırpma, boyutlandırma
+ve WebP'ye çevirme yapıyor. Ayarlar `tools/galeri-goruntu.json` içinde:
+çıktı genişlikleri, oran ve WebP kalitesi.
 
 ### Google Business Profile
 

@@ -1,0 +1,12 @@
+{
+  "_aciklama": "Galeri fotoğraflarının çıktı ayarları. Marka bandı kaldırıldığı için ad, telefon ve adres alanları burada tutulmuyor.",
+
+  "_boyutlar": "Üretilecek genişlikler (px). Izgara 600/900, büyütme penceresi 1400 kullanır.",
+  "boyutlar": [600, 900, 1400],
+
+  "_oran": "Çıktı en-boy oranı. Galeri kartı 4:3 kırptığı için kaynak ne olursa olsun 4:3'e getirilir.",
+  "oran": [4, 3],
+
+  "_kalite": "WebP kalitesi (0-100).",
+  "kalite": 82
+}
