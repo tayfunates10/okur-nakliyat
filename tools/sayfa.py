@@ -36,7 +36,7 @@ GALERI_LISTE = KOK / "galeri-kaynak" / "liste.json"
 GALERI_GORSEL = KOK / "assets" / "images" / "gallery"
 SITE = "https://okurnakliyatedremit.com"
 
-ONBELLEK_SURUMU = "30"  # ?v= — bkz. docs/ekran-denetimi.md
+ONBELLEK_SURUMU = "31"  # ?v= — bkz. docs/ekran-denetimi.md
 
 # Ana sayfada gösterilecek fotoğraf sayısı; kalanı /galeri/ sayfasında.
 GALERI_ONIZLEME_ADEDI = 6
@@ -177,8 +177,9 @@ def uret(veri: dict, govde: str, sablonlar: dict, fotolar: list[dict]) -> tuple[
         ("{{ACIKLAMA}}", veri["aciklama"]),
         ("{{KANONIK}}", kanonik),
         ("{{SEMA}}", sema_uret(veri, kanonik)),
-        # Kayan şerit yalnızca isteyen sayfada basılır; header'ın üstünde durur.
-        ("{{SERIT}}", sablonlar["serit"] if veri.get("serit") else ""),
+        # Kayan şeritler her sayfada: hizmetler header'ın üstünde, hizmet
+        # verilen yerler giriş bölümünün altında.
+        ("{{SERIT}}", sablonlar["serit"]),
         ("{{HEADER}}", sablonlar["header"]),
         ("{{FOOTER}}", sablonlar["footer"]),
         ("{{ICERIK}}", govde.strip("\n")),
@@ -193,6 +194,10 @@ def uret(veri: dict, govde: str, sablonlar: dict, fotolar: list[dict]) -> tuple[
                         galeri_izgara(fotolar[:GALERI_ONIZLEME_ADEDI]))
     html = html.replace("{{GALERI_TAM}}", galeri_izgara(fotolar))
 
+    # {{SERIT_ALT}} sayfa gövdesinin içinde duruyor; gövde ({{ICERIK}}) yukarıda
+    # yerine kondu, bu yüzden değişimi ondan SONRA yapmak gerekiyor. Döngüde
+    # olduğu sırada gövde henüz eklenmemiş oluyor ve hiçbir şey eşleşmiyordu.
+    html = html.replace("{{SERIT_ALT}}", sablonlar["serit-alt"])
     html = html.replace("{{KOK}}", kok)
     # "Ana Sayfa" bağlantısı yalnızca ana sayfada aktif işaretlenir. Şablonda
     # sabit yazılıydı ve alt sayfalarda da aktif görünüyordu.
@@ -272,7 +277,7 @@ def main() -> int:
 
     sablonlar = {
         ad: (SABLON / f"{ad}.html").read_text(encoding="utf-8").rstrip("\n")
-        for ad in ("taban", "header", "footer", "serit", "galeri-bolumu")
+        for ad in ("taban", "header", "footer", "serit", "serit-alt", "galeri-bolumu")
     }
 
     fotolar = galeri_oku()

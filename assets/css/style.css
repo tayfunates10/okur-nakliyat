@@ -503,7 +503,7 @@ body.is-menu-open {
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=30");
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=31");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -1137,17 +1137,38 @@ body.is-menu-open {
   background-size: 48px 48px;
 }
 
+/* Başlık ve açıklama tam genişlikte; beyaz kutu ile harita altta yan yana.
+   Önce metin bloğu solda 5 sütun, harita sağda 7 sütundu ve ikisi dikeyde
+   ortalanıyordu: metin sütunu 949-1168px, harita 335-349px olduğu için
+   haritanın altında ve üstünde 300-410px boşluk kalıyordu (ölçüldü). */
 .coverage-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  align-items: center;
+  align-items: start;
   gap: var(--space-lg);
 }
 
 .coverage-content {
-  grid-column: 1 / span 5;
+  grid-column: 1 / -1;
   position: relative;
   z-index: 2;
+}
+
+.coverage-alt {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.coverage-alt .coverage-local {
+  margin-top: 0;
+}
+
+.coverage-grid .coverage-button {
+  grid-column: 1 / -1;
+  justify-self: start;
 }
 
 .coverage-title {
@@ -1166,7 +1187,7 @@ body.is-menu-open {
 }
 
 .coverage-content > p {
-  max-width: 530px;
+  max-width: 78ch;
   margin: var(--space-lg) 0 0;
   font-size: var(--fs-lead);
   font-weight: var(--weight-medium);
@@ -1264,7 +1285,6 @@ body.is-menu-open {
 
 .coverage-map {
   position: relative;
-  grid-column: 6 / -1;
   min-width: 0;
 }
 
@@ -1445,21 +1465,39 @@ body.is-menu-open {
 
 .hizmet-ilgili a {
   display: inline-flex;
+  gap: 0.55rem;
   align-items: center;
   min-height: var(--tap-target);
   padding: 0 var(--space-md);
   font-family: var(--font-heading);
   font-weight: var(--weight-bold);
   color: var(--color-black);
-  background: var(--color-white);
-  border: 1px solid var(--border-on-light);
+  background: var(--color-yellow);
+  border: 1px solid var(--color-yellow);
   border-radius: var(--radius-pill);
-  transition: border-color var(--transition-fast), transform var(--transition-fast);
+  box-shadow: var(--shadow-btn);
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+/* Ok işareti bağlantı olduğunu tek bakışta anlatıyor. */
+.hizmet-ilgili a::after {
+  content: "→";
+  font-size: 1.05em;
+  line-height: 1;
+  transition: transform var(--transition-fast);
 }
 
 .hizmet-ilgili a:hover {
-  border-color: var(--color-yellow);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-hover);
+  background: var(--color-yellow-dark);
+}
+
+.hizmet-ilgili a:hover::after {
+  transform: translateX(3px);
 }
 
 .hizmet-ilgili a:focus-visible {
@@ -2092,11 +2130,39 @@ body.is-menu-open {
 .footer-column a,
 .footer-column span {
   display: inline-flex;
+  gap: 0.5rem;
   align-items: center;
   min-height: var(--tap-target);
   font-size: var(--fs-xs);
   color: var(--text-on-dark-muted);
   transition: color var(--transition-fast);
+}
+
+/* Menü bağlantıları düz yazı gibi duruyordu. Sarı bir çentik ve üzerine
+   gelince altı çizili görünüm, tıklanabilir olduklarını anlatıyor. */
+.footer-column-menu a::before {
+  content: "›";
+  font-family: var(--font-heading);
+  font-weight: var(--weight-black);
+  line-height: 1;
+  color: var(--color-yellow);
+  transition: transform var(--transition-fast);
+}
+
+.footer-column-menu a > span {
+  min-height: 0;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--transition-fast);
+}
+
+.footer-column-menu a:hover > span {
+  text-decoration-color: var(--color-yellow);
+}
+
+.footer-column-menu a:hover::before {
+  transform: translateX(2px);
 }
 
 .footer-column a:hover {
@@ -2184,11 +2250,35 @@ body.is-menu-open {
   }
 }
 
-/* Yalnızca belirme. Kamyonun konumu kaydırmaya bağlı ve main.js
-   tarafından yazılıyor; animasyon transform'a dokunursa ikisi çakışır. */
+/* Küçük ekranlarda yalnızca belirme: kamyonun konumunu kaydırmaya bağlı
+   olarak main.js yazıyor, animasyon transform'a dokunursa ikisi çakışır. */
 @keyframes heroVisualBelir {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+/* Masaüstünde kamyon açılışta gelir: sağdan sola, küçükten büyüyerek.
+   Kaydırmaya bağlanmıyor çünkü bu boyutlarda görsel zaten ilk ekranda. */
+@keyframes kamyonGelis {
+  from {
+    opacity: 0;
+    transform: translate(-28%, -13%) scale(0.34);
+  }
+
+  16% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@media (min-width: 1080px) {
+  .hero-visual-image {
+    animation: kamyonGelis 1500ms var(--ease-out-soft) 200ms both;
+  }
 }
 
 @keyframes heroCardEnter {
@@ -2340,6 +2430,7 @@ body.is-menu-open {
 
   .about-grid,
   .coverage-grid,
+  .coverage-alt,
   .faq-grid,
   .quote-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -3328,6 +3419,84 @@ body.is-menu-open {
   stroke: none;
 }
 
+/* --- Masaüstünde sağ altta hızlı iletişim ------------------------------
+   Mobildeki sabit çubuğun aynısı, ama düğmeler yan yana tek blok değil;
+   her biri ayrı bir hap. Yuvarlak rozetin içinde ikon, yazı ikonun sağında.
+   Animasyonlar ve renkler mobildekiyle aynı kalıyor.
+
+   Alt sınır 721px: tam genişlikteki çubuk yalnızca 720px'e kadar
+   görünüyordu, üstünde hiçbir hızlı iletişim yoktu. Tabletlerde de
+   erişilebilir olsun diye bu kural oradan başlıyor. */
+@media (min-width: 721px) {
+  .mobile-contact-bar {
+    position: fixed;
+    right: max(20px, env(safe-area-inset-right, 0px));
+    bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+    left: auto;
+    z-index: calc(var(--z-panel) + 20);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.6rem;
+  }
+
+  .mobile-contact-bar a {
+    display: inline-flex;
+    gap: 0.6rem;
+    align-items: center;
+    min-height: 52px;
+    padding: 0 1.15rem 0 0.5rem;
+    font-family: var(--font-heading);
+    font-size: var(--fs-sm);
+    font-weight: var(--weight-black);
+    color: var(--color-black);
+    background: var(--color-white);
+    border: 1px solid rgba(11, 11, 11, 0.12);
+    border-radius: var(--radius-pill);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+    transition:
+      transform var(--transition-fast),
+      box-shadow var(--transition-fast);
+  }
+
+  .mobile-contact-bar a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
+  }
+
+  /* Mobildeki ayırıcı çizgi burada anlamsız; düğmeler zaten ayrı. */
+  .mobile-contact-bar .mcb-yol {
+    border-inline: 1px solid rgba(11, 11, 11, 0.12);
+  }
+
+  .mobile-contact-bar a:last-child {
+    color: var(--color-black);
+    background: var(--color-yellow);
+    border-color: rgba(11, 11, 11, 0.16);
+  }
+
+  /* İkon yuvarlak rozetin içinde; yazı dışarıda, sağında. */
+  .mobile-contact-bar .mcb-ikon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    color: var(--color-black);
+    background: var(--color-yellow);
+    border-radius: 50%;
+  }
+
+  .mobile-contact-bar a:last-child .mcb-ikon {
+    color: var(--color-yellow);
+    background: var(--color-black);
+  }
+
+  .mobile-contact-bar .icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
 /* --- Sabit çubuk ikonlarında sürekli, göz yormayan hareket --------------
    Üç ikon da 4.5sn'lik aynı periyottaydı ve gecikmeleri 0 / 1.5 / 3sn'ydi:
    soldan sağa hep aynı sırada oynuyorlardı. Periyotlar artık birbirinin
@@ -3519,4 +3688,101 @@ body.is-menu-open {
 
 .footer-saat strong {
   color: var(--text-on-dark);
+}
+
+/* --- Footer: iletişim bloğu ve sosyal ikonlar --------------------------- */
+.footer-sosyal {
+  display: flex;
+  gap: 0.6rem;
+  margin: var(--space-sm) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-sosyal a {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: var(--text-on-dark);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-on-dark);
+  border-radius: 50%;
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.footer-sosyal a:hover {
+  color: var(--color-black);
+  background: var(--color-yellow);
+  border-color: var(--color-yellow);
+  transform: translateY(-2px);
+}
+
+.footer-bilgi {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  margin: var(--space-xs) 0 0;
+}
+
+.footer-bilgi-ikon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  color: var(--color-yellow);
+  background: rgba(245, 196, 0, 0.12);
+  border-radius: 50%;
+}
+
+.footer-column .footer-bilgi-metin {
+  min-height: 28px;
+  font-size: var(--fs-sm);
+  font-weight: var(--weight-bold);
+  color: var(--text-on-dark);
+}
+
+.footer-column .footer-bilgi-metin:hover {
+  color: var(--color-yellow);
+}
+
+.footer-bilgi-adres .footer-adres {
+  margin: 0;
+  font-size: var(--fs-xs);
+  font-style: normal;
+  line-height: 1.6;
+  color: var(--text-on-dark-muted);
+}
+
+/* Düğmeler alt alta değil yan yana; dar ekranda satır başı yapar. */
+.footer-eylem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: var(--space-xs);
+}
+
+.footer-eylem .btn {
+  gap: 0.45rem;
+  min-height: 42px;
+  padding-inline: var(--space-sm);
+  font-size: var(--fs-xs);
+}
+
+.footer-column-iletisim {
+  gap: 0;
+}
+
+/* Sağ alttaki sabit hap düğmeler footer'ın son satırını örtüyordu:
+   "Yukarı çık" bağlantısı tam onların altında kalıyordu. Son satıra
+   düğme sütunu kadar sağ boşluk bırakılır. */
+@media (min-width: 721px) {
+  .footer-bottom {
+    padding-right: 210px;
+  }
 }
