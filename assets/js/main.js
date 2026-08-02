@@ -596,9 +596,10 @@
            iş parçacığında bedava, ama ölçek her değiştiğinde tarayıcı
            780px'lik görseli yeniden rasterlemek zorunda: her karede
            değişince kaydırma tökezliyordu (ölçüldü: düşen kare 4 -> 32).
-           %4'lük basamaklarla yeniden rasterleme sayısı ~17'ye iniyor;
-           taşıma sürekli olduğu için hareket yine akıcı görünüyor. */
-        ko = Math.round(ko * 25) / 25;
+           Basamak %2'de tutuluyor: %4'e çıkarmak ölçüldü, düşen kare
+           sayısını değiştirmedi (medyan 36'ya karşı 36) ama hareketi
+           kabalaştırıyordu. */
+        ko = Math.round(ko * 50) / 50;
         kamyon.style.transform =
           "translate(" + kx.toFixed(2) + "%," + ky.toFixed(2) + "%) scale(" + ko.toFixed(2) + ")";
       }
