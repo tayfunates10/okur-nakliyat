@@ -58,15 +58,21 @@ def verify_contents(remote: dict[str, bytes], expected: dict[str, bytes]) -> Non
 
     index = remote["index.html"].decode("utf-8")
     css = remote["assets/css/footer-contact-compact.css"].decode("utf-8")
-    favicon = remote["assets/images/logo/favicon-okur.svg"].decode("utf-8")
+    favicon = remote["assets/images/logo/favicon-okur-dark.svg"].decode("utf-8")
 
     checks = {
         "kompakt footer iletişim CSS bağlantısı": bool(
             re.search(r'/assets/css/footer-contact-compact\.css\?v=\d+', index)
         ),
-        "favicon bağlantısı": bool(
-            re.search(r'/assets/images/logo/favicon-okur\.svg\?v=\d+', index)
+        "siyah zeminli favicon bağlantısı": bool(
+            re.search(r'/assets/images/logo/favicon-okur-dark\.svg\?v=\d+', index)
         ),
+        "favicon kare görünüm alanı": 'viewBox="0 0 568 568"' in favicon,
+        "favicon tam siyah arka plan": (
+            '<rect width="568" height="568" rx="72" fill="#0B0B0B"/>'
+            in favicon
+        ),
+        "favicon ortalı amblem": 'transform="translate(0 145)"' in favicon,
         "favicon sarı halka": (
             'circle cx="133" cy="133" r="99.5"' in favicon
             and 'stroke="#F5C400"' in favicon
@@ -110,8 +116,8 @@ def main() -> int:
         "assets/css/footer-contact-compact.css": (
             DIST / "assets/css/footer-contact-compact.css"
         ).read_bytes(),
-        "assets/images/logo/favicon-okur.svg": (
-            DIST / "assets/images/logo/favicon-okur.svg"
+        "assets/images/logo/favicon-okur-dark.svg": (
+            DIST / "assets/images/logo/favicon-okur-dark.svg"
         ).read_bytes(),
     }
 
@@ -137,7 +143,7 @@ def main() -> int:
             verify_contents(remote, expected)
             print(
                 "Sunucudaki index.html, kompakt footer iletişim stili ve "
-                "yazısız özgün logo faviconu yerel yayın paketiyle birebir "
+                "tam kare siyah zeminli favicon yerel yayın paketiyle birebir "
                 "doğrulandı."
             )
             return 0
