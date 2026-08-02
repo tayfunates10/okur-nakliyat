@@ -58,11 +58,14 @@ jobs:
           echo "--- yüklenecek dosyalar ---"
           find dist -type f | sort
 
-      # `Timeout (control socket)` üç kez görüldü: bağlantı hiç kurulamıyor,
-      # tek bayt bile aktarılmıyor. Bir kez kendiliğinden geçti, bir kez
-      # arka arkaya iki denemede de düştü. Yükleme baştan idempotent
-      # olduğu için otomatik ikinci bir deneme yapılıyor; yine düşerse
-      # sorun sunucu tarafında demektir ve iş kırmızı biter.
+      # `Timeout (control socket)`: bağlantı hiç kurulamıyor, tek bayt bile
+      # aktarılmıyor. Ölçülen kesintiler dakikalarca sürüyor -- ff25246'da
+      # 10:06 ve 10:13 denemeleri düştü, 10:15'teki geçti; 05945ee'de 15:25
+      # ve 15:27 arka arkaya düştü. 60 saniyelik bekleme çoğu zaman aynı
+      # kesintinin içine düşüyor, o yüzden aralar 4 dakikaya çıkarıldı ve
+      # üçüncü bir deneme eklendi. En kötü hâlde iş ~10 dakika sürer;
+      # yükleme idempotent olduğu için tekrar denemek güvenli.
+      # Üçü de düşerse iş kırmızı biter: sorun sunucu tarafındadır.
       - name: FTP ile sunucuya yükle
         id: ftp
         continue-on-error: true
@@ -93,11 +96,33 @@ jobs:
       - name: İlk deneme düştüyse bekle
         if: steps.ftp.outcome == 'failure'
         run: |
-          echo "FTP ilk denemesi başarısız. 60 saniye bekleyip tekrar denenecek."
-          sleep 60
+          echo "FTP ilk denemesi başarısız. 4 dakika beklenip tekrar denenecek."
+          sleep 240
 
       - name: FTP ile sunucuya yükle (ikinci deneme)
+        id: ftp2
         if: steps.ftp.outcome == 'failure'
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./dist/
+          server-dir: public_html/
+          state-name: .ftp-deploy-state.json
+          dry-run: false
+          timeout: 60000
+
+      - name: İkinci deneme de düştüyse bekle
+        if: steps.ftp.outcome == 'failure' && steps.ftp2.outcome == 'failure'
+        run: |
+          echo "FTP ikinci denemesi de başarısız. 4 dakika beklenip son kez denenecek."
+          sleep 240
+
+      - name: FTP ile sunucuya yükle (üçüncü deneme)
+        if: steps.ftp.outcome == 'failure' && steps.ftp2.outcome == 'failure'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
