@@ -146,15 +146,15 @@ jobs:
 
           if grep -Fq 'M22 16.92v3' <<<"$html" && \
              grep -Fq 'M20 10c0 5-8 12' <<<"$html" && \
-             grep -Fq '/assets/images/logo/favicon-okur.svg' <<<"$html" && \
+             grep -Fq '/assets/images/logo/favicon-okur-dark.svg' <<<"$html" && \
              grep -Fq "$css_ref" <<<"$html" && \
              grep -Fq 'grid-template-columns: 34px minmax(0, 1fr);' <<<"$css" && \
              grep -Fq 'grid-template-columns: repeat(2, minmax(0, 1fr));' <<<"$css"; then
-            echo "Genel HTTP uç noktasında kompakt footer iletişim stili ve yeni favicon bağlantısı doğrulandı."
+            echo "Genel HTTP uç noktasında kompakt footer iletişim stili ve siyah zeminli favicon bağlantısı doğrulandı."
             exit 0
           fi
 
-          echo "::warning::HTTP katmanı güncel footer veya favicon bağlantısını henüz döndürmedi; FTPS hedefindeki dosyalar birebir doğrulandı."
+          echo "::warning::HTTP katmanı güncel footer veya siyah zeminli favicon bağlantısını henüz döndürmedi; FTPS hedefindeki dosyalar birebir doğrulandı."
           exit 1
 
       - name: Dağıtım sonucunu commit'e yaz
