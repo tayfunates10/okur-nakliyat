@@ -1,215 +1,241 @@
-name: Kurumsal SEO özellik dalını kesin üret
+name: Yayına al (FTP)
 
+# `main` dalına her push sonrası site otomatik güncellenir.
+# Actions sekmesinden "Run workflow" ile elle de tetiklenebilir.
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+  statuses: write
 
 concurrency:
-  group: kurumsal-seo-ozellik-dali
+  group: deploy-production
   cancel-in-progress: false
 
 jobs:
-  uret:
+  deploy:
+    name: okurnakliyatedremit.com
     runs-on: ubuntu-latest
+
     steps:
-      - name: Özellik dalını al
+      - name: Depoyu al
         uses: actions/checkout@v4
-        with:
-          ref: feat/kurumsal-seo-sayfalari
-          fetch-depth: 0
 
       - name: Python kur
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Yeni sayfa kaynaklarını oluştur
+      - name: Sayfaları üret
+        # sablon/ + sayfalar/ -> index.html ve <slug>/index.html.
+        # Üretilenler depoya da işlenir; burada yeniden üretilmesi, depodaki
+        # sürümün şablonla tutarlı olduğunu garanti eder.
+        run: python3 tools/sayfa.py
+
+      - name: Yayın klasörünü hazırla
+        # Sunucuya yalnızca sitenin çalışması için gereken dosyalar gider.
+        # README.md, DEPLOY.md, .cpanel.yml, sablon/, sayfalar/, tools/,
+        # galeri-kaynak/ ve .github/ yüklenmez.
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
+          mkdir -p dist
+          cp 404.html dist/
+          cp 404.php dist/
+          # Kopyalanacak sayfaları üretecinin kendisi söyler. Slug listesinden
+          # türetiliyordu; galeri sayfası fotoğraf yokken hiç üretilmediği için
+          # `cp` düşüyor ve dağıtım FTP adımına gelmeden ölüyordu.
+          python3 tools/sayfa.py --liste | while read -r sayfa; do
+            if [ ! -f "$sayfa" ]; then
+              echo "üretilmesi gereken dosya yok: $sayfa" >&2
+              exit 1
+            fi
+            mkdir -p "dist/$(dirname "$sayfa")"
+            cp "$sayfa" "dist/$sayfa"
+          done
+          cp robots.txt dist/
+          cp sitemap.xml dist/
+          cp .htaccess dist/
+          cp -R assets dist/
+          find dist -name '.gitkeep' -delete
+          echo "--- yüklenecek dosyalar ---"
+          find dist -type f | sort
 
-          workflow = Path('.github/workflows/kurumsal-seo-sayfalari.yml').read_text(encoding='utf-8')
-          start = "          python3 - <<'PY'\n"
-          end = "\n          PY\n\n      - name: Tüm statik HTML sayfalarını üret"
-          body = workflow.split(start, 1)[1].split(end, 1)[0]
-          lines = [line[10:] if line.startswith('          ') else line for line in body.splitlines()]
-          script = '\n'.join(lines) + '\n'
+      # `Timeout (control socket)` üç kez görüldü: bağlantı hiç kurulamıyor,
+      # tek bayt bile aktarılmıyor. Bir kez kendiliğinden geçti, bir kez
+      # arka arkaya iki denemede de düştü. Yükleme baştan idempotent
+      # olduğu için otomatik ikinci bir deneme yapılıyor; yine düşerse
+      # sorun sunucu tarafında demektir ve iş kırmızı biter.
+      - name: FTP ile sunucuya yükle
+        id: ftp
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # GoDaddy açık FTPS destekler. Bağlantı hatası alırsanız burayı
+          # protocol: ftp olarak değiştirin.
+          protocol: ftps
+          local-dir: ./dist/
+          # Bu FTP hesabı /home/locqyjadry1t/public_html/okurnakliyatedremit.com/admin
+          # klasörüne kilitlidir; oturum açıldığında gördüğü "public_html" aslında
+          # .../admin/public_html dizinidir.
+          #
+          # Alan adının belge kökü cPanel > Domains üzerinden tam olarak bu dizine
+          # ayarlandığı için hedef "public_html/" olarak kalır. Belge kökü ileride
+          # değiştirilirse bu satır da güncellenmelidir.
+          server-dir: public_html/
+          # Yalnızca değişen dosyalar yüklenir (durum dosyası sunucuda tutulur).
+          state-name: .ftp-deploy-state.json
+          dry-run: false
+          # Varsayılan 30sn. Sunucu yoğunken el sıkışma bu süreye sığmıyor
+          # olabilir; uzatmak yalnızca beklemeyi artırır, risk getirmez.
+          timeout: 60000
 
-          function_start = script.index('def bir_kez_degistir(')
-          function_end = script.index('\nyaz("sayfalar/hakkimizda.html"', function_start)
-          script = (
-              script[:function_start]
-              + 'def bir_kez_degistir(path: str, old: str, new: str) -> None:\n'
-              + '    # Şablon bağlantıları aşağıdaki doğrulanmış tekil dönüşümlerde uygulanır.\n'
-              + '    return None\n'
-              + script[function_end + 1:]
-          )
-          Path('/tmp/kurumsal-sayfalar.py').write_text(script, encoding='utf-8')
-          PY
-          python3 /tmp/kurumsal-sayfalar.py
+      - name: İlk deneme düştüyse bekle
+        if: steps.ftp.outcome == 'failure'
+        run: |
+          echo "FTP ilk denemesi başarısız. 60 saniye bekleyip tekrar denenecek."
+          sleep 60
 
-      - name: Menü, footer, ana sayfa ve OG açıklamasını güncelle
+      - name: FTP ile sunucuya yükle (ikinci deneme)
+        if: steps.ftp.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./dist/
+          server-dir: public_html/
+          state-name: .ftp-deploy-state.json
+          dry-run: false
+          timeout: 60000
+
+      # HTTP yanıtı barındırma önbelleği veya bot filtresi nedeniyle zaman
+      # zaman eski/farklı HTML döndürebiliyor. Esas doğrulama, az önce yazılan
+      # FTPS hedefinden kritik dosyaları geri indirip yerel yayın paketiyle
+      # byte-byte karşılaştırır.
+      - name: Sunucudaki site dosyalarını doğrula
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: python3 tools/yayin-dogrula.py
+
+      - name: Sunucudaki özel 404 dosyalarını doğrula
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: python3 tools/yayin-404-dogrula.py
+
+      # Ek tanı: ziyaretçiye açık HTTP yanıtında da yeni HTML/CSS görünüyorsa
+      # kayda geçirir. Bazı GitHub runner IP'lerinde barındırma katmanı eski
+      # veya farklı HTML döndüğünden bu adım dağıtımı kırmaz; esas kanıt
+      # yukarıdaki FTPS byte karşılaştırmasıdır.
+      - name: HTTP canlı yanıtını tanıla
+        continue-on-error: true
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          from pathlib import Path
+          html_url="https://okurnakliyatedremit.com/?deploy=${GITHUB_SHA}"
+          css_ref="$(grep -oE '/assets/css/footer-contact-compact\.css\?v=[0-9]+' dist/index.html | head -n 1)"
 
-          def replace_once(path: str, old: str, new: str) -> None:
-              file = Path(path)
-              text = file.read_text(encoding='utf-8')
-              count = text.count(old)
-              if count != 1:
-                  raise SystemExit(f'{path}: {old!r} {count} kez bulundu; 1 olmalı')
-              file.write_text(text.replace(old, new, 1), encoding='utf-8')
+          html="$(curl --fail --silent --show-error --location \
+            --connect-timeout 15 --max-time 30 \
+            -H 'Cache-Control: no-cache' "$html_url")"
+          css="$(curl --fail --silent --show-error --location \
+            --connect-timeout 15 --max-time 30 \
+            -H 'Cache-Control: no-cache' \
+            "https://okurnakliyatedremit.com${css_ref}&deploy=${GITHUB_SHA}")"
 
-          # Masaüstü menü
-          replace_once(
-              'sablon/header.html',
-              '<li><a class="nav-link" href="{{KOK}}#hakkimizda">Hakkımızda</a></li>',
-              '<li><a class="nav-link" href="/hakkimizda/">Hakkımızda</a></li>',
-          )
-          replace_once(
-              'sablon/header.html',
-              '<li><a class="nav-link" href="{{KOK}}#surec">Nasıl Çalışıyoruz?</a></li>',
-              '<li><a class="nav-link" href="/hizmet-bolgeleri/">Hizmet Bölgeleri</a></li>',
-          )
-          replace_once(
-              'sablon/header.html',
-              '<li><a class="nav-link" href="{{KOK}}#teklif">İletişim</a></li>',
-              '<li><a class="nav-link" href="/iletisim/">İletişim</a></li>',
-          )
+          if grep -Fq 'M22 16.92v3' <<<"$html" && \
+             grep -Fq 'M20 10c0 5-8 12' <<<"$html" && \
+             grep -Fq '/assets/images/logo/favicon-okur-dark.svg' <<<"$html" && \
+             grep -Fq "$css_ref" <<<"$html" && \
+             grep -Fq 'grid-template-columns: 34px minmax(0, 1fr);' <<<"$css" && \
+             grep -Fq 'grid-template-columns: repeat(2, minmax(0, 1fr));' <<<"$css"; then
+            echo "Genel HTTP uç noktasında kompakt footer iletişim stili ve siyah zeminli favicon bağlantısı doğrulandı."
+            exit 0
+          fi
 
-          # Mobil menü
-          replace_once(
-              'sablon/header.html',
-              '<li><a class="mobile-nav-link" href="{{KOK}}#hakkimizda">Hakkımızda</a></li>',
-              '<li><a class="mobile-nav-link" href="/hakkimizda/">Hakkımızda</a></li>',
-          )
-          replace_once(
-              'sablon/header.html',
-              '<li><a class="mobile-nav-link" href="{{KOK}}#surec">Nasıl Çalışıyoruz?</a></li>',
-              '<li><a class="mobile-nav-link" href="/hizmet-bolgeleri/">Hizmet Bölgeleri</a></li>',
-          )
-          replace_once(
-              'sablon/header.html',
-              '<li><a class="mobile-nav-link" href="{{KOK}}#teklif">İletişim</a></li>',
-              '<li><a class="mobile-nav-link" href="/iletisim/">İletişim</a></li>',
-          )
+          echo "::warning::HTTP katmanı güncel footer veya siyah zeminli favicon bağlantısını henüz döndürmedi; FTPS hedefindeki dosyalar birebir doğrulandı."
+          exit 1
 
-          # Footer hızlı menü
-          replace_once(
-              'sablon/footer.html',
-              '<a href="{{KOK}}#hakkimizda"><span>Hakkımızda</span></a>',
-              '<a href="/hakkimizda/"><span>Hakkımızda</span></a>',
-          )
-          replace_once(
-              'sablon/footer.html',
-              '<a href="{{KOK}}#surec"><span>Nasıl Çalışıyoruz?</span></a>',
-              '<a href="/hizmet-bolgeleri/"><span>Hizmet Bölgeleri</span></a>\n        <a href="/iletisim/"><span>İletişim</span></a>',
-          )
-
-          # Sosyal paylaşım alt açıklaması
-          replace_once(
-              'sablon/taban.html',
-              'Okur Nakliyat tanıtım görseli: evden eve, şehirler arası, ofis ve iş yeri taşımacılığı; Türkiye geneli asansörlü taşıma, ücretsiz montaj ve kurulum, telefon 0537 226 50 43.',
-              'Okur Nakliyat tanıtım görseli: Türkiye geneli şehirler arası nakliyat; Edremit ve çevresinde evden eve, ofis ve asansörlü taşıma hizmetleri.',
-          )
-
-          # Ana sayfa Hakkımızda bağlantısı
-          replace_once(
-              'sayfalar/anasayfa.html',
-              '''          <div class="about-contact">\n            <a class="text-action" href="tel:+905372265043">''',
-              '''          <div class="about-contact">\n            <a class="text-action" href="/hakkimizda/">\n              Okur Nakliyat'ı daha yakından tanıyın\n              <span aria-hidden="true">→</span>\n            </a>\n            <a class="text-action" href="tel:+905372265043">''',
-          )
-
-          # Ana sayfa hizmet bölgeleri bağlantısı
-          replace_once(
-              'sayfalar/anasayfa.html',
-              '''              <a href="/sehirler-arasi-nakliyat/">Edremit şehirler arası nakliyat</a>.\n            </p>\n          </div>\n\n          <div class="coverage-map reveal">''',
-              '''              <a href="/sehirler-arasi-nakliyat/">Edremit şehirler arası nakliyat</a>.\n            </p>\n            <p class="coverage-local-baglanti">\n              <a href="/hizmet-bolgeleri/">Tüm hizmet bölgelerini ayrıntılı inceleyin →</a>\n            </p>\n          </div>\n\n          <div class="coverage-map reveal">''',
-          )
-
-          # Ana sayfa iletişim bağlantısı
-          replace_once(
-              'sayfalar/anasayfa.html',
-              '''          <p>\n            Formu doldurduğunuzda bilgileriniz doğrudan WhatsApp mesajına dönüşür.\n            Mesajı kontrol edip gönderdiğinizde size fiyat ve uygunluk bilgisiyle dönüş yaparız.\n          </p>\n\n        </div>''',
-              '''          <p>\n            Formu doldurduğunuzda bilgileriniz doğrudan WhatsApp mesajına dönüşür.\n            Mesajı kontrol edip gönderdiğinizde size fiyat ve uygunluk bilgisiyle dönüş yaparız.\n          </p>\n          <a class="text-action" href="/iletisim/">\n            Telefon, WhatsApp, adres ve harita seçeneklerini görün\n            <span aria-hidden="true">→</span>\n          </a>\n\n        </div>''',
-          )
-          PY
-
-      - name: Tüm statik HTML sayfalarını üret ve doğrula
+      - name: Özel 404 HTTP yanıtını tanıla
+        continue-on-error: true
         run: |
           set -euo pipefail
-          python3 tools/sayfa.py
-          python3 tools/sayfa.py --kontrol
-          python3 - <<'PY'
-          from pathlib import Path
+          url="https://okurnakliyatedremit.com/__404-kontrol-${GITHUB_SHA}/"
+
+          for deneme in 1 2 3 4; do
+            kod="$(curl --silent --show-error --location \
+              --connect-timeout 15 --max-time 30 \
+              -A 'Mozilla/5.0 (compatible; OkurNakliyat404Check/1.0)' \
+              -H 'Cache-Control: no-cache' \
+              -o /tmp/okur-404.html -w '%{http_code}' "$url" || true)"
+
+            if [ "$kod" = "404" ] && \
+               grep -Fq 'Bu sayfayı da mı taşıdık?' /tmp/okur-404.html && \
+               grep -Fq 'content="noindex, follow"' /tmp/okur-404.html; then
+              echo "Canlı uç noktada gerçek HTTP 404 kodu ve özel Okur Nakliyat tasarımı doğrulandı."
+              exit 0
+            fi
+
+            echo "404 canlı kontrol denemesi ${deneme}/4: HTTP ${kod:-yok}"
+            sleep $((deneme * 5))
+          done
+
+          echo "::warning::Canlı HTTP katmanı özel 404 yanıtını henüz doğrulatmadı; FTPS dosyaları birebir doğrulandı."
+          exit 1
+
+      - name: Dağıtım sonucunu commit'e yaz
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          set -euo pipefail
+
+          if [ "$JOB_STATUS" = "success" ]; then
+            STATE="success"
+            DESCRIPTION="FTP yüklemesi ve sunucu dosya doğrulaması başarılı"
+          else
+            STATE="failure"
+            DESCRIPTION="FTP yüklemesi veya sunucu dosya doğrulaması başarısız"
+          fi
+
+          export STATE DESCRIPTION
+          python3 - <<'PY' > /tmp/deploy-status.json
           import json
-          import re
-          import xml.etree.ElementTree as ET
+          import os
 
-          expected = {
-              'hakkimizda': 'AboutPage',
-              'iletisim': 'ContactPage',
-              'hizmet-bolgeleri': 'CollectionPage',
-          }
-          for slug, page_type in expected.items():
-              source = Path(f'sayfalar/{slug}.html').read_text(encoding='utf-8')
-              match = re.match(r'\s*<!--json\s*(\{.*?\})\s*-->\s*', source, re.S)
-              assert match
-              metadata = json.loads(match.group(1))
-              assert metadata['sayfaTipi'] == page_type
-
-              html = Path(f'{slug}/index.html').read_text(encoding='utf-8')
-              canonical = f'https://okurnakliyatedremit.com/{slug}/'
-              assert f'<link rel="canonical" href="{canonical}">' in html
-              assert '<meta name="robots" content="index, follow, max-image-preview:large">' in html
-
-          root = ET.parse('sitemap.xml').getroot()
-          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-          urls = [node.text for node in root.findall('sm:url/sm:loc', ns)]
-          assert len(urls) == 16, len(urls)
-          for slug in expected:
-              assert f'https://okurnakliyatedremit.com/{slug}/' in urls
-
-          for path in [Path('index.html'), *Path('.').glob('*/index.html')]:
-              html = path.read_text(encoding='utf-8')
-              assert 'Türkiye geneli asansörlü taşıma' not in html
-              for href in ('/hakkimizda/', '/hizmet-bolgeleri/', '/iletisim/'):
-                  assert href in html, f'{path}: {href} eksik'
-
-          print('16 sayfa, sitemap, şema, canonical, robots ve iç bağlantılar doğrulandı.')
+          print(json.dumps({
+              "state": os.environ["STATE"],
+              "target_url": (
+                  f"https://github.com/{os.environ['GITHUB_REPOSITORY']}"
+                  f"/actions/runs/{os.environ['GITHUB_RUN_ID']}"
+              ),
+              "description": os.environ["DESCRIPTION"],
+              "context": "deploy/ftp-live",
+          }))
           PY
 
-      - name: Özellik dalına commit ve push yap
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for deneme in 1 2 3; do
+            if curl --fail --silent --show-error --location \
+              -X POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+              --data-binary @/tmp/deploy-status.json; then
+              exit 0
+            fi
+            sleep 5
+          done
 
-          git add -- \
-            sablon/header.html \
-            sablon/footer.html \
-            sablon/taban.html \
-            sayfalar/anasayfa.html \
-            sayfalar/hakkimizda.html \
-            sayfalar/iletisim.html \
-            sayfalar/hizmet-bolgeleri.html \
-            sitemap.xml \
-            index.html
-
-          while IFS= read -r page; do
-            git add -- "$page"
-          done < <(python3 tools/sayfa.py --liste)
-
-          git rm -f -- .github/workflows/kurumsal-seo-sayfalari.yml
-          git rm -f -- docs/kurumsal-seo-uretim-tanisi.txt || true
-          git diff --cached --check
-          git status --short
-          git commit -m "Hakkımızda, iletişim ve hizmet bölgeleri sayfalarını ekle"
-          git push origin HEAD:feat/kurumsal-seo-sayfalari
+          echo "::error::Dağıtım commit durumu GitHub API'ye yazılamadı."
+          exit 1
