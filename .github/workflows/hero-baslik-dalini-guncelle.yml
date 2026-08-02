@@ -1,0 +1,70 @@
+name: Hero başlığı dalını güncelle
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/hero-baslik-dalini-guncelle.yml'
+      - 'docs/hero-baslik-dali-tetikle.md'
+
+permissions:
+  contents: write
+
+jobs:
+  guncelle:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/hero-baslik-anlamli
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Hero başlığını değiştir
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('sayfalar/anasayfa.html')
+          text = path.read_text(encoding='utf-8')
+          old = '''          <h1 class="hero-title" id="heroTitle">
+            <span class="hero-title-line"><span>Edremit <span class="hero-title-accent">nakliyat</span></span></span>
+            <span class="hero-title-line"><span>Eşyalarınızı değil, güveninizi taşıyoruz.</span></span>
+          </h1>'''
+          new = '''          <h1 class="hero-title" id="heroTitle">
+            <span class="hero-title-line"><span>Edremit’te <span class="hero-title-accent">güvenli ve planlı</span> nakliyat</span></span>
+            <span class="hero-title-line"><span>Evinizi ve iş yerinizi özenle taşıyoruz.</span></span>
+          </h1>'''
+          if old not in text:
+              if new in text:
+                  print('Başlık zaten güncel.')
+              else:
+                  raise SystemExit('Beklenen mevcut hero başlığı bulunamadı.')
+          else:
+              path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+
+      - name: Sayfayı üret ve doğrula
+        run: |
+          python3 tools/sayfa.py
+          python3 tools/sayfa.py --kontrol
+          grep -Fq 'Edremit’te <span class="hero-title-accent">güvenli ve planlı</span> nakliyat' index.html
+          grep -Fq 'Evinizi ve iş yerinizi özenle taşıyoruz.' index.html
+          ! grep -Fq 'Eşyalarınızı değil, güveninizi taşıyoruz.' index.html
+
+      - name: Değişikliği düzeltme dalına işle
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- sayfalar/anasayfa.html index.html
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Hero başlığını daha anlamlı hale getir"
+          git push origin HEAD:fix/hero-baslik-anlamli
