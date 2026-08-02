@@ -95,6 +95,11 @@
   --header-height-scrolled: 68px;
   --header-height-mobile: 68px;
 
+  /* Kayan şerit sayfanın en üstünde sabit durur; header ve hero bu kadar
+     aşağıdan başlar. İki satır (21.4px) + üst/alt sarı çizgi (2+2px) = 46.8px;
+     sabitlenerek 47px'e yuvarlandı, ölçü her ekran genişliğinde aynı. */
+  --serit-yuksekligi: 47px;
+
   --tap-target: 44px;
 
   /* ---------- Köşe yuvarlaklıkları ---------- */

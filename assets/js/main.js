@@ -502,38 +502,88 @@
     // Hareketi azaltma tercihi: kutular dağınık ve sabit kalır.
     if (prefersReducedMotion()) return;
 
-    var hero = visual.closest(".hero") || visual;
     var ticking = false;
+    var gorunur = true;
+    var oncekiT = -1;
+    var w = 0;
+    var h = 0;
+
+    function olcuAl() {
+      w = visual.clientWidth;
+      h = visual.clientHeight;
+    }
 
     function update() {
       ticking = false;
 
-      var rect = hero.getBoundingClientRect();
-      // 0 = hero tam görünür (dağınık), 1 = hero yukarı kaymış (liste)
-      var span = rect.height || 1;
-      var progress = Math.min(1, Math.max(0, -rect.top / span));
-      // Yumuşat: geçiş baştan ve sondan yumuşak olsun.
-      var t = progress * progress * (3 - 2 * progress);
+      /* Geçişin biteceği kaydırma mesafesi her karede yeniden hesaplanır.
+         Bir kez hesaplanıp saklandığında yazı tipi geç yüklendiği için
+         yerleşim kayıyor ve değer bayatlıyordu: sıralanma kamyon ekranı
+         terk ederken tamamlanıyordu (ölçüldü). `kaydirma + rect.top` sabit
+         olduğu için değer kaydırma boyunca zaten değişmiyor. */
+      var rect = visual.getBoundingClientRect();
+      var kaydirma = window.pageYOffset;
+      // Kamyon ekranın ortasına geldiğinde sıralanma bitmiş olsun.
+      var ortala = kaydirma + rect.top + rect.height / 2 - window.innerHeight / 2;
+      /* Alt sınır: masaüstünde kamyon zaten ekranda olduğu için "ortala"
+         sıfıra yakın çıkıyor ve kutular hiç dağınık görünmüyordu. Üst sınır:
+         mobilde hero çok uzunsa geçiş kamyondan sonraya sarkmasın. */
+      var bitis = Math.max(260, Math.min(ortala, 760));
 
-      var w = visual.clientWidth;
-      var h = visual.clientHeight;
+      var ilerleme = Math.min(1, Math.max(0, kaydirma / bitis));
+      if (Math.abs(ilerleme - oncekiT) < 0.002) return;
+      oncekiT = ilerleme;
 
-      cards.forEach(function (card) {
-        var dx = ((card._liste.x - card._dagi.x) / 100) * w * t;
-        var dy = ((card._liste.y - card._dagi.y) / 100) * h * t;
-        card.style.setProperty("--kx", dx.toFixed(1) + "px");
-        card.style.setProperty("--ky", dy.toFixed(1) + "px");
-      });
+      /* Geçiş iki aşamalı: önce dikey, sonra yatay. Aynı anda hareket
+         ettiklerinde sağdaki kutular sol sütunun üzerinden geçiyor ve yol
+         boyunca üst üste biniyorlardı. Dikey konum önce oturunca her kutu
+         kendi satırında kalıyor; yatay kayma artık çakışma üretmiyor. */
+      var ty = yumusat(Math.min(1, ilerleme / 0.5));
+      var tx = yumusat(Math.max(0, (ilerleme - 0.5) / 0.5));
+
+      for (var i = 0; i < cards.length; i++) {
+        var card = cards[i];
+        var dx = ((card._liste.x - card._dagi.x) / 100) * w * tx;
+        var dy = ((card._liste.y - card._dagi.y) / 100) * h * ty;
+        /* Tek bir transform yazılıyor. Önce iki ayrı özel özellik (--kx/--ky)
+           yazılıyordu; özel özellik değişimi kutunun alt ağacında stil yeniden
+           hesabı tetiklediği için kaydırma tökezliyordu (ölçüldü). */
+        card.style.transform = "translate3d(" + dx.toFixed(1) + "px," + dy.toFixed(1) + "px,0)";
+      }
+    }
+
+    function yumusat(t) {
+      return t * t * (3 - 2 * t);
     }
 
     function onScroll() {
-      if (ticking) return;
+      if (ticking || !gorunur) return;
       ticking = true;
       window.requestAnimationFrame(update);
     }
 
+    function onResize() {
+      olcuAl();
+      oncekiT = -1;
+      onScroll();
+    }
+
+    /* Hero ekrandan çıktığında kaydırma işi tamamen durur; sayfanın geri
+       kalanında bu kod hiç çalışmaz. */
+    if (typeof IntersectionObserver === "function") {
+      new IntersectionObserver(function (girisler) {
+        gorunur = girisler[0].isIntersecting;
+        if (gorunur) onScroll();
+      }, { rootMargin: "120px" }).observe(visual);
+    }
+
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", onResize);
+    /* Ölçü DOMContentLoaded'da alınınca yazı tipi ve görseller yerleşmeden
+       önce okunuyor ve "bitis" olduğundan uzun çıkıyordu: sıralanma kamyon
+       ekranı terk ederken tamamlanıyordu. Yerleşim oturunca tekrar ölçülür. */
+    window.addEventListener("load", onResize);
+    olcuAl();
     update();
   }
 
