@@ -27,6 +27,7 @@
         max(24px, env(safe-area-inset-right, 0px))
         calc(24px + env(safe-area-inset-bottom, 0px))
         max(24px, env(safe-area-inset-left, 0px));
+      overflow-x: hidden;
       font-family: Inter, system-ui, sans-serif;
       color: var(--white);
       background:
@@ -37,17 +38,86 @@
       width: min(100%, 720px);
       text-align: center;
     }
+
+    /* --- Yol ve kamyon -------------------------------------------------
+       Kamyon soldan girip sağa doğru gidiyor, yol çizgileri ters yönde
+       kayarak hareket hissini veriyor. Kutu sallanıyor: eşya yüklü bir
+       aracın yoldaki salınımı. Tamamı transform/opacity ile, yerleşimi
+       tetiklemiyor. */
+    .yol {
+      position: relative;
+      height: 120px;
+      margin: 0 auto clamp(8px, 2vh, 20px);
+      overflow: hidden;
+      mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    }
+    .yol::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: -200px;
+      bottom: 26px;
+      height: 3px;
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,.28) 0 34px,
+        transparent 34px 74px
+      );
+      animation: yolKay 900ms linear infinite;
+    }
+    @keyframes yolKay {
+      to { transform: translateX(-74px); }
+    }
+
+    .kamyon {
+      position: absolute;
+      bottom: 12px;
+      left: 0;
+      width: 132px;
+      animation: kamyonGec 6s cubic-bezier(.36,0,.28,1) infinite;
+    }
+    .kamyon-govde { animation: zipla 620ms ease-in-out infinite; }
+    .kamyon svg { display: block; width: 100%; height: auto; }
+
+    @keyframes kamyonGec {
+      0%        { transform: translateX(-160px); }
+      8%, 62%   { transform: translateX(calc(50vw - 66px)); }
+      100%      { transform: translateX(calc(100vw + 40px)); }
+    }
+    @keyframes zipla {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      45%      { transform: translateY(-2px) rotate(-.5deg); }
+      70%      { transform: translateY(1px) rotate(.4deg); }
+    }
+
+    /* Sandık kamyonun arkasından düşüp yolda kalıyor: "kaybolan sayfa". */
+    .sandik {
+      position: absolute;
+      bottom: 22px;
+      left: calc(50% - 14px);
+      width: 26px;
+      opacity: 0;
+      animation: sandikDus 6s ease-in infinite;
+    }
+    @keyframes sandikDus {
+      0%, 40%   { opacity: 0; transform: translate(0, -26px) rotate(0deg); }
+      46%       { opacity: 1; transform: translate(-10px, -18px) rotate(-14deg); }
+      54%       { opacity: 1; transform: translate(-26px, 0) rotate(-26deg); }
+      58%       { transform: translate(-28px, -4px) rotate(-30deg); }
+      64%, 100% { opacity: 1; transform: translate(-30px, 0) rotate(-34deg); }
+    }
+
     .code {
       display: block;
       /* Yatay tutulan telefonda 24vw sayıyı ekrandan taşırıyordu; yükseklik de
          hesaba katılır. */
-      font: 800 clamp(4rem, min(24vw, 26vh), 13rem)/.85 Manrope, system-ui, sans-serif;
+      font: 800 clamp(3.4rem, min(20vw, 22vh), 11rem)/.85 Manrope, system-ui, sans-serif;
       letter-spacing: -.08em;
       color: var(--yellow);
     }
     h1 {
-      margin: clamp(12px, 3vh, 28px) 0 12px;
-      font: 800 clamp(1.75rem, min(7vw, 9vh), 4rem)/1 Manrope, system-ui, sans-serif;
+      margin: clamp(10px, 2.4vh, 22px) 0 12px;
+      font: 800 clamp(1.55rem, min(6vw, 7.5vh), 3.2rem)/1.1 Manrope, system-ui, sans-serif;
       letter-spacing: -.04em;
     }
     p {
@@ -56,27 +126,98 @@
       color: var(--muted);
       line-height: 1.7;
     }
+    p + p { margin-top: 10px; }
+    .kucuk { font-size: .95rem; }
+
+    .eylem {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: clamp(16px, 3.5vh, 28px);
+    }
     a {
       display: inline-flex;
       align-items: center;
+      gap: 8px;
       justify-content: center;
       min-height: 52px;
-      margin-top: clamp(16px, 3.5vh, 28px);
       padding: 0 24px;
       border-radius: 999px;
       font-weight: 800;
       text-decoration: none;
       color: var(--black);
       background: var(--yellow);
+      transition: transform 160ms ease;
+    }
+    a.ikincil {
+      color: var(--white);
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.28);
+    }
+    a:hover { transform: translateY(-2px); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .yol::after,
+      .kamyon,
+      .kamyon-govde,
+      .sandik {
+        animation: none;
+      }
+      /* Hareket kapalıyken kamyon ortada, sandık yolda dursun. */
+      .kamyon { transform: translateX(calc(50vw - 66px)); }
+      .sandik { opacity: 1; transform: translate(-30px, 0) rotate(-34deg); }
+      a:hover { transform: none; }
     }
   </style>
 </head>
 <body>
   <main>
+    <div class="yol" aria-hidden="true">
+      <span class="kamyon">
+        <span class="kamyon-govde">
+          <svg viewBox="0 0 132 64" fill="none" stroke="currentColor" stroke-width="3"
+               stroke-linecap="round" stroke-linejoin="round" style="color:#f5c400">
+            <rect x="3" y="12" width="66" height="34" rx="3" fill="rgba(245,196,0,.16)"/>
+            <path d="M69 22h20l14 15v9H69z" fill="rgba(245,196,0,.08)"/>
+            <path d="M3 46h100"/>
+            <circle cx="28" cy="52" r="7" fill="#0b0b0b"/>
+            <circle cx="88" cy="52" r="7" fill="#0b0b0b"/>
+            <path d="M14 22h44M14 30h30" stroke="rgba(11,11,11,.55)"/>
+          </svg>
+        </span>
+      </span>
+
+      <span class="sandik">
+        <svg viewBox="0 0 26 26" fill="none" stroke="#f5c400" stroke-width="2.4"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2 24 7.5v11L13 24 2 18.5v-11z" fill="rgba(245,196,0,.14)"/>
+          <path d="M2 7.5 13 13l11-5.5M13 13v11"/>
+        </svg>
+      </span>
+    </div>
+
     <span class="code">404</span>
-    <h1>Bu sayfa taşınmış olabilir.</h1>
-    <p>Aradığınız sayfa bulunamadı. Ana sayfaya dönerek Okur Nakliyat hizmetlerini inceleyebilir veya bizimle iletişime geçebilirsiniz.</p>
-    <a href="/">Ana sayfaya dön</a>
+    <h1>Bu sayfayı da mı taşıdık?</h1>
+    <p>
+      Aradığınız sayfa burada değil. Ya adresi yanlış yazıldı, ya da biz
+      taşırken kutulardan biri yolda düştü. İkisi de bizim işimiz sayılır.
+    </p>
+    <p class="kucuk">
+      Meraklısına: eşyalarınızı bu sayfadan çok daha dikkatli taşıyoruz.
+      Kaybolan tek şey bu bağlantı oldu.
+    </p>
+
+    <div class="eylem">
+      <a href="/">Ana sayfaya dön</a>
+      <a class="ikincil" href="tel:+905372265043">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M17.4 20A13.4 13.4 0 0 1 4 6.6 2.6 2.6 0 0 1 6.6 4h2A1.6 1.6 0 0 1 10.2 5.4l.5 2.9a1.6 1.6 0 0 1-.8 1.7l-1.1.6a11.4 11.4 0 0 0 4.6 4.6l.6-1.1a1.6 1.6 0 0 1 1.7-.8l2.9.5a1.6 1.6 0 0 1 1.4 1.6v2A2.6 2.6 0 0 1 17.4 20Z"/>
+        </svg>
+        0537 226 50 43
+      </a>
+    </div>
   </main>
 </body>
 </html>

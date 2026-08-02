@@ -14,5 +14,16 @@
     "'aciklama' hem fotoğrafın altındaki yazı hem de alt metni olur;",
     "boş bırakmayın, arama motoru ve ekran okuyucu bunu kullanıyor."
   ],
-  "fotograflar": []
+  "fotograflar": [
+    {
+      "no": 1,
+      "aciklama": "Okur Nakliyat aracı, Edremit'te yükleme öncesi bekliyor",
+      "alt": "Okur Nakliyat'ın sarı brandalı kapalı kasa aracı, kasasında Türkiye haritası ve 'tüm illere ücretsiz kurulum ve montaj' yazısı"
+    },
+    {
+      "no": 2,
+      "aciklama": "Taşıma için adrese yanaşan Okur Nakliyat aracı",
+      "alt": "Okur Nakliyat aracı bir apartmanın önüne yanaşmış, kasasındaki sarı brandada marka adı okunuyor"
+    }
+  ]
 }

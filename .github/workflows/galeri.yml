@@ -1,28 +1,27 @@
-name: Galeri çerçevesi
+name: Galeri görselleri
 
-# galeri-kaynak/ klasörüne fotoğraf eklendiğinde çerçeveyi uygular, WebP'ye
-# çevirir ve sonucu depoya yazar. Ardından "Yayına al (FTP)" iş akışı bu
+# galeri-kaynak/ klasörüne fotoğraf eklendiğinde WebP'ye çevirip boyutlandırır
+# ve sonucu depoya yazar. Ardından "Yayına al (FTP)" iş akışı bu
 # commit ile tetiklenip siteyi günceller.
 on:
   push:
     branches: [main]
     paths:
       - "galeri-kaynak/**"
-      - "tools/cerceve.py"
-      - "tools/cerceve.json"
-      - "tools/marka-isaret.png"
+      - "tools/galeri-goruntu.py"
+      - "tools/galeri-goruntu.json"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: galeri-cerceve
+  group: galeri-goruntu
   cancel-in-progress: false
 
 jobs:
-  cerceve:
-    name: Fotoğraflara çerçeve uygula
+  goruntu:
+    name: Fotoğrafları boyutlandır
     runs-on: ubuntu-latest
 
     steps:
@@ -37,11 +36,11 @@ jobs:
       - name: Pillow kur
         run: pip install --quiet "Pillow>=10"
 
-      - name: Çerçeveyi uygula
+      - name: Görselleri üret
         run: |
           set -e
           # --temiz: kaynaktan silinen bir fotoğrafın çıktısı geride kalmasın.
-          python3 tools/cerceve.py --temiz
+          python3 tools/galeri-goruntu.py --temiz
 
       - name: Değişiklikleri işle
         run: |
@@ -55,5 +54,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/images/gallery
-          git commit -m "Galeri fotoğraflarına çerçeve uygula (otomatik)"
+          git commit -m "Galeri görsellerini üret (otomatik)"
           git push

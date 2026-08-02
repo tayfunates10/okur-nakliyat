@@ -79,4 +79,18 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://okurnakliyatedremit.com/galeri/</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://okurnakliyatedremit.com/assets/images/gallery/okur-nakliyat-galeri-02-1400.webp</image:loc>
+      <image:title>Taşıma için adrese yanaşan Okur Nakliyat aracı</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://okurnakliyatedremit.com/assets/images/gallery/okur-nakliyat-galeri-01-1400.webp</image:loc>
+      <image:title>Okur Nakliyat aracı, Edremit'te yükleme öncesi bekliyor</image:title>
+    </image:image>
+  </url>
 </urlset>
