@@ -503,7 +503,7 @@ body.is-menu-open {
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=34");
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=35");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -3837,5 +3837,129 @@ body.is-menu-open {
 
   .section-dark > .hizmet-bilgi {
     padding: clamp(1.35rem, 5vw, 1.75rem);
+  }
+}
+
+/* ==========================================================================
+   19. İletişim sayfası tek bilgi kartı
+   --------------------------------------------------------------------------
+   Telefon, WhatsApp, adres ve harita ayrı kartlar yerine tek dış yüzeyde,
+   ayırıcılarla düzenlenir. Açık zeminli ikincil butonlar btn-on-light
+   varyantını kullanır; beyaz yazının kaybolması engellenir.
+   ========================================================================== */
+
+.iletisim-bilgi-karti {
+  margin-top: var(--space-lg);
+  overflow: hidden;
+  background: var(--color-white);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.iletisim-bilgi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.iletisim-bilgi-oge {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: var(--space-sm);
+  min-width: 0;
+  padding: clamp(1.3rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--border-on-light);
+}
+
+.iletisim-bilgi-oge:nth-child(odd) {
+  border-right: 1px solid var(--border-on-light);
+}
+
+.iletisim-bilgi-oge:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.iletisim-bilgi-ikon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  color: var(--color-black);
+  background: var(--color-yellow);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 24px rgba(245, 196, 0, 0.2);
+}
+
+.iletisim-bilgi-govde {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.iletisim-bilgi-etiket {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--fs-micro);
+  font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-yellow-dark);
+}
+
+.iletisim-bilgi-deger,
+.iletisim-bilgi-adres {
+  margin-top: 0.45rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  font-weight: var(--weight-black);
+  line-height: var(--leading-snug);
+  color: var(--color-black);
+  overflow-wrap: anywhere;
+}
+
+.iletisim-bilgi-deger:hover {
+  color: var(--color-yellow-dark);
+}
+
+.iletisim-bilgi-adres {
+  font-style: normal;
+}
+
+.iletisim-bilgi-aciklama {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-on-light-muted);
+}
+
+.iletisim-bilgi-eylem {
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: 0.7rem;
+}
+
+@media (max-width: 720px) {
+  .iletisim-bilgi-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .iletisim-bilgi-oge,
+  .iletisim-bilgi-oge:nth-child(odd),
+  .iletisim-bilgi-oge:nth-last-child(-n + 2) {
+    grid-template-columns: 46px minmax(0, 1fr);
+    border-right: 0;
+    border-bottom: 1px solid var(--border-on-light);
+  }
+
+  .iletisim-bilgi-oge:last-child {
+    border-bottom: 0;
+  }
+
+  .iletisim-bilgi-ikon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .iletisim-bilgi-eylem {
+    width: 100%;
   }
 }

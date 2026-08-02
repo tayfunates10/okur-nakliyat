@@ -5,80 +5,14 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  sync-generated:
-    name: İletişim sayfası çıktısını üret
-    if: github.event_name == 'pull_request' && github.head_ref == 'fix/iletisim-karti-harita-butonu'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: PR dalını al
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-
-      - name: Python kur
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: İletişim kartını üret ve doğrula
-        run: |
-          set -euo pipefail
-          if [ -f tools/iletisim_karti_fix.py ]; then
-            python3 tools/iletisim_karti_fix.py
-            python3 tools/sayfa.py
-          fi
-
-          python3 tools/sayfa.py --kontrol
-          test "$(python3 tools/sayfa.py --liste | wc -l)" -eq 16
-          grep -Fq '19. İletişim sayfası tek bilgi kartı' assets/css/style.css
-          grep -Fq 'ONBELLEK_SURUMU = "35"' tools/sayfa.py
-          grep -Fq 'iletisim-bilgi-karti' sayfalar/iletisim.html
-          grep -Fq 'iletisim-bilgi-karti' iletisim/index.html
-          grep -Fq 'btn btn-secondary btn-on-light' iletisim/index.html
-          grep -Fq 'Yol Tarifi Al' iletisim/index.html
-
-      - name: Üretilen dosyaları PR dalına yaz
-        run: |
-          set -euo pipefail
-          if [ ! -f tools/iletisim_karti_fix.py ]; then
-            echo "Üretilmiş çıktı zaten commit içinde."
-            exit 0
-          fi
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add -- assets/css/style.css tools/sayfa.py sayfalar/iletisim.html
-          while IFS= read -r page; do
-            git add -- "$page"
-          done < <(python3 tools/sayfa.py --liste)
-
-          git rm -- tools/iletisim_karti_fix.py
-          git show origin/main:.github/workflows/quality-check.yml > .github/workflows/quality-check.yml
-          git add -- .github/workflows/quality-check.yml
-
-          git diff --cached --check
-          git status --short
-          git commit -m "İletişim bilgilerini tek kartta düzenle"
-          git push origin HEAD:${GITHUB_HEAD_REF}
-
   validate:
     name: Statik site doğrulaması
-    needs: sync-generated
-    if: always() && (github.event_name != 'pull_request' || github.head_ref != 'fix/iletisim-karti-harita-butonu' || needs.sync-generated.result == 'success')
     runs-on: ubuntu-latest
 
     steps:
       - name: Depoyu al
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref }}
 
       - name: Zorunlu dosyalar
         run: |
@@ -159,6 +93,12 @@ jobs:
           missing_links = sorted(set(parser.hash_links) - ids)
           assert not missing_links, f"Eksik anchor hedefi: {missing_links}"
 
+          # "iletisim" listeden çıkarıldı: CTA bandı ana sayfadan kaldırıldı
+          # ve menüdeki İletişim bağlantısı "teklif" bölümüne yönlendirildi.
+          # Bağlantı hedeflerini yukarıdaki missing_links kontrolü zaten
+          # doğruluyor; burası yalnızca bölümlerin varlığına bakıyor.
+          # "galeri" burada aranmaz: fotoğraf eklenene kadar o bölüm hiç
+          # üretilmiyor (bkz. tools/sayfa.py, galeri_oku).
           required_ids = {
               "anasayfa", "hizmetler", "hakkimizda", "surec",
               "sss", "teklif", "quoteForm"
