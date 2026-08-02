@@ -1,4 +1,4 @@
-name: Kurumsal SEO özellik dalını üret
+name: Kurumsal SEO özellik dalı üretim tanısı
 
 on:
   push:
@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  uret:
+  tani:
     runs-on: ubuntu-latest
     steps:
       - name: Özellik dalını al
@@ -27,77 +27,49 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Hazır üretim betiğini çıkar
+      - name: Üretimi çalıştır ve sonucu dala yaz
+        shell: bash
         run: |
-          set -euo pipefail
-          python3 - <<'PY'
+          set +e
+          mkdir -p docs
+          {
+            echo "Kurumsal SEO üretim tanısı"
+            echo "Tarih: $(date -u +%FT%TZ)"
+            echo
+            python3 - <<'PY'
           from pathlib import Path
 
           source = Path('.github/workflows/kurumsal-seo-sayfalari.yml').read_text(encoding='utf-8')
           start = "          python3 - <<'PY'\n"
           end = "\n          PY\n\n      - name: Tüm statik HTML sayfalarını üret"
+          print('başlangıç sayısı:', source.count(start))
+          print('bitiş sayısı:', source.count(end))
           if start not in source or end not in source:
               raise SystemExit('Kurumsal SEO üretim bloğu bulunamadı')
           body = source.split(start, 1)[1].split(end, 1)[0]
           lines = [line[10:] if line.startswith('          ') else line for line in body.splitlines()]
           Path('/tmp/kurumsal-seo-uret.py').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+          print('çıkarılan Python satırı:', len(lines))
           PY
-          python3 /tmp/kurumsal-seo-uret.py
+            rc=$?
+            if [ "$rc" -eq 0 ]; then
+              echo
+              echo "--- üretim betiği ---"
+              python3 /tmp/kurumsal-seo-uret.py
+              rc=$?
+            fi
+            if [ "$rc" -eq 0 ]; then
+              echo
+              echo "--- statik üretim ---"
+              python3 tools/sayfa.py
+              rc=$?
+            fi
+            echo
+            echo "Çıkış kodu: $rc"
+          } > docs/kurumsal-seo-uretim-tanisi.txt 2>&1
 
-      - name: Statik sayfaları üret ve doğrula
-        run: |
-          set -euo pipefail
-          python3 tools/sayfa.py
-          python3 tools/sayfa.py --kontrol
-          python3 - <<'PY'
-          from pathlib import Path
-          import xml.etree.ElementTree as ET
-
-          slugs = ('hakkimizda', 'iletisim', 'hizmet-bolgeleri')
-          root = ET.parse('sitemap.xml').getroot()
-          ns = {'sm': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-          urls = [node.text for node in root.findall('sm:url/sm:loc', ns)]
-          assert len(urls) == 16, f'sitemap URL sayısı: {len(urls)}'
-
-          for slug in slugs:
-              url = f'https://okurnakliyatedremit.com/{slug}/'
-              assert url in urls
-              html = Path(f'{slug}/index.html').read_text(encoding='utf-8')
-              assert f'<link rel="canonical" href="{url}">' in html
-              assert '<meta name="robots" content="index, follow, max-image-preview:large">' in html
-              assert 'Türkiye geneli asansörlü taşıma' not in html
-
-          for path in [Path('index.html'), *Path('.').glob('*/index.html')]:
-              html = path.read_text(encoding='utf-8')
-              for href in ('/hakkimizda/', '/hizmet-bolgeleri/', '/iletisim/'):
-                  assert href in html, f'{path}: {href} eksik'
-
-          print('Kurumsal SEO doğrulaması başarılı: 16 sayfa.')
-          PY
-
-      - name: Özellik dalına commit ve push yap
-        run: |
-          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add -- \
-            sablon/header.html \
-            sablon/footer.html \
-            sablon/taban.html \
-            sayfalar/anasayfa.html \
-            sayfalar/hakkimizda.html \
-            sayfalar/iletisim.html \
-            sayfalar/hizmet-bolgeleri.html \
-            sitemap.xml \
-            index.html
-
-          while IFS= read -r sayfa; do
-            git add -- "$sayfa"
-          done < <(python3 tools/sayfa.py --liste)
-
-          git rm -- .github/workflows/kurumsal-seo-sayfalari.yml
-          git diff --cached --check
-          git status --short
-          git commit -m "Hakkımızda, iletişim ve hizmet bölgeleri sayfalarını ekle"
+          git add -- docs/kurumsal-seo-uretim-tanisi.txt
+          git commit -m "Kurumsal SEO üretim tanısını kaydet" || true
           git push origin HEAD:feat/kurumsal-seo-sayfalari
