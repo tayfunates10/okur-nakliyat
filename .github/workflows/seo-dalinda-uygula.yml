@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  statuses: write
 
 concurrency:
   group: seo-dalinda-uygula
@@ -18,6 +19,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Çalışma durumunu başlat
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY' > /tmp/seo-status.json
+          import json, os
+          print(json.dumps({
+              "state": "pending",
+              "context": "seo/branch-build",
+              "description": "SEO kaynak düzenlemeleri ve testleri çalışıyor",
+              "target_url": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}",
+          }))
+          PY
+          curl --fail --silent --show-error --location \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            --data-binary @/tmp/seo-status.json
+
       - name: SEO dalını al
         uses: actions/checkout@v4
         with:
@@ -57,7 +80,7 @@ jobs:
           path.write_text(text.rstrip() + '\n', encoding='utf-8')
           PY
 
-      - name: Sayfaları üret ve kaynak tutarlılığını doğrula
+      - name: Sayfaları üret ve temel testleri çalıştır
         run: |
           python3 tools/sayfa.py
           python3 tools/sayfa.py --kontrol
@@ -76,7 +99,6 @@ jobs:
           meta_re = re.compile(r'\A\s*<!--json\s*(\{.*?\})\s*-->\s*', re.S)
           pages = []
           titles = set()
-
           forbidden = (
               'zarar riski ortadan kalkıyor',
               'zarar görme riski ortadan kalkıyor',
@@ -101,11 +123,11 @@ jobs:
           for slug, output in pages:
               html = output.read_text(encoding='utf-8')
               assert len(re.findall(r'<h1\b', html, re.I)) == 1, f'H1 hatası: {output}'
-              title = re.search(r'<title>(.*?)</title>', html, re.S | re.I)
-              assert title, f'Title yok: {output}'
-              normalized = re.sub(r'\s+', ' ', title.group(1)).strip()
-              assert normalized not in titles, f'Tekrarlanan title: {normalized}'
-              titles.add(normalized)
+              title_match = re.search(r'<title>(.*?)</title>', html, re.S | re.I)
+              assert title_match, f'Title yok: {output}'
+              title = re.sub(r'\s+', ' ', title_match.group(1)).strip()
+              assert title not in titles, f'Tekrarlanan title: {title}'
+              titles.add(title)
 
               expected = f'https://okurnakliyatedremit.com/{slug}/' if slug else 'https://okurnakliyatedremit.com/'
               canonical = re.search(r'<link rel="canonical" href="([^"]+)">', html)
@@ -131,7 +153,7 @@ jobs:
 
           tree = ET.parse('sitemap.xml')
           ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
-          urls = {n.text for n in tree.findall('.//s:loc', ns)}
+          urls = {node.text for node in tree.findall('.//s:loc', ns)}
           for slug, _ in pages:
               expected = f'https://okurnakliyatedremit.com/{slug}/' if slug else 'https://okurnakliyatedremit.com/'
               assert expected in urls, f'Sitemap eksik: {expected}'
@@ -143,8 +165,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/css assets/js/marquee.js sablon tools/sayfa.py sayfalar sitemap.xml
-          git add index.html */index.html
+          git add -- assets/css assets/js/marquee.js sablon tools/sayfa.py sayfalar sitemap.xml
+          git add -- index.html */index.html
 
           if git diff --cached --quiet; then
             echo "İşlenecek değişiklik yok."
@@ -153,3 +175,28 @@ jobs:
 
           git commit -m "Spam güvenli SEO ve asansörlü nakliyat sayfasını uygula"
           git push origin HEAD:seo/guvenli-site-iyilestirmeleri
+
+      - name: Çalışma sonucunu kaydet
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          python3 - <<'PY' > /tmp/seo-status-final.json
+          import json, os
+          success = os.environ['JOB_STATUS'] == 'success'
+          print(json.dumps({
+              "state": "success" if success else "failure",
+              "context": "seo/branch-build",
+              "description": "SEO düzenlemeleri ve testleri başarılı" if success else "SEO iş akışında düzeltilecek hata var",
+              "target_url": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}",
+          }))
+          PY
+          curl --fail --silent --show-error --location \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}" \
+            --data-binary @/tmp/seo-status-final.json
