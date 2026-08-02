@@ -36,7 +36,7 @@ GALERI_LISTE = KOK / "galeri-kaynak" / "liste.json"
 GALERI_GORSEL = KOK / "assets" / "images" / "gallery"
 SITE = "https://okurnakliyatedremit.com"
 
-ONBELLEK_SURUMU = "29"  # ?v= — bkz. docs/ekran-denetimi.md
+ONBELLEK_SURUMU = "30"  # ?v= — bkz. docs/ekran-denetimi.md
 
 # Ana sayfada gösterilecek fotoğraf sayısı; kalanı /galeri/ sayfasında.
 GALERI_ONIZLEME_ADEDI = 6
