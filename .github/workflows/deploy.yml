@@ -2,18 +2,20 @@ name: Mobil CTA ve footer düzeltmesini üret
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: write
 
 concurrency:
-  group: mobil-cta-footer-ana-dal-uretimi
+  group: mobil-cta-footer-uretimi
   cancel-in-progress: false
 
 jobs:
   uret:
     runs-on: ubuntu-latest
+
     steps:
       - name: Özellik dalını al
         uses: actions/checkout@v4
@@ -26,140 +28,40 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Düzelt, üret, doğrula ve özellik dalına yaz
+      - name: Düzeltmeyi uygula ve sayfaları üret
         run: |
-          set +e
-          mkdir -p docs
-          {
-            python3 - <<'PY'
-          from pathlib import Path
+          set -euo pipefail
+          python3 tools/mobil_cta_footer_fix.py
+          python3 tools/sayfa.py
+          python3 tools/sayfa.py --kontrol
 
-          style = Path('assets/css/style.css')
-          text = style.read_text(encoding='utf-8')
+      - name: On altı sayfayı doğrula
+        run: |
+          set -euo pipefail
+          test "$(python3 tools/sayfa.py --liste | wc -l)" -eq 16
+          grep -Fq '18. Koyu CTA okunurluluğu ve mobil footer birleşimi' assets/css/style.css
+          ! grep -Fq 'padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));' assets/css/style.css
+          grep -Fq 'ONBELLEK_SURUMU = "34"' tools/sayfa.py
+          grep -Fq '/assets/css/style.css?v=34' hakkimizda/index.html
+          grep -Fq "WhatsApp'tan Yazın" hakkimizda/index.html
 
-          old_line = '    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));'
-          new_line = '    padding-bottom: 0;'
-          if text.count(old_line) != 1:
-              raise SystemExit(f'mobil main alt boşluğu satırı {text.count(old_line)} kez bulundu; 1 olmalı')
-          text = text.replace(old_line, new_line, 1)
+          while IFS= read -r page; do
+            grep -Fq '/assets/css/style.css?v=34' "$page"
+            grep -Fq '<footer class="site-footer">' "$page"
+          done < <(python3 tools/sayfa.py --liste)
 
-          sentinel = '18. Koyu CTA okunurluluğu ve mobil footer birleşimi'
-          if sentinel in text:
-              raise SystemExit('CTA/footer düzeltme bloğu zaten mevcut')
-
-          override = r'''
-
-/* ==========================================================================
-   18. Koyu CTA okunurluluğu ve mobil footer birleşimi
-   --------------------------------------------------------------------------
-   `.hizmet-bilgi` açık yüzey için yazılmıştır. Koyu bölümün doğrudan çocuğu
-   olduğunda beyaz karta dönüşüp beyaz metin ve ikincil butonu görünmez
-   bırakıyordu. Koyu bağlam burada geri yüklenir.
-   ========================================================================== */
-
-.section-dark > .hizmet-bilgi {
-  color: var(--text-on-dark);
-  background:
-    radial-gradient(circle at 88% 12%, rgba(245, 196, 0, 0.09), transparent 32%),
-    rgba(255, 255, 255, 0.045);
-  border-color: var(--border-on-dark-strong);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
-}
-
-.section-dark > .hizmet-bilgi .section-title {
-  color: var(--text-on-dark);
-}
-
-.section-dark > .hizmet-bilgi .hizmet-giris,
-.section-dark > .hizmet-bilgi .hizmet-kapanis {
-  color: var(--text-on-dark-muted);
-}
-
-.section-dark > .hizmet-bilgi .btn-secondary {
-  --btn-bg: rgba(255, 255, 255, 0.07);
-  --btn-color: var(--color-white);
-  --btn-border: rgba(255, 255, 255, 0.34);
-}
-
-.section-dark > .hizmet-bilgi .btn-secondary:hover,
-.section-dark > .hizmet-bilgi .btn-secondary:focus-visible {
-  --btn-bg: rgba(255, 255, 255, 0.13);
-  --btn-color: var(--color-white);
-  --btn-border: var(--color-yellow);
-}
-
-@media (max-width: 720px) {
-  main > .section:last-child {
-    padding-bottom: clamp(2.25rem, 8vw, 3rem);
-  }
-
-  main + .site-footer {
-    padding-top: clamp(2.5rem, 8vw, 3.5rem);
-  }
-
-  .section-dark > .hizmet-bilgi {
-    padding: clamp(1.35rem, 5vw, 1.75rem);
-  }
-}
-'''
-          style.write_text(text.rstrip() + override + '\n', encoding='utf-8')
-
-          generator = Path('tools/sayfa.py')
-          gtext = generator.read_text(encoding='utf-8')
-          old_version = 'ONBELLEK_SURUMU = "33"'
-          if gtext.count(old_version) != 1:
-              raise SystemExit(f'önbellek sürümü {gtext.count(old_version)} kez bulundu; 1 olmalı')
-          generator.write_text(gtext.replace(old_version, 'ONBELLEK_SURUMU = "34"', 1), encoding='utf-8')
-          PY
-
-            python3 tools/sayfa.py
-            python3 tools/sayfa.py --kontrol
-
-            python3 - <<'PY'
-          from pathlib import Path
-          import subprocess
-
-          style = Path('assets/css/style.css').read_text(encoding='utf-8')
-          assert '18. Koyu CTA okunurluluğu ve mobil footer birleşimi' in style
-          assert 'padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));' not in style
-          assert '.section-dark > .hizmet-bilgi .btn-secondary' in style
-          assert 'main + .site-footer' in style
-
-          pages = [line.strip() for line in subprocess.check_output(
-              ['python3', 'tools/sayfa.py', '--liste'], text=True
-          ).splitlines() if line.strip()]
-          assert len(pages) == 16, f'sayfa sayısı: {len(pages)}'
-          for page in pages:
-              html = Path(page).read_text(encoding='utf-8')
-              assert '/assets/css/style.css?v=34' in html, page
-              assert '<footer class="site-footer">' in html, page
-
-          hakkimizda = Path('hakkimizda/index.html').read_text(encoding='utf-8')
-          assert 'birlikte planlayalım.' in hakkimizda
-          assert "WhatsApp'tan Yazın" in hakkimizda
-          print('16 sayfada mobil boşluk, CTA okunurluluğu ve v34 doğrulandı.')
-          PY
-          } > /tmp/mobil-cta-uretim.log 2>&1
-
-          code=$?
+      - name: Özellik dalına commit ve push yap
+        run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          if [ "$code" -ne 0 ]; then
-            cp /tmp/mobil-cta-uretim.log docs/mobil-cta-footer-uretim-hatasi.txt
-            git add -- docs/mobil-cta-footer-uretim-hatasi.txt
-            git commit -m "Mobil CTA üretim hatasını kaydet" || true
-            git push origin HEAD:fix/mobil-cta-footer-bosluk || true
-            cat /tmp/mobil-cta-uretim.log
-            exit "$code"
-          fi
-
-          rm -f docs/mobil-cta-footer-uretim-hatasi.txt
           git add -- assets/css/style.css tools/sayfa.py
-          while IFS= read -r sayfa; do
-            git add -- "$sayfa"
+          while IFS= read -r page; do
+            git add -- "$page"
           done < <(python3 tools/sayfa.py --liste)
-          git add -u -- docs/mobil-cta-footer-uretim-hatasi.txt
+
+          git rm -- tools/mobil_cta_footer_fix.py
           git diff --cached --check
           git status --short
           git commit -m "Mobil CTA okunurluluğunu ve footer boşluğunu düzelt"
