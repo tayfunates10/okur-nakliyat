@@ -114,28 +114,165 @@ jobs:
           dry-run: false
           timeout: 60000
 
-      - name: Canlı footer SVG'lerini doğrula
+      # HTTP yanıtı barındırma önbelleği veya bot filtresi nedeniyle zaman
+      # zaman eski/farklı HTML döndürebiliyor. Bu nedenle esas doğrulama,
+      # az önce yazılan gerçek FTPS hedefinden dosyaları geri indirip yerel
+      # yayın paketiyle byte-byte karşılaştırır.
+      - name: Sunucudaki footer dosyalarını doğrula
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           set -euo pipefail
-          url="https://okurnakliyatedremit.com/?deploy=${GITHUB_SHA}"
+          python3 - <<'PY'
+          import ftplib
+          import hashlib
+          import os
+          import re
+          import ssl
+          import time
+          from pathlib import Path
+          from urllib.parse import urlparse
 
-          for deneme in 1 2 3 4 5 6 7 8 9 10 11 12; do
-            echo "Canlı site kontrolü: ${deneme}/12"
-            html="$(curl --fail --silent --show-error --location \
-              --connect-timeout 15 --max-time 30 \
-              -H 'Cache-Control: no-cache' \
-              "$url" || true)"
+          raw_server = os.environ["FTP_SERVER"].strip()
+          if "://" in raw_server:
+              parsed = urlparse(raw_server)
+              host = parsed.hostname
+              port = parsed.port or 21
+          else:
+              host = raw_server
+              port = 21
+              if raw_server.count(":") == 1:
+                  maybe_host, maybe_port = raw_server.rsplit(":", 1)
+                  if maybe_port.isdigit():
+                      host, port = maybe_host, int(maybe_port)
 
-            if grep -Fq 'M22 16.92v3' <<<"$html" && \
-               grep -Fq 'M20 10c0 5-8 12' <<<"$html"; then
-              echo "Yeni telefon ve konum SVG'leri canlı sitede doğrulandı."
-              exit 0
-            fi
+          if not host:
+              raise SystemExit("FTP_SERVER içinde geçerli sunucu adı yok")
 
-            sleep 10
-          done
+          expected = {
+              "index.html": Path("dist/index.html").read_bytes(),
+              "assets/css/footer-icons.css": Path(
+                  "dist/assets/css/footer-icons.css"
+              ).read_bytes(),
+          }
 
-          echo "::error::FTP adımı sonrasında yeni footer SVG'leri canlı HTML içinde bulunamadı."
+          def indir(ftp: ftplib.FTP_TLS, path: str) -> bytes:
+              parcalar = []
+              ftp.retrbinary(f"RETR {path}", parcalar.append)
+              return b"".join(parcalar)
+
+          last_error = None
+          for attempt in range(1, 4):
+              ftp = None
+              try:
+                  print(f"FTPS sunucu doğrulaması: {attempt}/3")
+                  ftp = ftplib.FTP_TLS(
+                      context=ssl.create_default_context(), timeout=60
+                  )
+                  ftp.connect(host, port)
+                  ftp.login(
+                      os.environ["FTP_USERNAME"],
+                      os.environ["FTP_PASSWORD"],
+                  )
+                  ftp.prot_p()
+                  ftp.set_pasv(True)
+                  ftp.cwd("public_html")
+
+                  remote = {path: indir(ftp, path) for path in expected}
+
+                  for path, local_data in expected.items():
+                      remote_data = remote[path]
+                      if remote_data != local_data:
+                          local_hash = hashlib.sha256(local_data).hexdigest()
+                          remote_hash = hashlib.sha256(remote_data).hexdigest()
+                          raise RuntimeError(
+                              f"{path} sunucuda yerel paketle aynı değil: "
+                              f"local={local_hash} remote={remote_hash}"
+                          )
+
+                  index = remote["index.html"].decode("utf-8")
+                  css = remote["assets/css/footer-icons.css"].decode("utf-8")
+
+                  index_checks = {
+                      "footer ikon CSS bağlantısı": re.search(
+                          r'/assets/css/footer-icons\.css\?v=\d+', index
+                      ),
+                      "telefon SVG yolu": "M22 16.92v3" in index,
+                      "konum SVG yolu": "M20 10c0 5-8 12" in index,
+                  }
+                  css_checks = {
+                      "rozet seçicisi": ".footer-column .footer-bilgi-ikon" in css,
+                      "44px sabit flex": "flex: 0 0 44px;" in css,
+                      "44px genişlik": "width: 44px;" in css,
+                      "44px yükseklik": "height: 44px;" in css,
+                      "tam daire": "border-radius: 50%;" in css,
+                      "kare oran": "aspect-ratio: 1 / 1;" in css,
+                  }
+
+                  missing = [
+                      name
+                      for name, ok in {**index_checks, **css_checks}.items()
+                      if not ok
+                  ]
+                  if missing:
+                      raise RuntimeError(
+                          "Sunucu dosyalarında eksik doğrulama: " + ", ".join(missing)
+                      )
+
+                  print(
+                      "Sunucudaki index.html ve footer-icons.css yerel yayın "
+                      "paketiyle birebir; 44×44 daire kuralları doğrulandı."
+                  )
+                  break
+              except Exception as exc:
+                  last_error = exc
+                  print(f"Doğrulama denemesi başarısız: {type(exc).__name__}: {exc}")
+                  if attempt == 3:
+                      raise
+                  time.sleep(20)
+              finally:
+                  if ftp is not None:
+                      try:
+                          ftp.quit()
+                      except Exception:
+                          try:
+                              ftp.close()
+                          except Exception:
+                              pass
+          else:
+              raise last_error or RuntimeError("FTPS doğrulaması tamamlanamadı")
+          PY
+
+      # Ek tanı: ziyaretçiye açık HTTP yanıtında da yeni HTML/CSS görünüyorsa
+      # kayda geçirir. Bazı GitHub runner IP'lerinde barındırma katmanı eski
+      # veya farklı HTML döndürdüğünden bu adım dağıtımı kırmaz; esas kanıt
+      # yukarıdaki FTPS byte karşılaştırmasıdır.
+      - name: HTTP canlı yanıtını tanıla
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          html_url="https://okurnakliyatedremit.com/?deploy=${GITHUB_SHA}"
+          css_ref="$(grep -oE '/assets/css/footer-icons\.css\?v=[0-9]+' dist/index.html | head -n 1)"
+
+          html="$(curl --fail --silent --show-error --location \
+            --connect-timeout 15 --max-time 30 \
+            -H 'Cache-Control: no-cache' "$html_url")"
+          css="$(curl --fail --silent --show-error --location \
+            --connect-timeout 15 --max-time 30 \
+            -H 'Cache-Control: no-cache' \
+            "https://okurnakliyatedremit.com${css_ref}&deploy=${GITHUB_SHA}")"
+
+          if grep -Fq 'M22 16.92v3' <<<"$html" && \
+             grep -Fq 'M20 10c0 5-8 12' <<<"$html" && \
+             grep -Fq "$css_ref" <<<"$html" && \
+             grep -Fq 'flex: 0 0 44px;' <<<"$css"; then
+            echo "Genel HTTP uç noktasında yeni footer HTML ve CSS doğrulandı."
+            exit 0
+          fi
+
+          echo "::warning::HTTP katmanı güncel footer dosyalarını henüz döndürmedi; FTPS hedefindeki dosyalar birebir doğrulandı."
           exit 1
 
       - name: Dağıtım sonucunu commit'e yaz
@@ -148,10 +285,10 @@ jobs:
 
           if [ "$JOB_STATUS" = "success" ]; then
             STATE="success"
-            DESCRIPTION="FTP yüklemesi ve canlı footer SVG kontrolü başarılı"
+            DESCRIPTION="FTP yüklemesi ve sunucu dosya doğrulaması başarılı"
           else
             STATE="failure"
-            DESCRIPTION="FTP yüklemesi veya canlı footer SVG kontrolü başarısız"
+            DESCRIPTION="FTP yüklemesi veya sunucu dosya doğrulaması başarısız"
           fi
 
           export STATE DESCRIPTION
