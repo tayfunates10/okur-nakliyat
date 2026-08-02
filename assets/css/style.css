@@ -503,7 +503,7 @@ body.is-menu-open {
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=26");
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=27");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -3081,8 +3081,26 @@ body.is-menu-open {
   background: var(--color-black);
   border-top: 2px solid var(--color-yellow);
   border-bottom: 2px solid var(--color-yellow);
-  /* Kenarlarda yumuşak kesim; yazılar duvara çarpmış gibi bitmesin. */
-  mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+}
+
+/* Kenarlarda yumuşak kesim; yazılar duvara çarpmış gibi bitmesin.
+   Önce `mask-image` ile yapılıyordu: maske kenarları saydamlaştırıyor,
+   şeridin arkasındaki gövde arka planı ise açık renk (rgb(247,247,244)).
+   Sonuç, sağ ve sol uçta beyaz bir parlamaydı. Artık saydamlık yok;
+   yazılar şeridin kendi siyahına soluyor. */
+.site-serit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--color-black),
+    rgba(11, 11, 11, 0) 7%,
+    rgba(11, 11, 11, 0) 93%,
+    var(--color-black)
+  );
 }
 
 /* Üstteki hizmet şeridi akışta, sayfanın en başında durur ve sayfayla
