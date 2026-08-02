@@ -1,0 +1,64 @@
+/*
+ * Footer iletişim rozetleri
+ *
+ * style.css içindeki genel `.footer-column span` kuralı tüm span öğelerine
+ * en az 44px yükseklik veriyor. Eski rozet genişliği 28px kaldığı için telefon
+ * ve konum arka planları mobilde dikey kapsüle dönüşüyordu.
+ *
+ * Bu dosya style.css'ten sonra yüklenir ve yalnızca iletişim rozetlerini
+ * eşit genişlik/yükseklikte, dairesel ve optik olarak ortalanmış hâle getirir.
+ */
+.footer-column .footer-bilgi-ikon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  line-height: 0;
+  color: var(--color-yellow);
+  background: rgba(245, 196, 0, 0.14);
+  border: 1px solid rgba(245, 196, 0, 0.18);
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  box-sizing: border-box;
+}
+
+.footer-column .footer-bilgi-ikon .icon {
+  display: block;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  stroke-width: 1.85;
+}
+
+.footer-column .footer-bilgi-metin {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.footer-bilgi-adres .footer-adres {
+  padding-top: 0.15rem;
+}
+
+@media (max-width: 360px) {
+  .footer-column .footer-bilgi-ikon {
+    flex-basis: 40px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .footer-column .footer-bilgi-ikon .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .footer-column .footer-bilgi-metin {
+    min-height: 40px;
+  }
+}
