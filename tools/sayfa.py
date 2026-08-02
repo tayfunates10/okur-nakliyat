@@ -250,6 +250,11 @@ def kaynak_surumlerini_dogrula() -> list[str]:
 
 def main() -> int:
     kontrol = "--kontrol" in sys.argv
+    # --liste: üretilen HTML yollarını basar, başka hiçbir şey yazmaz.
+    # Yayın iş akışı hangi dosyaların kopyalanacağını buradan öğrenir.
+    # Slug listesinden türetiliyordu; galeri sayfası fotoğraf yokken hiç
+    # üretilmediği için `cp` düşüyor ve dağıtım FTP'ye gelmeden ölüyordu.
+    liste = "--liste" in sys.argv
 
     kaynak_sorunlari = kaynak_surumlerini_dogrula()
     if kaynak_sorunlari:
@@ -282,8 +287,16 @@ def main() -> int:
     # {{GALERI_ONIZLEME}} boş kaldığı için kendiliğinden görünmez olur.
     if not fotolar:
         dosyalar = [d for d in dosyalar if d.stem != "galeri"]
-        print("galeri-kaynak/liste.json boş — /galeri/ sayfası üretilmedi.")
-        print("Fotoğraf eklendiğinde sitemap.xml'e /galeri/ satırı da eklenmeli.")
+        if not liste:
+            print("galeri-kaynak/liste.json boş — /galeri/ sayfası üretilmedi.")
+            print("Fotoğraf eklendiğinde sitemap.xml'e /galeri/ satırı da eklenmeli.")
+
+    if liste:
+        for yol in dosyalar:
+            veri, _ = sayfa_oku(yol)
+            slug = veri["slug"].strip("/")
+            print(f"{slug}/index.html" if slug else "index.html")
+        return 0
 
     fark = []
     for yol in dosyalar:
