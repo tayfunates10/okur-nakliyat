@@ -36,7 +36,7 @@ jobs:
           source = Path('.github/workflows/kurumsal-seo-sayfalari.yml').read_text(encoding='utf-8')
           start = "          python3 - <<'PY'\n"
           end = "\n          PY\n\n      - name: Tüm statik HTML sayfalarını üret"
-          if source.count(start) != 1 or source.count(end) != 1:
+          if start not in source or end not in source:
               raise SystemExit('Kurumsal SEO üretim bloğu bulunamadı')
           body = source.split(start, 1)[1].split(end, 1)[0]
           lines = [line[10:] if line.startswith('          ') else line for line in body.splitlines()]
