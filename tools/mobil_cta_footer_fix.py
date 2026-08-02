@@ -24,6 +24,12 @@ def main() -> int:
         "    padding-bottom: 0;",
         "mobil main alt boşluğu",
     )
+    style = replace_once(
+        style,
+        "../images/hero/okur-nakliyat-hero-background.webp?v=33",
+        "../images/hero/okur-nakliyat-hero-background.webp?v=34",
+        "CSS içi hero varlık sürümü",
+    )
 
     sentinel = "18. Koyu CTA okunurluluğu ve mobil footer birleşimi"
     if sentinel in style:
