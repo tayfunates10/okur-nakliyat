@@ -9,24 +9,11 @@
 # --------------------------------------------------------------------------
 DirectoryIndex index.html
 
-# Bu satır şu an sunucuda ETKİSİZ; bilerek duruyor.
-#
-# Ölçülen durum (bkz. docs/sunucu-teshis.md):
-#   - Yayındaki .htaccess bu dosya. X-Okur-Htaccess işareti canlıda görünüyor.
-#   - Apache dosyayı okuyor: aynı dosyanın "Header always set" satırları 404
-#     yanıtına bile uygulanıyor.
-#   - Buna rağmen ErrorDocument hiçbir biçimde sonuç vermiyor. Dosya yolu da
-#     denendi, metin biçimi de ("ErrorDocument 404 \"...\""); ikisinde de
-#     olmayan bir URL 13 baytlık çıplak "404 Not Found" ve charset=iso-8859-1
-#     ile dönüyor. /404.html doğrudan istendiğinde 200 ve doğru içerikle
-#     geliyor.
-#
-# Yani sorun iç alt-istekte değil, direktifin tümden geçersiz kılınmasında --
-# sunucu seviyesinde veya bir güvenlik modülünce. .htaccess üzerinden
-# uygulanabilecek bir çözüm yok; hosting desteğinin müdahalesi gerekiyor.
-#
-# Satır kaldırılmıyor: sunucu tarafı düzeldiğinde doğru davranış kendiliğinden
-# devreye girsin.
+# Sunucu ErrorDocument direktifini yok saydığı için bu satır tek başına
+# yeterli değildir. Yine de hosting tarafı düzeltildiğinde yerleşik Apache
+# davranışı devreye girsin diye korunur. Aşağıdaki mod_rewrite yedeği,
+# bulunamayan istekleri 404.php dosyasına içten aktarır; 404.php gerçek HTTP
+# 404 durum kodunu verip mevcut 404.html tasarımını gösterir.
 ErrorDocument 404 /404.html
 
 # --------------------------------------------------------------------------
@@ -48,14 +35,19 @@ AddDefaultCharset UTF-8
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # Yalnızca dış istekte çalışsın. ErrorDocument iç alt-istekle servis
-  # edildiğinde bu kural yeniden değerlendirilirse hata belgesi yönlendirmeye
-  # dönüşür ve sunucu özel 404 yerine düz "404 Not Found" döndürür.
+  # Yalnızca dış istekte çalışsın. İç yönlendirmelerin yeniden kanonik alan
+  # adı kuralına girmesi engellenir.
   RewriteCond %{ENV:REDIRECT_STATUS} ^$
-
   RewriteCond %{HTTPS} !=on [OR]
   RewriteCond %{HTTP_HOST} ^www\.okurnakliyatedremit\.com$ [NC]
   RewriteRule ^ https://okurnakliyatedremit.com%{REQUEST_URI} [R=301,L]
+
+  # GoDaddy sunucusu ErrorDocument direktifini işlemiyor. Gerçek dosya veya
+  # dizin olmayan tüm istekleri URL'yi değiştirmeden 404.php'ye içten aktar.
+  # PHP giriş dosyası HTTP 404 kodunu ayarlar ve tasarımlı 404.html'i okur.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ 404.php [L]
 </IfModule>
 
 # --------------------------------------------------------------------------
@@ -100,17 +92,13 @@ AddDefaultCharset UTF-8
     Header set Cache-Control "public, max-age=31536000, immutable"
   </FilesMatch>
 
-  <FilesMatch "\.(html|xml|txt)$">
+  <FilesMatch "\.(html|php|xml|txt)$">
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 
   # Sunucudaki .htaccess'in gerçekten bu dosya olup olmadığını dışarıdan
-  # ölçmek için. Bu dosya her değiştiğinde numara artırılmalı; site
-  # kontrolü yayındaki değeri buradaki değerle karşılaştırıyor.
-  # Gerekçe: 404 yanıtı .htaccess'in Header satırlarını taşıyor ama
-  # ErrorDocument satırını uygulamıyor. Bu işaret, "dosya eski" ile
-  # "Apache ErrorDocument'ı yok sayıyor" ihtimallerini birbirinden ayırır.
-  Header always set X-Okur-Htaccess "3"
+  # ölçmek için. Bu dosya her değiştiğinde numara artırılmalıdır.
+  Header always set X-Okur-Htaccess "4"
 
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
