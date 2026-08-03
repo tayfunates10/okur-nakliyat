@@ -1,91 +1,169 @@
-name: GA4 ve dönüşüm takibi üretimi
+name: Kod ve tasarım kalite kontrolü
 
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened]
-
-permissions:
-  contents: write
-
-concurrency:
-  group: ga4-uret-${{ github.event.pull_request.number }}
-  cancel-in-progress: false
+  workflow_dispatch:
 
 jobs:
-  produce:
-    name: GA4 çıktısını üret ve doğrula
-    if: github.event.pull_request.head.ref == 'feat/ga4-donusum-takibi'
+  validate:
+    name: Statik site doğrulaması
     runs-on: ubuntu-latest
 
     steps:
-      - name: PR dalını al
+      - name: Depoyu al
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
 
-      - name: Python kur
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: GA4, izin yönetimi ve dönüşüm olaylarını üret
+      - name: Zorunlu dosyalar
         run: |
-          set -euo pipefail
-          python3 tools/ga4_betik_onar.py
-          python3 -m py_compile tools/ga4_kurulum.py
-          python3 tools/ga4_kurulum.py
-          python3 tools/sayfa.py
-
-      - name: Kaynak ve çıktı bütünlüğünü doğrula
-        run: |
-          set -euo pipefail
-          python3 tools/sayfa.py --kontrol
-          test "$(python3 tools/sayfa.py --liste | wc -l)" -eq 16
-          node --check assets/js/main.js
-
-          grep -Fq 'G-DPRPQ2YL2E' sablon/taban.html
-          grep -Fq 'analytics_storage: "denied"' sablon/taban.html
-          grep -Fq 'id="analyticsConsent"' sablon/taban.html
-          grep -Fq 'phone_click' assets/js/main.js
-          grep -Fq 'whatsapp_click' assets/js/main.js
-          grep -Fq 'directions_click' assets/js/main.js
-          grep -Fq 'quote_submit' assets/js/main.js
-          grep -Fq 'ONBELLEK_SURUMU = "36"' tools/sayfa.py
-          grep -Fq 'Google Analytics 4' sayfalar/gizlilik-politikasi.html
-          ! grep -Fq 'ad_storage: "granted"' sablon/taban.html
-          ! grep -Fq 'name: value("name")' assets/js/main.js
-          ! grep -Fq 'phone: value("phone")' assets/js/main.js
-
-          while IFS= read -r page; do
-            grep -Fq 'G-DPRPQ2YL2E' "$page"
-            grep -Fq 'id="analyticsConsent"' "$page"
-            grep -Fq '/assets/js/main.js?v=36' "$page"
-          done < <(python3 tools/sayfa.py --liste)
-
-      - name: Üretilen dosyaları PR dalına yaz
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add -- \
-            sablon/taban.html \
-            assets/js/main.js \
+          set -e
+          for file in \
+            index.html \
+            404.html \
+            robots.txt \
+            sitemap.xml \
+            .htaccess \
+            assets/css/reset.css \
+            assets/css/variables.css \
+            assets/css/components.css \
             assets/css/style.css \
-            sayfalar/gizlilik-politikasi.html \
-            tools/sayfa.py
+            assets/js/main.js \
+            assets/images/hero/okur-nakliyat-hero-background.webp \
+            assets/images/hero/okur-nakliyat-hero-arac.webp \
+            assets/images/about/okur-nakliyat-hakkimizda.webp \
+            assets/images/og/okur-nakliyat-og.jpg \
+            assets/images/logo/favicon.svg; do
+            test -f "$file"
+            printf "OK  %s\n" "$file"
+          done
 
-          while IFS= read -r page; do
-            git add -- "$page"
-          done < <(python3 tools/sayfa.py --liste)
+      - name: JavaScript sözdizimi
+        run: node --check assets/js/main.js
 
-          git checkout origin/main -- .github/workflows/quality-check.yml
-          git add -- .github/workflows/quality-check.yml
-          git rm -f -- tools/ga4_kurulum.py tools/ga4_betik_onar.py
+      - name: HTML, bağlantı ve yapılandırılmış veri
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from collections import Counter
+          import json
 
-          git diff --cached --check
-          git status --short
-          git commit -m "GA4 ve izinli dönüşüm takibini kur"
-          git push origin HEAD:${GITHUB_HEAD_REF}
+          class Parser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids = []
+                  self.hash_links = []
+                  self.h1_count = 0
+                  self.json_ld_depth = 0
+                  self.json_ld = []
+                  self._buffer = []
+
+              def handle_starttag(self, tag, attrs):
+                  attrs = dict(attrs)
+                  if "id" in attrs:
+                      self.ids.append(attrs["id"])
+                  href = attrs.get("href", "")
+                  if href.startswith("#") and href != "#":
+                      self.hash_links.append(href[1:])
+                  if tag == "h1":
+                      self.h1_count += 1
+                  if tag == "script" and attrs.get("type") == "application/ld+json":
+                      self.json_ld_depth += 1
+                      self._buffer = []
+
+              def handle_data(self, data):
+                  if self.json_ld_depth:
+                      self._buffer.append(data)
+
+              def handle_endtag(self, tag):
+                  if tag == "script" and self.json_ld_depth:
+                      self.json_ld.append("".join(self._buffer))
+                      self.json_ld_depth -= 1
+                      self._buffer = []
+
+          html = Path("index.html").read_text(encoding="utf-8")
+          parser = Parser()
+          parser.feed(html)
+
+          duplicates = sorted(i for i, count in Counter(parser.ids).items() if count > 1)
+          assert not duplicates, f"Yinelenen id: {duplicates}"
+          assert parser.h1_count == 1, f"h1 sayısı: {parser.h1_count}"
+
+          ids = set(parser.ids)
+          missing_links = sorted(set(parser.hash_links) - ids)
+          assert not missing_links, f"Eksik anchor hedefi: {missing_links}"
+
+          # "iletisim" listeden çıkarıldı: CTA bandı ana sayfadan kaldırıldı
+          # ve menüdeki İletişim bağlantısı "teklif" bölümüne yönlendirildi.
+          # Bağlantı hedeflerini yukarıdaki missing_links kontrolü zaten
+          # doğruluyor; burası yalnızca bölümlerin varlığına bakıyor.
+          # "galeri" burada aranmaz: fotoğraf eklenene kadar o bölüm hiç
+          # üretilmiyor (bkz. tools/sayfa.py, galeri_oku).
+          required_ids = {
+              "anasayfa", "hizmetler", "hakkimizda", "surec",
+              "sss", "teklif", "quoteForm"
+          }
+          missing_ids = sorted(required_ids - ids)
+          assert not missing_ids, f"Eksik zorunlu bölüm: {missing_ids}"
+
+          assert parser.json_ld, "JSON-LD bulunamadı"
+          for block in parser.json_ld:
+              json.loads(block)
+
+          required_text = [
+              "hero-title",
+              "WhatsApp'tan Teklif İste",
+              "wa.me/905372265043",
+              "tel:+905372265043",
+              "Ücretsiz Kurulum ve Montaj"
+          ]
+          for needle in required_text:
+              assert needle in html, f"Eksik içerik: {needle}"
+
+          print(f"OK: {len(ids)} benzersiz id, {len(parser.hash_links)} dahili bağlantı")
+          PY
+
+      - name: CSS temel bütünlük
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          for file in [
+              "assets/css/reset.css",
+              "assets/css/variables.css",
+              "assets/css/components.css",
+              "assets/css/style.css",
+          ]:
+              css = Path(file).read_text(encoding="utf-8")
+              assert css.count("{") == css.count("}"), f"Dengesiz süslü parantez: {file}"
+              assert "\t" not in css, f"Tab karakteri bulundu: {file}"
+              print(f"OK: {file}")
+          PY
+
+      - name: XML ve robots kontrolü
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+
+          ET.parse("sitemap.xml")
+          robots = Path("robots.txt").read_text(encoding="utf-8")
+          assert "Sitemap: https://okurnakliyatedremit.com/sitemap.xml" in robots
+          print("OK: sitemap.xml ve robots.txt")
+          PY
+
+      - name: Dağıtım paketi provası
+        run: |
+          set -e
+          mkdir -p dist
+          cp index.html 404.html robots.txt sitemap.xml .htaccess dist/
+          cp -R assets dist/
+          find dist -name '.gitkeep' -delete
+
+          test -f dist/index.html
+          test -f dist/404.html
+          test -f dist/assets/css/style.css
+          test -f dist/assets/js/main.js
+
+          echo "--- dağıtım dosyaları ---"
+          find dist -type f | sort
