@@ -36,7 +36,7 @@ GALERI_LISTE = KOK / "galeri-kaynak" / "liste.json"
 GALERI_GORSEL = KOK / "assets" / "images" / "gallery"
 SITE = "https://okurnakliyatedremit.com"
 
-ONBELLEK_SURUMU = "36"  # ?v= — bkz. docs/ekran-denetimi.md
+ONBELLEK_SURUMU = "37"  # ?v= — bkz. docs/ekran-denetimi.md
 
 # Ana sayfada gösterilecek fotoğraf sayısı; kalanı /galeri/ sayfasında.
 GALERI_ONIZLEME_ADEDI = 6
@@ -166,7 +166,6 @@ def galeri_izgara(fotolar: list[dict], girinti: str = "        ") -> str:
 def uret(veri: dict, govde: str, sablonlar: dict, fotolar: list[dict]) -> tuple[Path, str]:
     slug = veri["slug"].strip("/")
     kanonik = f"{SITE}/{slug}/" if slug else f"{SITE}/"
-    # Ana sayfada bölüm çapaları aynı sayfada; alt sayfalarda köke gitmeli.
     kok = "" if not slug else "/"
 
     cikti = (KOK / slug / "index.html") if slug else (KOK / "index.html")
@@ -180,8 +179,6 @@ def uret(veri: dict, govde: str, sablonlar: dict, fotolar: list[dict]) -> tuple[
         ("{{ACIKLAMA}}", veri["aciklama"]),
         ("{{KANONIK}}", kanonik),
         ("{{SEMA}}", sema_uret(veri, kanonik)),
-        # Kayan şeritler her sayfada: hizmetler header'ın üstünde, hizmet
-        # verilen yerler giriş bölümünün altında.
         ("{{SERIT}}", serit_ust),
         ("{{HEADER}}", sablonlar["header"]),
         ("{{FOOTER}}", sablonlar["footer"]),
@@ -189,34 +186,21 @@ def uret(veri: dict, govde: str, sablonlar: dict, fotolar: list[dict]) -> tuple[
     ):
         html = html.replace(anahtar, deger)
 
-    # Galeri işaretlemesi listeden üretilir; HTML'de elle fotoğraf durmaz.
-    # Fotoğraf yoksa bölüm hiç basılmaz -- boş bir galeri yayınlanmaz.
     bolum = sablonlar["galeri-bolumu"] if fotolar else ""
     html = html.replace("{{GALERI_BOLUMU}}", bolum)
     html = html.replace("{{GALERI_ONIZLEME}}",
                         galeri_izgara(fotolar[:GALERI_ONIZLEME_ADEDI]))
     html = html.replace("{{GALERI_TAM}}", galeri_izgara(fotolar))
 
-    # {{SERIT_ALT}} sayfa gövdesinin içinde duruyor; gövde ({{ICERIK}}) yukarıda
-    # yerine kondu, bu yüzden değişimi ondan SONRA yapmak gerekiyor. Döngüde
-    # olduğu sırada gövde henüz eklenmemiş oluyor ve hiçbir şey eşleşmiyordu.
     html = html.replace("{{SERIT_ALT}}", serit_alt)
     html = html.replace("{{KOK}}", kok)
-    # "Ana Sayfa" bağlantısı yalnızca ana sayfada aktif işaretlenir. Şablonda
-    # sabit yazılıydı ve alt sayfalarda da aktif görünüyordu.
     html = html.replace("{{ANASAYFA}}", ' aria-current="page"' if not slug else "")
     html = html.replace("{{v}}", ONBELLEK_SURUMU)
     return cikti, html.rstrip("\n") + "\n"
 
 
 def css_surumlerini_dogrula() -> list[str]:
-    """CSS içindeki url() referansları da ?v= taşımalı ve sürüm güncel olmalı.
-
-    HTML'deki ?v= şablondan geliyor, ama CSS şablonlanmıyor: oradaki sürüm
-    elle güncelleniyor ve unutuluyor. Bu tam olarak yaşandı -- harita yeniden
-    çizildiğinde CSS'teki eski sürüm yüzünden ziyaretçide bir yıl boyunca
-    eski görsel kaldı.
-    """
+    """CSS içindeki url() referansları da ?v= taşımalı ve sürüm güncel olmalı."""
     sorunlar = []
     for css in sorted((KOK / "assets" / "css").glob("*.css")):
         metin = css.read_text(encoding="utf-8")
@@ -233,16 +217,7 @@ def css_surumlerini_dogrula() -> list[str]:
 
 
 def kaynak_surumlerini_dogrula() -> list[str]:
-    """Şablon ve sayfa kaynaklarında sabit ?v= yazılmamalı; {{v}} kullanılmalı.
-
-    Sabit yazılan sürüm, ONBELLEK_SURUMU'nü etkisiz bırakıyor: sabit
-    artırılıyor ama HTML eski sürümü istemeye devam ediyor. Yayındaki dosya
-    yenilense bile ziyaretçi `immutable` önbellek yüzünden bir yıl boyunca
-    eskisini görüyor.
-
-    Tam olarak bu yaşandı: bölüm 16'daki tasarım değişikliği sunucuya
-    yüklendi ama sayfalar hâlâ style.css?v=19 istiyordu.
-    """
+    """Şablon ve sayfa kaynaklarında sabit ?v= yazılmamalı; {{v}} kullanılmalı."""
     sorunlar = []
     for kok in (SABLON, SAYFALAR):
         for yol in sorted(kok.glob("*.html")):
@@ -258,10 +233,6 @@ def kaynak_surumlerini_dogrula() -> list[str]:
 
 def main() -> int:
     kontrol = "--kontrol" in sys.argv
-    # --liste: üretilen HTML yollarını basar, başka hiçbir şey yazmaz.
-    # Yayın iş akışı hangi dosyaların kopyalanacağını buradan öğrenir.
-    # Slug listesinden türetiliyordu; galeri sayfası fotoğraf yokken hiç
-    # üretilmediği için `cp` düşüyor ve dağıtım FTP'ye gelmeden ölüyordu.
     liste = "--liste" in sys.argv
 
     kaynak_sorunlari = kaynak_surumlerini_dogrula()
@@ -290,9 +261,6 @@ def main() -> int:
         print(f"sayfa bulunamadı ({SAYFALAR})")
         return 1
 
-    # Fotoğraf yokken galeri sayfası üretilmez: boş bir sayfa yayınlamak
-    # hem ziyaretçi hem arama motoru için değersiz. Ana sayfadaki bölüm de
-    # {{GALERI_ONIZLEME}} boş kaldığı için kendiliğinden görünmez olur.
     if not fotolar:
         dosyalar = [d for d in dosyalar if d.stem != "galeri"]
         if not liste:
