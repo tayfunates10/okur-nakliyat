@@ -503,7 +503,7 @@ body.is-menu-open {
   inset: 0;
   z-index: -3;
   pointer-events: none;
-  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=35");
+  background-image: url("../images/hero/okur-nakliyat-hero-background.webp?v=36");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -3960,6 +3960,113 @@ body.is-menu-open {
   }
 
   .iletisim-bilgi-eylem {
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   21. Analytics izin paneli
+   ========================================================================== */
+
+.analytics-consent[hidden] {
+  display: none;
+}
+
+.analytics-consent {
+  position: fixed;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  z-index: 1400;
+  width: min(720px, calc(100% - 2rem));
+  transform: translateX(-50%);
+  color: var(--text-on-dark);
+  background: rgba(11, 11, 11, 0.97);
+  border: 1px solid var(--border-on-dark-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(16px);
+}
+
+.analytics-consent-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.analytics-consent-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: var(--weight-black);
+  color: var(--color-white);
+}
+
+.analytics-consent-copy p:not(.analytics-consent-title) {
+  margin: 0.45rem 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-on-dark-muted);
+}
+
+.analytics-consent-copy a {
+  display: inline-block;
+  margin-top: 0.55rem;
+  color: var(--color-yellow);
+  font-size: var(--fs-xs);
+  font-weight: var(--weight-bold);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.analytics-consent-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-xs);
+}
+
+.analytics-preferences-button {
+  min-height: 36px;
+  padding: 0.35rem 0.65rem;
+  font: inherit;
+  font-size: var(--fs-xs);
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.analytics-preferences-button:hover,
+.analytics-preferences-button:focus-visible {
+  color: var(--color-yellow);
+}
+
+.analytics-preferences-button:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  .analytics-consent {
+    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+    width: min(100% - 1rem, 680px);
+  }
+
+  .analytics-consent-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-md);
+  }
+
+  .analytics-consent-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .analytics-consent-actions .btn {
     width: 100%;
   }
 }

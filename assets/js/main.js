@@ -10,6 +10,7 @@
    7. SSS davranışı
    8. Galeri büyütme penceresi
    9. WhatsApp teklif formu
+   10. İzinli GA4 ve dönüşüm olayları
    ========================================================================== */
 
 (function () {
@@ -478,6 +479,12 @@
         return String(data.get(name) || "").trim();
       }
 
+      sendAnalyticsEvent("quote_submit", {
+        form_id: form.id || "quoteForm",
+        service_type: value("service") || "belirtilmedi",
+        element_location: "quote_section"
+      });
+
       var lines = [
         "Merhaba Okur Nakliyat, ücretsiz fiyat teklifi almak istiyorum.",
         "",
@@ -625,12 +632,202 @@
     kipDegisti();
   }
 
+  var ANALYTICS_CONSENT_KEY = "okur_analytics_consent";
+  var analyticsTagLoaded = false;
+
+  function readAnalyticsConsent() {
+    try {
+      var value = window.localStorage.getItem(ANALYTICS_CONSENT_KEY);
+      return value === "granted" || value === "denied" ? value : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function writeAnalyticsConsent(value) {
+    try {
+      window.localStorage.setItem(ANALYTICS_CONSENT_KEY, value);
+    } catch (error) {
+      /* Depolama kapalıysa tercih yalnızca mevcut sayfa için uygulanır. */
+    }
+  }
+
+  function updateGoogleConsent(value) {
+    if (typeof window.gtag !== "function") return;
+
+    window.gtag("consent", "update", {
+      analytics_storage: value === "granted" ? "granted" : "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied"
+    });
+  }
+
+  function loadGoogleAnalytics() {
+    if (analyticsTagLoaded) return;
+
+    var measurementId = window.OKUR_ANALYTICS_ID;
+    if (!measurementId || typeof window.gtag !== "function") return;
+
+    analyticsTagLoaded = true;
+
+    var script = document.createElement("script");
+    script.async = true;
+    script.src =
+      "https://www.googletagmanager.com/gtag/js?id=" +
+      encodeURIComponent(measurementId);
+    document.head.appendChild(script);
+
+    window.gtag("js", new Date());
+    window.gtag("config", measurementId, {
+      send_page_view: true,
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false
+    });
+  }
+
+  function clearAnalyticsCookies() {
+    var hostname = window.location.hostname;
+    var domains = ["", hostname, "." + hostname];
+
+    document.cookie.split(";").forEach(function (part) {
+      var name = part.split("=")[0].trim();
+      if (!/^_ga(?:_|$)/.test(name)) return;
+
+      domains.forEach(function (domain) {
+        var suffix = domain ? "; domain=" + domain : "";
+        document.cookie =
+          name + "=; Max-Age=0; path=/; SameSite=Lax" + suffix;
+      });
+    });
+  }
+
+  function analyticsElementLocation(element) {
+    if (element.closest("header")) return "header";
+    if (element.closest("footer")) return "footer";
+    if (element.closest(".mobile-fixed-actions")) return "mobile_actions";
+    if (element.closest(".iletisim-bilgi-karti")) return "contact_card";
+    if (element.closest("#teklif")) return "quote_section";
+    if (element.closest(".hizmet-hero")) return "hero";
+    return "main";
+  }
+
+  function sendAnalyticsEvent(eventName, parameters) {
+    if (readAnalyticsConsent() !== "granted") return;
+    if (typeof window.gtag !== "function") return;
+
+    var payload = {
+      page_path: window.location.pathname,
+      page_title: document.title
+    };
+
+    Object.keys(parameters || {}).forEach(function (key) {
+      payload[key] = parameters[key];
+    });
+
+    window.gtag("event", eventName, payload);
+  }
+
+  function initializeAnalyticsConsent() {
+    var banner = document.getElementById("analyticsConsent");
+    if (!banner) return;
+
+    var stored = readAnalyticsConsent();
+
+    function hideBanner() {
+      banner.hidden = true;
+    }
+
+    function showBanner() {
+      banner.hidden = false;
+      var firstButton = banner.querySelector("button");
+      if (firstButton) firstButton.focus();
+    }
+
+    function applyConsent(value) {
+      writeAnalyticsConsent(value);
+      updateGoogleConsent(value);
+
+      if (value === "granted") {
+        loadGoogleAnalytics();
+      } else {
+        clearAnalyticsCookies();
+      }
+
+      hideBanner();
+    }
+
+    banner.addEventListener("click", function (event) {
+      var button = event.target.closest("[data-analytics-consent]");
+      if (!button) return;
+      applyConsent(button.getAttribute("data-analytics-consent"));
+    });
+
+    var footerBottom = document.querySelector(".footer-bottom");
+    if (footerBottom && !document.getElementById("analyticsPreferencesButton")) {
+      var preferencesButton = document.createElement("button");
+      preferencesButton.id = "analyticsPreferencesButton";
+      preferencesButton.className = "analytics-preferences-button";
+      preferencesButton.type = "button";
+      preferencesButton.textContent = "Çerez tercihleri";
+      preferencesButton.addEventListener("click", showBanner);
+      footerBottom.appendChild(preferencesButton);
+    }
+
+    if (stored === "granted") {
+      updateGoogleConsent("granted");
+      loadGoogleAnalytics();
+      hideBanner();
+    } else if (stored === "denied") {
+      updateGoogleConsent("denied");
+      hideBanner();
+    } else {
+      showBanner();
+    }
+  }
+
+  function initializeAnalyticsEvents() {
+    document.addEventListener("click", function (event) {
+      var link = event.target.closest("a[href]");
+      if (!link) return;
+
+      var href = String(link.getAttribute("href") || "");
+      var lowerHref = href.toLowerCase();
+      var eventName = null;
+
+      if (lowerHref.indexOf("tel:") === 0) {
+        eventName = "phone_click";
+      } else if (
+        lowerHref.indexOf("wa.me/") !== -1 ||
+        lowerHref.indexOf("whatsapp.com/") !== -1
+      ) {
+        eventName = "whatsapp_click";
+      } else if (
+        lowerHref.indexOf("maps.app.goo.gl/") !== -1 ||
+        lowerHref.indexOf("google.com/maps") !== -1 ||
+        lowerHref.indexOf("maps.google.") !== -1
+      ) {
+        eventName = "directions_click";
+      }
+
+      if (!eventName) return;
+
+      sendAnalyticsEvent(eventName, {
+        link_text: String(link.textContent || "").trim().replace(/\s+/g, " ").slice(0, 100),
+        link_url: href.slice(0, 500),
+        element_location: analyticsElementLocation(link)
+      });
+    });
+  }
+
   function initializeCurrentYear() {
     var element = document.getElementById("currentYear");
     if (element) element.textContent = String(new Date().getFullYear());
   }
 
   function initialize() {
+    initializeAnalyticsConsent();
+    initializeAnalyticsEvents();
     initializeHeaderScroll();
     initializeMobileMenu();
     initializeSmoothScroll();

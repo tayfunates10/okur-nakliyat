@@ -70,6 +70,20 @@
   <link rel="stylesheet" href="/assets/css/footer-contact-compact.css?v={{v}}">
   <link rel="stylesheet" href="/assets/css/footer-map.css?v={{v}}">
 
+  <!-- Google Analytics 4: kullanıcı izin verene kadar harici etiket yüklenmez. -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+    window.OKUR_ANALYTICS_ID = "G-DPRPQ2YL2E";
+    window.gtag("consent", "default", {
+      analytics_storage: "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      wait_for_update: 500
+    });
+  </script>
+
   <script defer src="/assets/js/main.js?v={{v}}"></script>
   <script defer src="/assets/js/marquee.js?v={{v}}"></script>
 
@@ -107,3 +121,18 @@
 {{ICERIK}}
 
 {{FOOTER}}
+
+  <section class="analytics-consent" id="analyticsConsent" role="dialog"
+           aria-labelledby="analyticsConsentTitle" aria-describedby="analyticsConsentText" hidden>
+    <div class="analytics-consent-inner">
+      <div class="analytics-consent-copy">
+        <p class="analytics-consent-title" id="analyticsConsentTitle">Gizlilik tercihiniz</p>
+        <p id="analyticsConsentText">Site kullanımını anlamak için Google Analytics ölçümüne izin verebilirsiniz. İzin vermediğiniz sürece Analytics etiketi yüklenmez.</p>
+        <a href="/gizlilik-politikasi/">Gizlilik politikasını inceleyin</a>
+      </div>
+      <div class="analytics-consent-actions" aria-label="Analiz tercihi">
+        <button class="btn btn-secondary btn-sm" type="button" data-analytics-consent="denied">Reddet</button>
+        <button class="btn btn-primary btn-sm" type="button" data-analytics-consent="granted">İzin ver</button>
+      </div>
+    </div>
+  </section>
