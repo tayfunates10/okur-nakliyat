@@ -23,21 +23,31 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: HTML asset sürümünü güncelle
+      - name: Üretim sürümünü güncelle ve sayfaları oluştur
         run: python3 tools/apply_miniature_theme.py
 
       - name: Değişiklikleri doğrula
         run: |
+          python3 tools/sayfa.py --kontrol
           python3 - <<'PY'
           from pathlib import Path
-          files = [p for p in Path('.').rglob('*.html') if '.git' not in p.parts and 'node_modules' not in p.parts]
-          missing = [str(p) for p in files if '/assets/css/footer-map.css?v=36' in p.read_text(encoding='utf-8')]
+          files = [
+              p for p in Path('.').rglob('*.html')
+              if '.git' not in p.parts
+              and 'node_modules' not in p.parts
+              and 'sablon' not in p.parts
+              and 'sayfalar' not in p.parts
+          ]
+          missing = [
+              str(p) for p in files
+              if '/assets/css/footer-map.css?v=37' not in p.read_text(encoding='utf-8')
+          ]
           if missing:
-              raise SystemExit('Eski footer-map sürümü kalan dosyalar: ' + ', '.join(missing))
-          print(f'{len(files)} HTML dosyası doğrulandı.')
+              raise SystemExit('v37 tema referansı eksik dosyalar: ' + ', '.join(missing))
+          print(f'{len(files)} üretilmiş HTML dosyası doğrulandı.')
           PY
 
-      - name: Oluşan statik çıktıları kaydet
+      - name: Üretim kaynağını ve statik çıktıları kaydet
         run: |
           if git diff --quiet; then
             echo "Kaydedilecek değişiklik yok."
@@ -45,6 +55,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- '*.html' 'sablon/*.html'
-          git commit -m "Minyatür tema asset sürümünü statik çıktılara uygula [skip ci]"
+          git add -- tools/sayfa.py '*.html' */index.html
+          git commit -m "Minyatür tema sürümünü üretim kaynağına uygula [skip ci]"
           git push
