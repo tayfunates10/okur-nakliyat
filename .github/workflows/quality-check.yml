@@ -83,7 +83,7 @@ jobs:
 
           git checkout origin/main -- .github/workflows/quality-check.yml
           git add -- .github/workflows/quality-check.yml
-          git rm -- tools/ga4_kurulum.py tools/ga4_betik_onar.py
+          git rm -f -- tools/ga4_kurulum.py tools/ga4_betik_onar.py
 
           git diff --cached --check
           git status --short
