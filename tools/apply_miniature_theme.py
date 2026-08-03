@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Minyatür tema katmanını statik sayfa üreticisine uygular.
 
-Script tekrar çalıştırılabilir (idempotent) yapıdadır. Önbellek sürümünü tek
-kaynak olan ``tools/sayfa.py`` içinde günceller, ardından bütün statik sayfaları
-resmî üreticiyle yeniden oluşturur. Sayfa içeriklerine elle müdahale etmez.
+Script tekrar çalıştırılabilir (idempotent) yapıdadır. Üretici dosyasını mümkünse
+``origin/main`` kaynağından alır, yalnızca önbellek sürümünü günceller ve bütün
+statik sayfaları resmî üreticiyle yeniden oluşturur.
 """
 
 from __future__ import annotations
@@ -18,27 +18,41 @@ NEW_VERSION = 'ONBELLEK_SURUMU = "37"'
 EXPECTED_REFERENCE = "/assets/css/footer-map.css?v=37"
 
 
+def clean_generator_source() -> str:
+    """Main dalındaki üreticiyi al; git yoksa çalışma kopyasına geri dön."""
+    try:
+        result = subprocess.run(
+            ["git", "show", "origin/main:tools/sayfa.py"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return result.stdout
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return GENERATOR.read_text(encoding="utf-8")
+
+
 def update_generator_version() -> bool:
-    text = GENERATOR.read_text(encoding="utf-8")
-    if NEW_VERSION in text:
-        return False
-    if OLD_VERSION not in text:
+    current = GENERATOR.read_text(encoding="utf-8")
+    source = clean_generator_source()
+
+    if OLD_VERSION in source:
+        updated = source.replace(OLD_VERSION, NEW_VERSION, 1)
+    elif NEW_VERSION in source:
+        updated = source
+    else:
         raise SystemExit("tools/sayfa.py içinde beklenen önbellek sürümü bulunamadı.")
 
-    GENERATOR.write_text(
-        text.replace(OLD_VERSION, NEW_VERSION, 1),
-        encoding="utf-8",
-        newline="\n",
-    )
+    if updated == current:
+        return False
+
+    GENERATOR.write_text(updated, encoding="utf-8", newline="\n")
     return True
 
 
 def generate_pages() -> None:
-    subprocess.run(
-        ["python3", str(GENERATOR)],
-        cwd=ROOT,
-        check=True,
-    )
+    subprocess.run(["python3", str(GENERATOR)], cwd=ROOT, check=True)
 
 
 def validate_pages() -> list[str]:
@@ -46,8 +60,7 @@ def validate_pages() -> list[str]:
     for path in sorted(ROOT.rglob("*.html")):
         if any(part in {"node_modules", ".git", "sablon", "sayfalar"} for part in path.parts):
             continue
-        text = path.read_text(encoding="utf-8")
-        if EXPECTED_REFERENCE not in text:
+        if EXPECTED_REFERENCE not in path.read_text(encoding="utf-8"):
             invalid.append(str(path.relative_to(ROOT)))
     return invalid
 
