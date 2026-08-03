@@ -1,0 +1,762 @@
+/* ========================================================================== 
+   Okur Nakliyat — Minyatür İşçilik Tasarım Katmanı
+   Mevcut erişilebilirlik, responsive ve etkileşim altyapısını bozmadan
+   sayfaları makro çekim / diorama / işçilik masası estetiğine taşır.
+   ========================================================================== */
+
+:root {
+  --mini-paper: #f2efe6;
+  --mini-paper-deep: #e7e1d4;
+  --mini-ink: #121212;
+  --mini-line: rgba(18, 18, 18, 0.12);
+  --mini-line-strong: rgba(18, 18, 18, 0.2);
+  --mini-yellow-soft: rgba(245, 196, 0, 0.18);
+  --mini-bench: #191816;
+  --mini-bench-soft: #27241f;
+  --mini-card-shadow: 0 2px 0 rgba(255, 255, 255, 0.7) inset,
+    0 18px 42px rgba(27, 23, 17, 0.13);
+  --mini-card-shadow-hover: 0 2px 0 rgba(255, 255, 255, 0.75) inset,
+    0 28px 58px rgba(27, 23, 17, 0.2);
+}
+
+html {
+  background: var(--mini-bench);
+}
+
+body {
+  background-color: var(--mini-paper);
+  background-image:
+    linear-gradient(rgba(18, 18, 18, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(18, 18, 18, 0.025) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+main {
+  overflow: clip;
+}
+
+/* --------------------------------------------------------------------------
+   Ortak bölüm dili: kesim matı, ölçü çizgileri ve işçilik etiketleri
+   -------------------------------------------------------------------------- */
+
+.section,
+.coverage-section {
+  position: relative;
+  isolation: isolate;
+}
+
+.section-light,
+.section-neutral {
+  background-color: var(--mini-paper);
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(245, 196, 0, 0.08), transparent 26rem),
+    linear-gradient(rgba(18, 18, 18, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(18, 18, 18, 0.025) 1px, transparent 1px);
+  background-size: auto, 24px 24px, 24px 24px;
+}
+
+.section-light::before,
+.section-neutral::before,
+.coverage-section::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 50%;
+  width: min(calc(100% - var(--container-gutter)), var(--container-max));
+  height: 1px;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--mini-line-strong) 0 1px,
+    transparent 1px 12px,
+    var(--mini-line) 12px 13px,
+    transparent 13px 24px
+  );
+}
+
+.section-title,
+.coverage-title {
+  text-wrap: balance;
+}
+
+.section-title span,
+.coverage-title strong {
+  position: relative;
+  display: inline;
+  color: inherit;
+  background-image: linear-gradient(transparent 76%, rgba(245, 196, 0, 0.72) 76%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.section-heading {
+  position: relative;
+}
+
+.section-heading::after {
+  content: "ÖLÇÜLÜ İŞÇİLİK";
+  position: absolute;
+  top: -1.2rem;
+  right: 0;
+  font-family: var(--font-heading);
+  font-size: 0.625rem;
+  font-weight: var(--weight-black);
+  letter-spacing: 0.18em;
+  color: rgba(18, 18, 18, 0.42);
+}
+
+/* --------------------------------------------------------------------------
+   Hero: karanlık maket atölyesi ve yükseltilmiş diorama platformu
+   -------------------------------------------------------------------------- */
+
+.hero {
+  min-height: min(920px, calc(100svh - var(--serit-yuksekligi)));
+  background:
+    radial-gradient(circle at 74% 42%, rgba(245, 196, 0, 0.16), transparent 28rem),
+    linear-gradient(140deg, #0a0a09 0%, #171511 52%, #0b0b0b 100%);
+}
+
+.hero-background {
+  opacity: 0.38;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 74% 45%, rgba(245, 196, 0, 0.18), transparent 32%);
+  background-size: 40px 40px, 40px 40px, auto;
+  mask-image: linear-gradient(to bottom, #000 0 82%, transparent 100%);
+}
+
+.hero-overlay {
+  background:
+    linear-gradient(90deg, rgba(8, 8, 8, 0.94) 0%, rgba(8, 8, 8, 0.64) 42%, rgba(8, 8, 8, 0.08) 72%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.36));
+}
+
+.hero-content {
+  position: relative;
+  z-index: 5;
+}
+
+.hero-content::before {
+  content: "1:24  •  TAŞIMA DİORAMASI";
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin-bottom: 1rem;
+  padding: 0.35rem 0.7rem;
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  font-weight: var(--weight-black);
+  letter-spacing: 0.13em;
+  color: var(--color-yellow);
+  border: 1px solid rgba(245, 196, 0, 0.34);
+  border-radius: var(--radius-pill);
+  background: rgba(11, 11, 11, 0.58);
+  backdrop-filter: blur(8px);
+}
+
+.hero-title {
+  max-width: 13ch;
+}
+
+.hero-title-accent {
+  color: var(--color-yellow);
+  text-shadow: 0 0 28px rgba(245, 196, 0, 0.17);
+}
+
+.hero-description {
+  max-width: 62ch;
+  color: rgba(255, 255, 255, 0.74);
+}
+
+.hero-visual {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: clamp(1.25rem, 2.2vw, 2rem);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025)),
+    rgba(13, 13, 12, 0.66);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.13) inset,
+    0 30px 80px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.hero-visual::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 5%;
+  right: 5%;
+  bottom: 1.5%;
+  height: 31%;
+  border-radius: 48% 48% 16px 16px / 18% 18% 16px 16px;
+  background:
+    repeating-linear-gradient(90deg, rgba(245, 196, 0, 0.1) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.055) 0 1px, transparent 1px 26px),
+    linear-gradient(180deg, #2d2a24, #151411);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.42), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  transform: perspective(600px) rotateX(58deg);
+  transform-origin: bottom;
+}
+
+.hero-visual::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  right: 8%;
+  bottom: 8%;
+  width: clamp(26px, 3vw, 38px);
+  height: clamp(56px, 6vw, 78px);
+  border-radius: 50% 50% 16% 16% / 22% 22% 10% 10%;
+  background:
+    radial-gradient(circle at 50% 12%, #d7a77c 0 12%, transparent 13%),
+    linear-gradient(90deg, transparent 0 18%, #f5c400 18% 82%, transparent 82%) 50% 43% / 100% 42% no-repeat,
+    linear-gradient(74deg, transparent 0 43%, #1a1a1a 44% 58%, transparent 59%) 20% 100% / 42% 48% no-repeat,
+    linear-gradient(106deg, transparent 0 43%, #1a1a1a 44% 58%, transparent 59%) 80% 100% / 42% 48% no-repeat;
+  filter: drop-shadow(0 7px 5px rgba(0, 0, 0, 0.45));
+  transform: rotate(-4deg);
+}
+
+.hero-visual-image {
+  position: relative;
+  z-index: 2;
+  filter: saturate(0.96) contrast(1.04) drop-shadow(0 28px 24px rgba(0, 0, 0, 0.42));
+  transform: translateY(2%);
+}
+
+.hero-visual-glow {
+  opacity: 0.72;
+}
+
+.hero-visual-glow::before,
+.hero-visual-glow::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  bottom: 10%;
+  border-radius: 6px;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.38);
+}
+
+.hero-visual-glow::before {
+  left: 8%;
+  width: clamp(42px, 5vw, 68px);
+  height: clamp(34px, 4vw, 54px);
+  background:
+    linear-gradient(90deg, transparent 48%, rgba(74, 51, 26, 0.72) 49% 51%, transparent 52%),
+    linear-gradient(0deg, rgba(74, 51, 26, 0.7) 48%, transparent 49%),
+    #c99a58;
+  border: 1px solid rgba(0, 0, 0, 0.26);
+}
+
+.hero-visual-glow::after {
+  left: 16%;
+  width: clamp(34px, 4vw, 54px);
+  height: clamp(28px, 3.2vw, 44px);
+  transform: translateY(-72%);
+  background:
+    linear-gradient(90deg, transparent 48%, rgba(74, 51, 26, 0.72) 49% 51%, transparent 52%),
+    linear-gradient(0deg, rgba(74, 51, 26, 0.7) 48%, transparent 49%),
+    #ddb276;
+  border: 1px solid rgba(0, 0, 0, 0.24);
+}
+
+.floating-card {
+  border-color: rgba(245, 196, 0, 0.23);
+  background: rgba(18, 17, 14, 0.86);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42);
+}
+
+.floating-card::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-yellow);
+  box-shadow: 0 0 0 4px rgba(245, 196, 0, 0.12);
+}
+
+/* --------------------------------------------------------------------------
+   Hizmet kartları: her kart bağımsız bir iş istasyonu
+   -------------------------------------------------------------------------- */
+
+.services-grid {
+  align-items: stretch;
+}
+
+.service-card {
+  --scene-label: "İŞ İSTASYONU";
+  position: relative;
+  isolation: isolate;
+  min-height: 390px;
+  padding-top: clamp(8.5rem, 14vw, 10rem);
+  overflow: hidden;
+  border: 1px solid var(--mini-line-strong);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(248, 244, 235, 0.96));
+  box-shadow: var(--mini-card-shadow);
+}
+
+.service-card::before {
+  content: var(--scene-label);
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: clamp(7rem, 12vw, 8.5rem);
+  display: flex;
+  align-items: flex-end;
+  padding: 0.65rem 0.8rem;
+  font-family: var(--font-heading);
+  font-size: 0.58rem;
+  font-weight: var(--weight-black);
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.64);
+  background:
+    radial-gradient(circle at 73% 28%, rgba(245, 196, 0, 0.22), transparent 22%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 22px),
+    linear-gradient(145deg, #171613, #29261f);
+  border-bottom: 1px solid rgba(18, 18, 18, 0.16);
+}
+
+.service-card::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: clamp(1.2rem, 2.4vw, 1.7rem);
+  right: clamp(1.2rem, 2.2vw, 1.7rem);
+  width: clamp(82px, 9vw, 112px);
+  height: clamp(72px, 8vw, 96px);
+  background:
+    radial-gradient(circle at 61% 17%, #d2a17c 0 8%, transparent 9%),
+    linear-gradient(90deg, transparent 0 49%, #f5c400 50% 69%, transparent 70%) 0 38% / 100% 38% no-repeat,
+    linear-gradient(75deg, transparent 0 46%, #191919 47% 56%, transparent 57%) 48% 100% / 28% 45% no-repeat,
+    linear-gradient(105deg, transparent 0 46%, #191919 47% 56%, transparent 57%) 73% 100% / 28% 45% no-repeat,
+    linear-gradient(90deg, transparent 0 8%, rgba(77, 52, 27, 0.78) 9% 10%, transparent 11% 48%, rgba(77, 52, 27, 0.78) 49% 50%, transparent 51%) 0 100% / 52% 46% no-repeat,
+    linear-gradient(0deg, transparent 0 42%, rgba(77, 52, 27, 0.75) 43% 45%, transparent 46%) 0 100% / 52% 46% no-repeat,
+    linear-gradient(180deg, #c99a58, #ae7a3c) 0 100% / 52% 46% no-repeat;
+  filter: drop-shadow(0 8px 5px rgba(0, 0, 0, 0.42));
+}
+
+.service-card:nth-child(1) { --scene-label: "EV TAŞIMA DİORAMASI"; }
+.service-card:nth-child(2) { --scene-label: "UZUN YOL PLANLAMASI"; }
+.service-card:nth-child(3) { --scene-label: "OFİS YÜKLEME ALANI"; }
+.service-card:nth-child(4) { --scene-label: "PARÇA EŞYA İSTASYONU"; }
+.service-card:nth-child(5) { --scene-label: "KORUYUCU PAKETLEME"; }
+.service-card:nth-child(6) { --scene-label: "MONTAJ ATÖLYESİ"; }
+.service-card:nth-child(7) { --scene-label: "DIŞ CEPHE ASANSÖRÜ"; }
+
+.service-card:nth-child(even)::after {
+  right: auto;
+  left: clamp(1.2rem, 2.2vw, 1.7rem);
+  transform: scaleX(-1);
+}
+
+.service-card:hover {
+  border-color: rgba(217, 170, 0, 0.58);
+  box-shadow: var(--mini-card-shadow-hover);
+  transform: translateY(-6px);
+}
+
+.service-card-top {
+  position: relative;
+  z-index: 3;
+}
+
+.service-index {
+  color: rgba(18, 18, 18, 0.48);
+  font-variant-numeric: tabular-nums;
+}
+
+.service-icon {
+  border-color: rgba(18, 18, 18, 0.16);
+  background: var(--color-yellow);
+  color: var(--color-black);
+  box-shadow: 0 8px 18px rgba(245, 196, 0, 0.18);
+}
+
+/* --------------------------------------------------------------------------
+   Hakkımızda: çerçeveli maket vitrini
+   -------------------------------------------------------------------------- */
+
+.section-dark {
+  background:
+    radial-gradient(circle at 18% 36%, rgba(245, 196, 0, 0.09), transparent 25rem),
+    linear-gradient(135deg, #0d0d0c, #1e1b17 58%, #10100f);
+}
+
+.about-visual {
+  padding: clamp(0.65rem, 1.4vw, 1rem);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: var(--radius-xl);
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 26px),
+    rgba(255, 255, 255, 0.03);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.42);
+}
+
+.about-visual::before {
+  content: "MAKET SAHNE 02  •  DİKKATLİ TAŞIMA";
+  position: absolute;
+  z-index: 5;
+  top: 1.1rem;
+  left: 1.1rem;
+  padding: 0.4rem 0.65rem;
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: var(--weight-black);
+  letter-spacing: 0.12em;
+  color: var(--color-yellow);
+  border: 1px solid rgba(245, 196, 0, 0.32);
+  border-radius: var(--radius-pill);
+  background: rgba(10, 10, 10, 0.78);
+}
+
+.about-scene {
+  overflow: hidden;
+  border-radius: calc(var(--radius-xl) - 8px);
+}
+
+.about-scene img {
+  filter: saturate(0.92) contrast(1.05);
+}
+
+.benefit-item {
+  border-bottom-color: rgba(255, 255, 255, 0.11);
+}
+
+.benefit-check {
+  box-shadow: 0 0 0 5px rgba(245, 196, 0, 0.1);
+}
+
+/* --------------------------------------------------------------------------
+   Süreç: tek parça üretim bandı
+   -------------------------------------------------------------------------- */
+
+.process-grid {
+  position: relative;
+  gap: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+.process-grid::before {
+  content: "";
+  position: absolute;
+  top: 3.1rem;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--color-yellow) 0 10px, transparent 10px 18px);
+  opacity: 0.72;
+}
+
+.process-card {
+  position: relative;
+  z-index: 1;
+  min-height: 320px;
+  padding-top: 6.6rem;
+  overflow: hidden;
+  border: 1px solid var(--mini-line-strong);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: var(--mini-card-shadow);
+}
+
+.process-card::before {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  width: 58px;
+  height: 72px;
+  transform: translateX(-50%);
+  background:
+    radial-gradient(circle at 50% 12%, #d3a27c 0 10%, transparent 11%),
+    linear-gradient(90deg, transparent 0 22%, #f5c400 23% 77%, transparent 78%) 50% 44% / 100% 44% no-repeat,
+    linear-gradient(74deg, transparent 0 46%, #171717 47% 57%, transparent 58%) 26% 100% / 45% 42% no-repeat,
+    linear-gradient(106deg, transparent 0 46%, #171717 47% 57%, transparent 58%) 74% 100% / 45% 42% no-repeat;
+  filter: drop-shadow(0 7px 5px rgba(0, 0, 0, 0.24));
+}
+
+.process-card::after {
+  content: "";
+  position: absolute;
+  top: 4.6rem;
+  left: 18%;
+  right: 18%;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, rgba(18, 18, 18, 0.15), rgba(245, 196, 0, 0.7), rgba(18, 18, 18, 0.15));
+}
+
+.process-number {
+  border-color: rgba(18, 18, 18, 0.18);
+  background: var(--mini-paper);
+}
+
+/* --------------------------------------------------------------------------
+   Harita, SSS, teklif ve galeri
+   -------------------------------------------------------------------------- */
+
+.coverage-section {
+  background:
+    radial-gradient(circle at 78% 35%, rgba(245, 196, 0, 0.12), transparent 28rem),
+    var(--mini-paper-deep);
+}
+
+.coverage-map {
+  padding: clamp(0.55rem, 1vw, 0.8rem);
+  border: 1px solid var(--mini-line-strong);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: var(--mini-card-shadow);
+}
+
+.coverage-map::before {
+  content: "ROTA PLANLAMA MASASI";
+  position: absolute;
+  z-index: 3;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.35rem 0.58rem;
+  font-family: var(--font-heading);
+  font-size: 0.58rem;
+  font-weight: var(--weight-black);
+  letter-spacing: 0.12em;
+  color: var(--color-yellow);
+  border-radius: var(--radius-pill);
+  background: rgba(11, 11, 11, 0.82);
+}
+
+.faq-item,
+.quote-form,
+.gallery-trigger {
+  border-color: var(--mini-line-strong);
+  box-shadow: var(--mini-card-shadow);
+}
+
+.faq-item {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.quote-section {
+  background:
+    radial-gradient(circle at 78% 28%, rgba(245, 196, 0, 0.13), transparent 26rem),
+    linear-gradient(135deg, #0d0d0c, #1d1a16 62%, #10100e);
+}
+
+.quote-form {
+  position: relative;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    rgba(255, 255, 255, 0.055);
+  background-size: 22px 22px;
+}
+
+.quote-form::before {
+  content: "TEKLİF HAZIRLAMA MASASI";
+  display: inline-flex;
+  margin-bottom: 1rem;
+  padding: 0.38rem 0.65rem;
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: var(--weight-black);
+  letter-spacing: 0.12em;
+  color: var(--color-yellow);
+  border: 1px solid rgba(245, 196, 0, 0.3);
+  border-radius: var(--radius-pill);
+}
+
+.gallery-grid {
+  align-items: stretch;
+}
+
+.gallery-trigger {
+  position: relative;
+  overflow: hidden;
+  background: #161512;
+}
+
+.gallery-trigger::before {
+  content: "SAHA KAYDI";
+  position: absolute;
+  z-index: 3;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.34rem 0.55rem;
+  font-family: var(--font-heading);
+  font-size: 0.55rem;
+  font-weight: var(--weight-black);
+  letter-spacing: 0.12em;
+  color: var(--color-yellow);
+  border: 1px solid rgba(245, 196, 0, 0.3);
+  border-radius: var(--radius-pill);
+  background: rgba(11, 11, 11, 0.78);
+}
+
+.gallery-image {
+  transition: transform var(--transition-slow), filter var(--transition-normal);
+}
+
+.gallery-trigger:hover .gallery-image {
+  transform: scale(1.035);
+  filter: saturate(1.03) contrast(1.03);
+}
+
+.site-footer {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    #0b0b0b;
+  background-size: 26px 26px;
+}
+
+/* --------------------------------------------------------------------------
+   Alt sayfalar: mevcut sınıflar üzerinden aynı dilin sürdürülmesi
+   -------------------------------------------------------------------------- */
+
+.page-hero,
+.subpage-hero,
+.inner-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 76% 38%, rgba(245, 196, 0, 0.15), transparent 26rem),
+    linear-gradient(135deg, #0b0b0a, #201d18 60%, #11110f) !important;
+}
+
+.page-hero::after,
+.subpage-hero::after,
+.inner-hero::after {
+  content: "MİNYATÜR İŞÇİLİK • GERÇEK SAHA DENEYİMİ";
+  position: absolute;
+  right: max(calc(var(--container-gutter) / 2), env(safe-area-inset-right, 0px));
+  bottom: 1.25rem;
+  font-family: var(--font-heading);
+  font-size: 0.58rem;
+  font-weight: var(--weight-black);
+  letter-spacing: 0.13em;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive doğrulama katmanı
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1080px) {
+  .hero {
+    min-height: auto;
+  }
+
+  .hero-overlay {
+    background: linear-gradient(180deg, rgba(8, 8, 8, 0.9) 0%, rgba(8, 8, 8, 0.58) 48%, rgba(8, 8, 8, 0.3) 100%);
+  }
+
+  .process-grid::before {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  body {
+    background-size: 20px 20px;
+  }
+
+  .section-heading::after {
+    position: static;
+    display: block;
+    margin-top: 0.85rem;
+  }
+
+  .hero-content::before {
+    font-size: 0.61rem;
+    letter-spacing: 0.1em;
+  }
+
+  .hero-title {
+    max-width: none;
+  }
+
+  .hero-visual {
+    padding: 0.7rem;
+    border-radius: 1.25rem;
+  }
+
+  .hero-visual::after {
+    right: 4%;
+    bottom: 5%;
+  }
+
+  .hero-visual-glow::before,
+  .hero-visual-glow::after {
+    left: 4%;
+  }
+
+  .hero-visual-glow::after {
+    left: 14%;
+  }
+
+  .service-card {
+    min-height: 360px;
+    padding-top: 8.15rem;
+  }
+
+  .service-card::before {
+    height: 7.25rem;
+  }
+
+  .service-card::after {
+    width: 86px;
+    height: 74px;
+  }
+
+  .process-card {
+    min-height: 0;
+  }
+
+  .about-visual::before,
+  .coverage-map::before,
+  .gallery-trigger::before {
+    font-size: 0.52rem;
+  }
+}
+
+@media (max-width: 440px) {
+  .hero-content::before,
+  .about-visual::before,
+  .coverage-map::before,
+  .quote-form::before,
+  .gallery-trigger::before {
+    letter-spacing: 0.08em;
+  }
+
+  .floating-card {
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.36);
+  }
+
+  .service-card {
+    border-radius: var(--radius-md);
+  }
+
+  .page-hero::after,
+  .subpage-hero::after,
+  .inner-hero::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .service-card,
+  .gallery-image,
+  .hero-visual-image {
+    transition: none !important;
+    transform: none !important;
+  }
+}
