@@ -1,0 +1,50 @@
+name: Minyatür tema çıktıları
+
+on:
+  push:
+    branches:
+      - feat/minyatur-iscilik-yeniden-tasarim
+    paths:
+      - 'assets/css/miniature-theme.css'
+      - 'assets/css/footer-map.css'
+      - 'tools/apply_miniature_theme.py'
+      - '.github/workflows/apply-miniature-theme.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Depoyu al
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: HTML asset sürümünü güncelle
+        run: python3 tools/apply_miniature_theme.py
+
+      - name: Değişiklikleri doğrula
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          files = [p for p in Path('.').rglob('*.html') if '.git' not in p.parts and 'node_modules' not in p.parts]
+          missing = [str(p) for p in files if '/assets/css/footer-map.css?v=36' in p.read_text(encoding='utf-8')]
+          if missing:
+              raise SystemExit('Eski footer-map sürümü kalan dosyalar: ' + ', '.join(missing))
+          print(f'{len(files)} HTML dosyası doğrulandı.')
+          PY
+
+      - name: Oluşan statik çıktıları kaydet
+        run: |
+          if git diff --quiet; then
+            echo "Kaydedilecek değişiklik yok."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- '*.html' 'sablon/*.html'
+          git commit -m "Minyatür tema asset sürümünü statik çıktılara uygula [skip ci]"
+          git push
