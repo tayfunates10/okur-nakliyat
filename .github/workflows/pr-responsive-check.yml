@@ -1,0 +1,79 @@
+name: PR tasarım ve responsive kontrolü
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - 'assets/css/**'
+      - 'assets/js/**'
+      - 'sablon/**'
+      - 'sayfalar/**'
+      - 'tools/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/pr-responsive-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Statik çıktı ve responsive denetimi
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Depoyu al
+        uses: actions/checkout@v4
+
+      - name: Python sürümü
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Üretilen sayfalar şablonla eşleşiyor mu
+        run: python3 tools/sayfa.py --kontrol
+
+      - name: Node.js sürümü
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Geliştirme bağımlılıklarını kur
+        run: npm ci
+
+      - name: Chromium kur
+        run: npx playwright install --with-deps chromium
+
+      - name: Statik sunucuyu başlat
+        run: |
+          python3 -m http.server 8099 > /tmp/okur-http.log 2>&1 &
+          echo $! > /tmp/okur-http.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8099/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/okur-http.log
+          exit 1
+
+      - name: Responsive denetimi çalıştır
+        env:
+          BASE_URL: http://127.0.0.1:8099
+        run: npm run test:responsive
+
+      - name: Denetim raporlarını yükle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: responsive-denetim-raporlari
+          path: |
+            docs/responsive-ui-audit.md
+            docs/final-ui-report.md
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
