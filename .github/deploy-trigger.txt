@@ -1,0 +1,3 @@
+Okur Nakliyat production deployment trigger
+Triggered at: 2026-08-06 20:47 Europe/Istanbul
+Target: cPanel public_html via GitHub Actions FTPS
