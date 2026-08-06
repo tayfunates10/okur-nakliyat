@@ -10,6 +10,16 @@ gider. `.b64` dosyaları, GitHub metin dosyası yükleme kanalından aktarılan
 PNG/JPEG/WebP görsellerinin saf Base64 içeriğini taşır ve işlem sırasında
 bellekte çözülür.
 
+Büyük Base64 kaynakları parçalara ayrılabilir. Bu durumda `.b64` dosyası küçük
+bir bildirim dosyası olur:
+
+    @parts
+    foto.webp.b64.part01
+    foto.webp.b64.part02
+
+Parçalar aynı klasörden sırayla okunup birleştirilir. Parça dosyaları doğrudan
+görsel olarak taranmaz.
+
 Fotoğrafın altına marka bandı (logo, telefon, adres) basan bir sürümü vardı;
 bant istenmediği için kaldırıldı. Bu araç artık yalnızca kırpma, ölçekleme ve
 WebP'ye çevirme yapıyor.
@@ -38,6 +48,7 @@ AYAR = json.loads((KOK / "tools" / "galeri-goruntu.json").read_text(encoding="ut
 
 UZANTILAR = {".jpg", ".jpeg", ".png", ".webp"}
 BASE64_UZANTISI = ".b64"
+BASE64_PARCA_BASLIGI = "@parts"
 
 
 def kaynak_mi(yol: Path) -> bool:
@@ -49,12 +60,34 @@ def kaynak_mi(yol: Path) -> bool:
     return Path(yol.stem).suffix.lower() in UZANTILAR
 
 
+def base64_metnini_oku(kaynak: Path) -> str:
+    """Tek Base64 metnini veya güvenli parça bildirimini birleştirir."""
+    metin = kaynak.read_text(encoding="ascii").strip()
+    satirlar = [satir.strip() for satir in metin.splitlines() if satir.strip()]
+    if not satirlar or satirlar[0] != BASE64_PARCA_BASLIGI:
+        return metin
+
+    parca_adlari = satirlar[1:]
+    if not parca_adlari:
+        raise ValueError(f"Base64 parça bildirimi boş: {kaynak}")
+
+    parcalar = []
+    for ad in parca_adlari:
+        parca = kaynak.parent / ad
+        if Path(ad).name != ad or parca.parent != kaynak.parent:
+            raise ValueError(f"güvensiz Base64 parça yolu: {ad}")
+        if not parca.is_file():
+            raise FileNotFoundError(f"Base64 parçası bulunamadı: {parca}")
+        parcalar.append(parca.read_text(encoding="ascii").strip())
+    return "".join(parcalar)
+
+
 def fotograf_ac(kaynak: Path) -> Image.Image:
-    """Normal görseli veya saf Base64 metnini Pillow ile açar."""
+    """Normal görseli veya saf/parçalı Base64 metnini Pillow ile açar."""
     if kaynak.suffix.lower() != BASE64_UZANTISI:
         return Image.open(kaynak)
 
-    kodlanmis = kaynak.read_text(encoding="ascii").strip()
+    kodlanmis = base64_metnini_oku(kaynak)
     try:
         ham = base64.b64decode(kodlanmis, validate=True)
     except ValueError as hata:
