@@ -1,4 +1,4 @@
 Okur Nakliyat production deployment trigger
-Triggered at: 2026-08-06 20:50 Europe/Istanbul
+Triggered at: 2026-08-06 20:52 Europe/Istanbul
 Method: pull request merge to main
 Target: cPanel public_html via GitHub Actions FTPS
