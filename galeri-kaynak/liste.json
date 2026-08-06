@@ -24,6 +24,26 @@
       "no": 2,
       "aciklama": "Taşıma için adrese yanaşan Okur Nakliyat aracı",
       "alt": "Okur Nakliyat aracı bir apartmanın önüne yanaşmış, kasasındaki sarı brandada marka adı okunuyor"
+    },
+    {
+      "no": 3,
+      "aciklama": "Edremit'te eşyaların koruyucu battaniyelerle sabitlenerek yüklendiği araç içi",
+      "alt": "Okur Nakliyat aracının içinde kırmızı koruyucu battaniyelere sarılmış ve halatlarla sabitlenmiş mobilyalar"
+    },
+    {
+      "no": 4,
+      "aciklama": "Edremit'te taşıma hizmetine hazır Okur Nakliyat aracı",
+      "alt": "Okur Nakliyat'ın sarı kasalı kapalı kasa aracı Edremit'te taşıma öncesinde açık alanda bekliyor"
+    },
+    {
+      "no": 5,
+      "aciklama": "Edremit'te yükleme sırasında arka kapısı açık Okur Nakliyat aracı",
+      "alt": "Okur Nakliyat aracının arka kapısı açık, kırmızı koruyucu battaniyeye sarılmış eşya araca yükleniyor"
+    },
+    {
+      "no": 6,
+      "aciklama": "Edremit'te mobilyaların koruyucu malzemelerle düzenli yerleştirildiği araç içi",
+      "alt": "Okur Nakliyat aracının içinde koruyucu battaniye ve streçle sarılmış mobilyalar düzenli biçimde yerleştirilmiş"
     }
   ]
 }
