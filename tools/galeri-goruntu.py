@@ -2,14 +2,17 @@
 """
 Galeri fotoğraflarını siteye uygun boyutlara indirger.
 
-    galeri-kaynak/*.jpg  ->  assets/images/gallery/okur-nakliyat-galeri-NN-{600,900,1400}.webp
+    galeri-kaynak/*.jpg       -> assets/images/gallery/okur-nakliyat-galeri-NN-{600,900,1400}.webp
+    galeri-kaynak/*.webp.b64  -> assets/images/gallery/okur-nakliyat-galeri-NN-{600,900,1400}.webp
 
 Kaynak klasör yayına kopyalanmaz (bkz. deploy.yml); yalnızca çıktılar siteye
-gider.
+gider. `.b64` dosyaları saf Base64 içeriği veya `@parts` bildirimi taşıyabilir.
+Büyük kaynaklar aynı klasördeki `.partNN` metin dosyalarına bölünebilir.
 
-Fotoğrafın altına marka bandı (logo, telefon, adres) basan bir sürümü vardı;
-bant istenmediği için kaldırıldı. Bu araç artık yalnızca kırpma, ölçekleme ve
-WebP'ye çevirme yapıyor.
+Fotoğrafın altına marka bandı (logo, telefon, adres) basan bir sürüm vardı;
+bant istenmediği için kaldırıldı. Bu araç yalnızca kırpma, ölçekleme ve
+WebP'ye çevirme yapar. Kaynağın içinde hazır bir marka bandı varsa onu görselin
+bir parçası olarak korur.
 
 Oran çıktının tamamı için geçerlidir: galeri kartı CSS'te 4:3 ve
 `object-fit: cover` kullanıyor, kaynak ne olursa olsun 4:3'e getirilir.
@@ -20,6 +23,8 @@ Kullanım:
     python3 tools/galeri-goruntu.py --temiz         # önce eski çıktıları siler
 """
 
+import base64
+import io
 import json
 import sys
 from pathlib import Path
@@ -31,7 +36,56 @@ KAYNAK = KOK / "galeri-kaynak"
 CIKTI = KOK / "assets" / "images" / "gallery"
 AYAR = json.loads((KOK / "tools" / "galeri-goruntu.json").read_text(encoding="utf-8"))
 
-UZANTILAR = {".jpg", ".jpeg", ".png", ".webp", ".JPG", ".JPEG", ".PNG", ".WEBP"}
+UZANTILAR = {".jpg", ".jpeg", ".png", ".webp"}
+BASE64_UZANTISI = ".b64"
+BASE64_PARCA_BASLIGI = "@parts"
+
+
+def kaynak_mi(yol: Path) -> bool:
+    """Desteklenen normal görselleri ve Base64 kaynaklarını seçer."""
+    if yol.suffix.lower() in UZANTILAR:
+        return True
+    if yol.suffix.lower() != BASE64_UZANTISI:
+        return False
+    return Path(yol.stem).suffix.lower() in UZANTILAR
+
+
+def base64_metnini_oku(kaynak: Path) -> str:
+    """Tek Base64 metnini veya güvenli parça bildirimini birleştirir."""
+    metin = kaynak.read_text(encoding="ascii").strip()
+    satirlar = [satir.strip() for satir in metin.splitlines() if satir.strip()]
+    if not satirlar or satirlar[0] != BASE64_PARCA_BASLIGI:
+        return metin
+
+    parca_adlari = satirlar[1:]
+    if not parca_adlari:
+        raise ValueError(f"Base64 parça bildirimi boş: {kaynak}")
+
+    parcalar: list[str] = []
+    for ad in parca_adlari:
+        parca = kaynak.parent / ad
+        if Path(ad).name != ad or parca.parent != kaynak.parent:
+            raise ValueError(f"güvensiz Base64 parça yolu: {ad}")
+        if not parca.is_file():
+            raise FileNotFoundError(f"Base64 parçası bulunamadı: {parca}")
+        parcalar.append(parca.read_text(encoding="ascii").strip())
+    return "".join(parcalar)
+
+
+def fotograf_ac(kaynak: Path) -> Image.Image:
+    """Normal görseli veya saf/parçalı Base64 metnini Pillow ile açar."""
+    if kaynak.suffix.lower() != BASE64_UZANTISI:
+        return Image.open(kaynak)
+
+    kodlanmis = base64_metnini_oku(kaynak)
+    try:
+        ham = base64.b64decode(kodlanmis, validate=True)
+    except (ValueError, base64.binascii.Error) as hata:
+        raise ValueError(f"geçersiz Base64 galeri kaynağı: {kaynak}") from hata
+
+    with Image.open(io.BytesIO(ham)) as foto:
+        foto.load()
+        return foto.copy()
 
 
 def kirp_oranla(im: Image.Image, en: int, boy: int) -> Image.Image:
@@ -52,7 +106,7 @@ def kirp_oranla(im: Image.Image, en: int, boy: int) -> Image.Image:
 
 
 def isle(kaynak: Path, sira: int) -> list[Path]:
-    foto = Image.open(kaynak)
+    foto = fotograf_ac(kaynak)
     if foto.mode != "RGB":
         foto = foto.convert("RGB")
 
@@ -85,7 +139,7 @@ def main() -> int:
         if not KAYNAK.exists():
             print(f"kaynak klasör yok: {KAYNAK}")
             return 1
-        dosyalar = sorted(p for p in KAYNAK.iterdir() if p.suffix in UZANTILAR)
+        dosyalar = sorted(p for p in KAYNAK.iterdir() if kaynak_mi(p))
 
     if not dosyalar:
         print(f"kaynak klasörde fotoğraf yok ({KAYNAK}) — yapılacak iş yok")
