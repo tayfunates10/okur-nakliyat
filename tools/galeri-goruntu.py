@@ -2,10 +2,13 @@
 """
 Galeri fotoğraflarını siteye uygun boyutlara indirger.
 
-    galeri-kaynak/*.jpg  ->  assets/images/gallery/okur-nakliyat-galeri-NN-{600,900,1400}.webp
+    galeri-kaynak/*.jpg      -> assets/images/gallery/okur-nakliyat-galeri-NN-{600,900,1400}.webp
+    galeri-kaynak/*.png.b64  -> assets/images/gallery/okur-nakliyat-galeri-NN-{600,900,1400}.webp
 
 Kaynak klasör yayına kopyalanmaz (bkz. deploy.yml); yalnızca çıktılar siteye
-gider.
+gider. `.b64` dosyaları, GitHub metin dosyası yükleme kanalından aktarılan
+PNG/JPEG/WebP görsellerinin saf Base64 içeriğini taşır ve işlem sırasında
+bellekte çözülür.
 
 Fotoğrafın altına marka bandı (logo, telefon, adres) basan bir sürümü vardı;
 bant istenmediği için kaldırıldı. Bu araç artık yalnızca kırpma, ölçekleme ve
@@ -20,6 +23,8 @@ Kullanım:
     python3 tools/galeri-goruntu.py --temiz         # önce eski çıktıları siler
 """
 
+import base64
+import io
 import json
 import sys
 from pathlib import Path
@@ -31,7 +36,30 @@ KAYNAK = KOK / "galeri-kaynak"
 CIKTI = KOK / "assets" / "images" / "gallery"
 AYAR = json.loads((KOK / "tools" / "galeri-goruntu.json").read_text(encoding="utf-8"))
 
-UZANTILAR = {".jpg", ".jpeg", ".png", ".webp", ".JPG", ".JPEG", ".PNG", ".WEBP"}
+UZANTILAR = {".jpg", ".jpeg", ".png", ".webp"}
+BASE64_UZANTISI = ".b64"
+
+
+def kaynak_mi(yol: Path) -> bool:
+    """Desteklenen normal görselleri ve Base64 kaynaklarını seçer."""
+    if yol.suffix.lower() in UZANTILAR:
+        return True
+    if yol.suffix.lower() != BASE64_UZANTISI:
+        return False
+    return Path(yol.stem).suffix.lower() in UZANTILAR
+
+
+def fotograf_ac(kaynak: Path) -> Image.Image:
+    """Normal görseli veya saf Base64 metnini Pillow ile açar."""
+    if kaynak.suffix.lower() != BASE64_UZANTISI:
+        return Image.open(kaynak)
+
+    kodlanmis = kaynak.read_text(encoding="ascii").strip()
+    try:
+        ham = base64.b64decode(kodlanmis, validate=True)
+    except ValueError as hata:
+        raise ValueError(f"geçersiz Base64 galeri kaynağı: {kaynak}") from hata
+    return Image.open(io.BytesIO(ham))
 
 
 def kirp_oranla(im: Image.Image, en: int, boy: int) -> Image.Image:
@@ -52,7 +80,7 @@ def kirp_oranla(im: Image.Image, en: int, boy: int) -> Image.Image:
 
 
 def isle(kaynak: Path, sira: int) -> list[Path]:
-    foto = Image.open(kaynak)
+    foto = fotograf_ac(kaynak)
     if foto.mode != "RGB":
         foto = foto.convert("RGB")
 
@@ -85,7 +113,7 @@ def main() -> int:
         if not KAYNAK.exists():
             print(f"kaynak klasör yok: {KAYNAK}")
             return 1
-        dosyalar = sorted(p for p in KAYNAK.iterdir() if p.suffix in UZANTILAR)
+        dosyalar = sorted(p for p in KAYNAK.iterdir() if kaynak_mi(p))
 
     if not dosyalar:
         print(f"kaynak klasörde fotoğraf yok ({KAYNAK}) — yapılacak iş yok")
