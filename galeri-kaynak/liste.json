@@ -5,14 +5,18 @@
     "1. Ham fotoğrafı bu klasöre koyun ve başına sıra numarası verin:",
     "   07-yukleme.jpg  ->  numara 7",
     "2. Aşağıdaki 'fotograflar' dizisinin SONUNA bir satır ekleyin.",
-    "3. main dalına gönderin. Çerçeve iş akışı WebP'leri üretir,",
+    "3. main dalına gönderin. Galeri iş akışı WebP'leri üretir,",
     "   tools/sayfa.py galeri bölümünü ve /galeri/ sayfasını yeniden yazar.",
     "",
     "Sıra: numarası büyük olan fotoğraf sitede EN BAŞTA görünür.",
     "Yani sona eklediğiniz fotoğraf en başa geçer.",
     "",
     "'aciklama' hem fotoğrafın altındaki yazı hem de alt metni olur;",
-    "boş bırakmayın, arama motoru ve ekran okuyucu bunu kullanıyor."
+    "boş bırakmayın, arama motoru ve ekran okuyucu bunu kullanıyor.",
+    "",
+    "Hazır 600/900/1400 WebP dosyaları doğrudan assets/images/gallery/ altına",
+    "eklenmişse ham kaynak bulunmasa da listedeki numaraların hazır çıktıları",
+    "galeri-goruntu.py --temiz tarafından korunur."
   ],
   "fotograflar": [
     {
@@ -24,6 +28,26 @@
       "no": 2,
       "aciklama": "Taşıma için adrese yanaşan Okur Nakliyat aracı",
       "alt": "Okur Nakliyat aracı bir apartmanın önüne yanaşmış, kasasındaki sarı brandada marka adı okunuyor"
+    },
+    {
+      "no": 3,
+      "aciklama": "Edremit'te eşyaların koruyucu battaniyelerle sabitlenerek yüklendiği araç içi",
+      "alt": "Okur Nakliyat aracının içinde kırmızı koruyucu battaniyelere sarılmış ve halatlarla sabitlenmiş mobilyalar"
+    },
+    {
+      "no": 4,
+      "aciklama": "Edremit'te taşıma hizmetine hazır Okur Nakliyat aracı",
+      "alt": "Okur Nakliyat'ın sarı kasalı kapalı kasa aracı Edremit'te taşıma öncesinde açık alanda bekliyor"
+    },
+    {
+      "no": 5,
+      "aciklama": "Edremit'te yükleme sırasında arka kapısı açık Okur Nakliyat aracı",
+      "alt": "Okur Nakliyat aracının arka kapısı açık, kırmızı koruyucu battaniyeye sarılmış eşya araca yükleniyor"
+    },
+    {
+      "no": 6,
+      "aciklama": "Edremit'te mobilyaların koruyucu malzemelerle düzenli yerleştirildiği araç içi",
+      "alt": "Okur Nakliyat aracının içinde koruyucu battaniye ve streçle sarılmış mobilyalar düzenli biçimde yerleştirilmiş"
     }
   ]
 }
